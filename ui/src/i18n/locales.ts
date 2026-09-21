@@ -38,4 +38,11 @@ export const i18nextResources: Resource = Object.fromEntries(
   Object.entries(localeMessages).map(([locale, messages]) => [locale, { translation: messages }]),
 ) as Resource;
 
-export type SupportedLocale = keyof typeof localeMessages;
+// `keyof typeof localeMessages` alone types as `string | number`: localeMessages
+// is built from a dynamic `import.meta.glob()` result, so TS only sees it through
+// an index signature, and `keyof { [k: string]: T }` includes `number` (numeric
+// string keys are valid too). Intersecting with `string` drops that phantom
+// `number` branch. There's no way to recover real locale-code literal types from
+// a glob-built object anyway, so this is honestly just `string` — but keeping the
+// `keyof` shape self-documents "this is meant to be one of the loaded locales".
+export type SupportedLocale = keyof typeof localeMessages & string;

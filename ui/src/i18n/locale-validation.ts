@@ -90,12 +90,13 @@ function validateNode(path: string[], candidate: unknown, englishReference: unkn
 
   const englishKeys = Object.keys(englishReference).sort();
   const candidateKeys = Object.keys(candidate).sort();
-  const missingKeys = englishKeys.filter((key) => !candidateKeys.includes(key));
+  // Keyless i18n: candidates are progressively translated, so a key present in
+  // English but absent from a candidate locale is expected (it falls back to the
+  // English key text at runtime) rather than an error. A key the candidate has
+  // that English does NOT is still an error — that's either a typo or a
+  // translation of something that no longer exists in the source.
   const extraKeys = candidateKeys.filter((key) => !englishKeys.includes(key));
 
-  for (const key of missingKeys) {
-    errors.push(`${formatPath([...path, key])} is missing`);
-  }
   for (const key of extraKeys) {
     errors.push(`${formatPath([...path, key])} is not defined in English`);
   }

@@ -587,10 +587,9 @@ export function OnboardingRoutePage() {
               say why instead of rendering an inert control. */}
           {!matchedCompany && cloudInstance && !createStackUrl ? (
             <p className="text-sm text-muted-foreground">
-              {t("app.cloudCreateUnavailable", {
-                defaultValue:
-                  "Organizations are created in Paperclip Cloud. This instance can't reach it right now — try again from your Cloud portfolio.",
-              })}
+              {t(
+                "Organizations are created in Paperclip Cloud. This instance can't reach it right now — try again from your Cloud portfolio.",
+              )}
             </p>
           ) : (
             <Button
@@ -706,20 +705,19 @@ function NoCompaniesStartPage() {
     <div className="mx-auto max-w-xl py-10">
       <div className="rounded-lg border border-border bg-card p-6">
         <h1 className="text-xl font-semibold">
-          {t("app.noCompanies.title", { defaultValue: "Create your first organization" })}
+          {t("Create your first organization")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {t("app.noCompanies.description", { defaultValue: "Get started by creating an organization." })}
+          {t("Get started by creating an organization.")}
         </p>
         <div className="mt-4">
           {/* Same as the onboarding route: no Cloud origin means nowhere to
               send the click, and in-app creation is a 403 floor here. */}
           {cloudInstance && !createStackUrl ? (
             <p className="text-sm text-muted-foreground">
-              {t("app.cloudCreateUnavailable", {
-                defaultValue:
-                  "Organizations are created in Paperclip Cloud. This instance can't reach it right now — try again from your Cloud portfolio.",
-              })}
+              {t(
+                "Organizations are created in Paperclip Cloud. This instance can't reach it right now — try again from your Cloud portfolio.",
+              )}
             </p>
           ) : (
             <Button
@@ -729,7 +727,7 @@ function NoCompaniesStartPage() {
                   : openOnboarding()
               }
             >
-              {t("app.noCompanies.newCompany", { defaultValue: "New Organization" })}
+              {t("New Organization")}
             </Button>
           )}
         </div>

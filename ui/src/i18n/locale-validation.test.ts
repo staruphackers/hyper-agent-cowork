@@ -5,49 +5,56 @@ import { localeMessages } from "./locales";
 import { validateLocaleMessages } from "./locale-validation";
 
 describe("locale validation", () => {
-  it("resolves English messages with key and default fallbacks", () => {
-    expect(t("app.noCompanies.title")).toBe(en.app.noCompanies.title);
+  it("resolves messages using the source string as a keyless lookup", () => {
+    // Keyless mode: the key IS the English text. A key that exists in the active
+    // locale's resource bundle resolves to its translation...
+    expect(t("Create your first organization")).toBe(en["Create your first organization"]);
+    // ...and a key with no entry anywhere falls back to being displayed as-is,
+    // which for keyless mode means the original English text renders unchanged.
+    expect(t("Some untranslated string nobody wrapped yet")).toBe(
+      "Some untranslated string nobody wrapped yet",
+    );
     expect(t("app.missing", { defaultValue: "Fallback" })).toBe("Fallback");
-    expect(t("app.missing")).toBe("app.missing");
   });
 
   it("accepts registered locale files", () => {
     expect(Object.keys(localeMessages)).toContain("en");
+    expect(Object.keys(localeMessages)).toContain("zh-TW");
     for (const [locale, messages] of Object.entries(localeMessages)) {
       expect(validateLocaleMessages(messages), locale).toEqual([]);
     }
   });
 
-  it("rejects missing and extra nested keys", () => {
+  it("allows a locale to translate only a subset of English keys (progressive translation)", () => {
     expect(
       validateLocaleMessages({
-        app: {
-          noCompanies: {
-            title: en.app.noCompanies.title,
-            description: en.app.noCompanies.description,
-            unexpected: "Unexpected",
-          },
-        },
+        "Create your first organization": "建立您的第一家公司",
+        // "Get started by creating an organization." intentionally omitted.
+      }),
+    ).toEqual([]);
+  });
+
+  it("allows an empty object (untranslated placeholder locale)", () => {
+    expect(validateLocaleMessages({})).toEqual([]);
+  });
+
+  it("rejects keys not defined in English", () => {
+    expect(
+      validateLocaleMessages({
+        "Create your first organization": en["Create your first organization"],
+        "Some string that does not exist in English": "不存在",
       }),
     ).toEqual(
-      expect.arrayContaining([
-        "app.noCompanies.newCompany is missing",
-        "app.noCompanies.unexpected is not defined in English",
-      ]),
+      expect.arrayContaining(["Some string that does not exist in English is not defined in English"]),
     );
   });
 
   it("rejects non-string leaves", () => {
     expect(
       validateLocaleMessages({
-        app: {
-          noCompanies: {
-            ...en.app.noCompanies,
-            title: ["Create your first company"],
-          },
-        },
+        "Create your first organization": ["Create your first organization"],
       }),
-    ).toEqual(expect.arrayContaining(["app.noCompanies.title must be a string"]));
+    ).toEqual(expect.arrayContaining(["Create your first organization must be a string"]));
   });
 
   it("requires interpolation placeholders to match English", () => {
