@@ -1,1 +1,4 @@
 patches/*.patch whitespace=-space-before-tab
+
+# Hyper Agent Cowork: keep zh-TW README when merging upstream (requires: git config merge.ours.driver true)
+README.md merge=ours

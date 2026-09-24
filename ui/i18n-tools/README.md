@@ -118,3 +118,9 @@ key 裡本身若剛好含 `.` 或 `:` 不會被誤判成路徑分隔符——因
   沒有專門的排除規則——風險很低（未翻譯時就是原樣顯示，不影響功能），但如果之後真的手動把
   這類字串誤譯成中文，畫面上會出現被翻譯過的範例代碼。發現時個別處理即可，不值得為了這種
   邊角案例加一條通用規則。
+
+## README（繁中）同步
+
+- `README.md` 是繁中版，`README.en.md` 是上游英文原文；`.gitattributes` 設定 `README.md merge=ours`。
+- 新 clone 需先執行一次：`git config merge.ours.driver true`（否則合併時 `merge=ours` 不生效）。
+- 每次同步上游後：`git show up/master:README.md > README.en.md`，再 `git diff HEAD~ -- README.en.md` 看上游改了什麼，人工補進 `README.md`。
