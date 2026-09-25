@@ -199,10 +199,59 @@ function qualifiesAsTranslatable(text) {
 
 function qualifiesAsObjectValue(text) {
   if (!/^[A-Z]/.test(text)) return false;
-  if (!(text.includes(" ") || text.length >= 12)) return false;
   if (text.includes("/") || text.includes("_") || text.includes("{")) return false;
   if (text.includes("\n")) return false;
+  // A single capitalized word (`label: "Unread"`, `label: "Images"`) is how
+  // tab/filter/segment labels are written in option arrays. Identifier-ish
+  // values under the same keys are lowercase (`value: "mine"`) or contain
+  // `_`/`/`, so this stays selective.
+  if (qualifiesAsShortLabel(text)) return true;
+  if (!(text.includes(" ") || text.length >= 12)) return false;
   return true;
+}
+
+// One capitalized English word, 3+ letters: "Connect", "Reconnect", "Mine".
+// Used for object-literal display keys and for the literal branches of
+// ternary / `||` / `??` expressions sitting in a JSX child or whitelisted
+// attribute position (those are wrapped at runtime with __tv(...), so the
+// literal only needs to reach the string inventory to become translatable).
+function qualifiesAsShortLabel(text) {
+  return /^[A-Z][a-z]{2,}$/.test(text);
+}
+
+// Walks a ternary / logical expression and returns its string-literal (or
+// expression-free template) leaves. Only leaves that `collectDynStrings`
+// would NOT already harvest (single words without spaces/punctuation) are
+// returned, so extract.mjs never double-counts an occurrence.
+function collectBranchLiterals(expr, out = []) {
+  if (!expr) return out;
+  switch (expr.type) {
+    case "ConditionalExpression":
+      collectBranchLiterals(expr.consequent, out);
+      collectBranchLiterals(expr.alternate, out);
+      break;
+    case "LogicalExpression":
+      collectBranchLiterals(expr.left, out);
+      collectBranchLiterals(expr.right, out);
+      break;
+    case "StringLiteral":
+      if (qualifiesAsShortLabel(expr.value) && !looksLikeUiCopyText(expr.value)) {
+        out.push({ text: expr.value, start: expr.start, end: expr.end, line: expr.loc?.start.line ?? 0 });
+      }
+      break;
+    case "TemplateLiteral": {
+      if (expr.expressions.length === 0 && expr.quasis.length === 1) {
+        const raw = expr.quasis[0].value.cooked ?? expr.quasis[0].value.raw;
+        if (typeof raw === "string" && qualifiesAsShortLabel(raw) && !looksLikeUiCopyText(raw)) {
+          out.push({ text: raw, start: expr.start, end: expr.end, line: expr.loc?.start.line ?? 0 });
+        }
+      }
+      break;
+    }
+    default:
+      break;
+  }
+  return out;
 }
 
 // -----------------------------------------------------------------------------
@@ -421,6 +470,7 @@ function walk(ast, { objectKeys, onMatch }) {
               end: expr.end,
               line: expr.loc?.start.line ?? 0,
             });
+            for (const leaf of collectBranchLiterals(expr)) onMatch({ kind: "dyn", ...leaf });
           }
         }
         break;
@@ -447,6 +497,10 @@ function walk(ast, { objectKeys, onMatch }) {
           end: expr.end,
           line: expr.loc?.start.line ?? 0,
         });
+        // `{prev ? "Reconnect" : "Connect"}`: the ternary is __tv-wrapped at
+        // runtime; its single-word literal branches would otherwise never reach
+        // the inventory (collectDynStrings requires a space or punctuation).
+        for (const leaf of collectBranchLiterals(expr)) onMatch({ kind: "dyn", ...leaf });
         // Deliberately NOT added to seenAlready — see the matching comment in
         // the JSXAttribute case above; the walk must still descend into this
         // expression to find nested matches (e.g. `{cond ? <div title="X">Y</div> : null}`

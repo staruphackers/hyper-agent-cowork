@@ -231,6 +231,53 @@ describe("babel-plugin-i18n-wrap: dynamic-value wrap (cases a/b/c/d)", () => {
   });
 });
 
+const FIXTURE_OBJ_SHORT_LABEL = `
+export const inboxTabs = [
+  { value: "mine", label: "Mine" },
+  { value: "recent", label: "Recent" },
+  { value: "unread", label: "Unread", key: "Unread" },
+];
+`;
+
+const FIXTURE_BRANCH_LITERALS = `
+export function ConnectButton({ previous, name }: { previous: boolean; name?: string }) {
+  return (
+    <div>
+      <button title={previous ? "Reconnect" : "Connect"}>{previous ? "Reconnect" : "Connect"}</button>
+      <span>{name || "Untitled"}</span>
+    </div>
+  );
+}
+`;
+
+describe("babel-plugin-i18n-wrap: short single-word labels", () => {
+  it("wraps a single capitalized word under a whitelisted object key, but not under `key`/`value`", () => {
+    const result = transformSource(FIXTURE_OBJ_SHORT_LABEL, "/fake/src/tabs.ts", { mode: "wrap", scriptType: "ts" });
+    expect(result.changed).toBe(true);
+    expect(result.code).toContain('label: __t("Mine")');
+    expect(result.code).toContain('label: __t("Recent")');
+    expect(result.code).toContain('label: __t("Unread")');
+    expect(result.code).toContain('value: "mine"');
+    expect(result.code).toContain('key: "Unread"');
+  });
+
+  it("harvests the single-word literal branches of a ternary / || in JSX child and attribute position", () => {
+    const result = transformSource(FIXTURE_BRANCH_LITERALS, "/fake/src/ConnectButton.tsx", { mode: "collect" });
+    const dyn = result.matches.filter((m) => m.kind === "dyn").map((m) => m.text);
+    expect(dyn).toContain("Connect");
+    expect(dyn).toContain("Reconnect");
+    expect(dyn).toContain("Untitled");
+    // Both the attribute ternary and the child ternary contribute an occurrence.
+    expect(dyn.filter((text) => text === "Connect")).toHaveLength(2);
+    // Collect mode never edits the source; wrap mode still only inserts __tv(...) around the expression.
+    expect(result.changed).toBe(false);
+    const wrapped = transformSource(FIXTURE_BRANCH_LITERALS, "/fake/src/ConnectButton.tsx", { mode: "wrap" });
+    expect(wrapped.code).toContain('{__tv(previous ? "Reconnect" : "Connect")}');
+    expect(wrapped.code).toContain('title={__tv(previous ? "Reconnect" : "Connect")}');
+    expect(wrapped.code).not.toContain('__t("Connect")');
+  });
+});
+
 describe("babel-plugin-i18n-wrap: collect mode (extraction)", () => {
   it("reports every match without modifying the source", () => {
     const result = transformSource(FIXTURE_ONE, "/fake/src/Example.tsx", { mode: "collect" });
