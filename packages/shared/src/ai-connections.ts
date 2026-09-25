@@ -135,6 +135,29 @@ export function isAiConnectionCompatible(
       (typeof model === "string" && model.startsWith("openrouter/")))
   );
 }
+/** Whether any managed AI connection can serve this harness at all. Harnesses
+ * outside every provider's adapter list (Pi, Gemini CLI, Kimi Code, Hermes, …)
+ * authenticate through env keys or their own CLI login instead. */
+export function adapterSupportsAiConnections(
+  adapterType: string,
+  runnerProvider?: unknown,
+  acpxAgent?: unknown,
+): boolean {
+  const resolved =
+    adapterType === "paperclip_runner"
+      ? runnerProvider === "claude" ||
+        (runnerProvider === "acpx" && acpxAgent === "claude")
+        ? "claude_local"
+        : runnerProvider === "codex"
+          ? "codex_local"
+          : runnerProvider === "opencode"
+            ? "opencode_local"
+            : "unsupported"
+      : adapterType;
+  return Object.values(AI_CONNECTION_CAPABILITIES).some((capability) =>
+    Object.values(capability.methods).some((method) => method?.adapters.includes(resolved)),
+  );
+}
 export type AiConnectionUnavailableReason =
   | "responsible_user_missing"
   | "membership_missing"

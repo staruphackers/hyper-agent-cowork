@@ -8,7 +8,7 @@ import { toolConnections } from "@paperclipai/db";
 import { aiConnectionService } from "../services/ai-connections.js";
 import { defaultAiConnectionForHire } from "../services/agent-ai-connection-default.js";
 import { assertAiConnectionCreateAccess, canInstallSharedAiConnectionForNewAgent, responsibleUserForAiRequest, validateAiApiKey } from "./ai-connections.js";
-import { isAiConnectionCompatible } from "@paperclipai/shared";
+import { adapterSupportsAiConnections, isAiConnectionCompatible } from "@paperclipai/shared";
 import { applyConnectorSkills, resolveConnectorAssignments, annotateConnectorSkills, isConnectorSkill } from "../services/connector-runtime.js";
 import { getExecutionBlocker } from "../services/execution-blocker.js";
 import { paperclipRunnerTransitionConfig, normalizeLegacyRunnerProvider, isPaperclipRunnerProvider } from "@paperclipai/adapter-utils";
@@ -5425,8 +5425,26 @@ export function agentRoutes(
         adapterConfig: patchData.adapterConfig,
       });
     }
-    if (existing.runtimeConfig.aiConnection && requestedRuntimeConfig && !requestedRuntimeConfig.aiConnection) requestedRuntimeConfig.aiConnection = existing.runtimeConfig.aiConnection;
-    const nextAiBinding = aiConnectionBindingSchema.safeParse(requestedRuntimeConfig?.aiConnection ?? existing.runtimeConfig.aiConnection).data;
+    // A managed AI connection is provider-specific. When the agent moves onto a
+    // harness that no AI connection can serve (Pi, Gemini CLI, Kimi Code,
+    // Hermes, …), carrying the old binding over would make every later save
+    // fail with "Select an AI connection compatible…". Drop it instead and let
+    // the new harness authenticate through env keys or its own CLI login.
+    let droppedStaleAiBinding = false;
+    if (existing.runtimeConfig.aiConnection && requestedAdapterType !== existing.adapterType) {
+      const switchConfig = (patchData.adapterConfig ?? existing.adapterConfig) as Record<string, unknown>;
+      if (!adapterSupportsAiConnections(requestedAdapterType, switchConfig.provider, switchConfig.acpxAgent)) {
+        await assertCanUpdateAgent(req, existing);
+        const nextRuntime = { ...((requestedRuntimeConfig ?? existing.runtimeConfig) as Record<string, unknown>) };
+        delete nextRuntime.aiConnection;
+        requestedRuntimeConfig = nextRuntime;
+        droppedStaleAiBinding = true;
+      }
+    }
+    if (!droppedStaleAiBinding && existing.runtimeConfig.aiConnection && requestedRuntimeConfig && !requestedRuntimeConfig.aiConnection) requestedRuntimeConfig.aiConnection = existing.runtimeConfig.aiConnection;
+    const nextAiBinding = droppedStaleAiBinding
+      ? undefined
+      : aiConnectionBindingSchema.safeParse(requestedRuntimeConfig?.aiConnection ?? existing.runtimeConfig.aiConnection).data;
     if (nextAiBinding) {
       await assertCanUpdateAgent(req, existing);
       const changed = JSON.stringify(nextAiBinding) !== JSON.stringify(existing.runtimeConfig.aiConnection);
