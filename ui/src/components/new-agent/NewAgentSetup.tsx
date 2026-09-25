@@ -49,7 +49,9 @@ import {
 } from "@/lib/provider-credential";
 import { defaultCreateValues } from "../agent-config-defaults";
 import { ModelDropdown } from "../AgentConfigForm";
-import { Field } from "../agent-config-primitives";
+import { Field, roleLabels } from "../agent-config-primitives";
+import { ReportsToPicker } from "../ReportsToPicker";
+import { AGENT_ROLES } from "@paperclipai/shared";
 import { OpenCodePlansPanel } from "../opencode/OpenCodePlansPanel";
 import {
   filterOpenCodeModels,
@@ -169,6 +171,12 @@ function Setup({
   const [openCodePlansError, setOpenCodePlansError] = useState<string | null>(null);
   const [detectingOpenCodePlans, setDetectingOpenCodePlans] = useState(false);
   const [showUncoveredOpenCodeModels, setShowUncoveredOpenCodeModels] = useState(false);
+  // Identity: upstream hard-coded the first agent as CEO and everyone else as
+  // "general" with no way to choose. Default to CEO only while the company has
+  // none, otherwise to a general member reporting to the CEO.
+  const [role, setRole] = useState("");
+  const [title, setTitle] = useState("");
+  const [reportsTo, setReportsTo] = useState<string | null | undefined>(undefined);
   const [connection, setConnection] = useState<ProviderConnection | null>(null);
   const aiBinding = runtimeAiBinding ?? connection?.aiConnection;
   const [repository, setRepository] = useState("");
@@ -313,6 +321,12 @@ function Setup({
   const usingKimiApi =
     adapterType === "kimi_local" && Boolean(apiKey.trim() || selectedBinding);
   const cloud = Boolean(useCloudInstance());
+  const activeAgents = (agents.data ?? []).filter((agent) => agent.status !== "terminated");
+  const companyCeo = activeAgents.find((agent) => agent.role === "ceo") ?? null;
+  const defaultRole = companyCeo ? "general" : "ceo";
+  const effectiveRole = role || defaultRole;
+  const effectiveReportsTo =
+    effectiveRole === "ceo" ? null : reportsTo === undefined ? (companyCeo?.id ?? null) : reportsTo;
   const openCodeSecretId =
     selectedBinding && typeof selectedBinding === "object" && selectedBinding.type === "secret_ref"
       ? selectedBinding.secretId
@@ -550,15 +564,12 @@ function Setup({
             [key]: secret.binding,
           };
       }
-      const existing = agents.data ?? [];
-      const leader = existing.find(
-        (agent) => agent.role === "ceo" && agent.status !== "terminated",
-      );
       const response = await agentsApi.hire(companyId, {
         name: name.trim(),
         appearance: appearanceDraft.appearance,
-        role: existing.length ? "general" : "ceo",
-        ...(leader ? { reportsTo: leader.id } : {}),
+        role: effectiveRole,
+        ...(title.trim() ? { title: title.trim() } : {}),
+        reportsTo: effectiveReportsTo,
         adapterType,
         adapterConfig: config,
         defaultEnvironmentId:
@@ -813,6 +824,8 @@ function Setup({
                           : "Your agent is ready"}
                       </h2>
                       <dl className="grid grid-cols-2 gap-4 text-sm">
+                        <dt className="text-muted-foreground">Role</dt>
+                        <dd>{roleLabels[created.role] ?? created.role}</dd>
                         <dt className="text-muted-foreground">Adapter</dt>
                         <dd>{getAdapterDisplay(adapterType).label}</dd>
                         {showModel && (
@@ -866,6 +879,55 @@ function Setup({
                       Configure your agent
                     </h2>
                     <fieldset disabled={busy} className="space-y-8">
+                      <section className="space-y-5">
+                        <h3 className="text-sm font-semibold">Identity</h3>
+                        <div className="grid items-start gap-5 sm:grid-cols-2">
+                          <Field
+                            label="Role"
+                            hint="Roles drive default permissions and the org chart. A company needs one CEO to approve join requests and act as the root manager."
+                          >
+                            <select
+                              aria-label="Role"
+                              className={controlClass}
+                              value={effectiveRole}
+                              onChange={(event) => {
+                                setRole(event.target.value);
+                                if (event.target.value === "ceo") setReportsTo(null);
+                              }}
+                            >
+                              {AGENT_ROLES.map((option) => (
+                                <option key={option} value={option}>
+                                  {roleLabels[option] ?? option}
+                                </option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field label="Title">
+                            <Input
+                              aria-label="Title"
+                              value={title}
+                              onChange={(event) => setTitle(event.target.value)}
+                              placeholder="e.g. Head of Content"
+                            />
+                          </Field>
+                          <div className="sm:col-span-2">
+                            <Field label="Reports to">
+                              <ReportsToPicker
+                                agents={activeAgents}
+                                value={effectiveReportsTo}
+                                onChange={(id) => setReportsTo(id)}
+                                disabled={effectiveRole === "ceo"}
+                                chooseLabel="Choose manager…"
+                              />
+                            </Field>
+                          </div>
+                        </div>
+                        {!companyCeo && (
+                          <p className="text-xs text-muted-foreground">
+                            This company has no CEO yet, so this agent defaults to CEO. Pick another role only if a CEO already exists.
+                          </p>
+                        )}
+                      </section>
                       <section className="space-y-5">
                         <h3 className="text-sm font-semibold">Runtime</h3>
                         {brandType === "opencode_local" && (

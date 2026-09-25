@@ -615,6 +615,28 @@ describe("New agent setup", () => {
     expect((container.querySelector('[aria-label="OPENCODE_API_KEY"]') as HTMLInputElement).value).toBe("example-test-secret");
     expect(container.textContent).toContain("OpenCode Go · subscription");
   });
+  it("defaults the role to CEO while the company has none and lets the board pick role, title and manager", async () => {
+    api.list.mockResolvedValue([{ id: "cto-1", role: "cto", status: "idle", name: "Dahye" }]);
+    await render("pi_local");
+    const roleSelect = container.querySelector('[aria-label="Role"]') as HTMLSelectElement;
+    expect(roleSelect.value).toBe("ceo");
+    expect(container.textContent).toContain("This company has no CEO yet");
+    await fill("Model", "openrouter/anthropic/claude-sonnet-4.6");
+    await click("Finish setup");
+    expect(api.hire.mock.calls[0][1]).toEqual(expect.objectContaining({ role: "ceo", reportsTo: null }));
+    expect(api.hire.mock.calls[0][1].title).toBeUndefined();
+  });
+  it("reports a non-CEO agent to the existing CEO and sends the chosen role and title", async () => {
+    await render("pi_local");
+    const roleSelect = container.querySelector('[aria-label="Role"]') as HTMLSelectElement;
+    expect(roleSelect.value).toBe("general");
+    expect(container.textContent).not.toContain("This company has no CEO yet");
+    await choose("Role", "cto");
+    await fill("Title", "Head of Content");
+    await fill("Model", "openrouter/anthropic/claude-sonnet-4.6");
+    await click("Finish setup");
+    expect(api.hire.mock.calls[0][1]).toEqual(expect.objectContaining({ role: "cto", title: "Head of Content", reportsTo: "ceo" }));
+  });
   it.each(["codex", "claude", "opencode"])(
     "uses the correct native %s runner",
     async (runner) => {

@@ -137,7 +137,7 @@
   " a Task": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:852"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:865"
   },
   " across ": {
     "count": 1,
@@ -5547,7 +5547,7 @@
   "Agent setup steps": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:731"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:742"
   },
   "Agent sort": {
     "count": 2,
@@ -5562,7 +5562,7 @@
   "Agent submitted for approval": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:812"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:823"
   },
   "Agent view": {
     "count": 2,
@@ -6427,7 +6427,7 @@
   "An organization administrator must approve this agent before it can work.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:831"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:844"
   },
   "An unedited copy of this skill already exists. Open it instead of making another.": {
     "count": 1,
@@ -6832,7 +6832,7 @@
   "API key provider": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1019"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1081"
   },
   "API Keys": {
     "count": 3,
@@ -7667,12 +7667,12 @@
   "Assign ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:851"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:864"
   },
   "Assign a task when you’re ready for this agent to work.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:832"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:845"
   },
   "Assign it to agents before it changes their access.": {
     "count": 1,
@@ -10142,7 +10142,7 @@
   "Change connection": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:906"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:968"
   },
   "Change local folder": {
     "count": 1,
@@ -11035,7 +11035,7 @@
     "first": "src/features/connections/remote-mcp/providers.ts:32"
   },
   "Choose manager…": {
-    "count": 1,
+    "count": 2,
     "kind": "dyn",
     "first": "src/components/AgentConfigForm.tsx:1516"
   },
@@ -12437,7 +12437,7 @@
   "Configure your agent": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:865"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:878"
   },
   "configured": {
     "count": 1,
@@ -12547,7 +12547,7 @@
   "Confirmation": {
     "count": 4,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:653"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:664"
   },
   "Confirmation accepted": {
     "count": 1,
@@ -14257,7 +14257,7 @@
   "Could not create the agent.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:598"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:609"
   },
   "Could not create the card.": {
     "count": 1,
@@ -14362,7 +14362,7 @@
   "Could not load models. Retry or enter a model ID manually.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:915"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:977"
   },
   "Could not load more results": {
     "count": 2,
@@ -14417,7 +14417,7 @@
   "Could not load the created agent. Return to Agents to view it.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:628"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:639"
   },
   "Could not load the resume action. Close this test and try again.": {
     "count": 1,
@@ -14507,7 +14507,7 @@
   "Could not resolve the environment.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:278"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:286"
   },
   "Could not resolve the sign-in environment.": {
     "count": 1,
@@ -14647,7 +14647,7 @@
   "Could not test the agent.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:510"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:524"
   },
   "Could not unlink this account.": {
     "count": 1,
@@ -14917,7 +14917,7 @@
   "Couldn’t load models. You can enter a model ID manually.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1011"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1073"
   },
   "Couldn't load organizations": {
     "count": 2,
@@ -18089,6 +18089,11 @@
     "kind": "attr",
     "first": "src/pages/tools/connection-dialogs.tsx:334"
   },
+  "e.g. Head of Content": {
+    "count": 1,
+    "kind": "attr",
+    "first": "src/components/new-agent/NewAgentSetup.tsx:910"
+  },
   "e.g. node, python": {
     "count": 1,
     "kind": "attr",
@@ -18247,7 +18252,7 @@
   "Edit configuration": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:840"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:853"
   },
   "Edit custom template": {
     "count": 1,
@@ -18867,7 +18872,7 @@
   "Enter a Cursor API key.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:455"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:469"
   },
   "Enter a custom answer.": {
     "count": 1,
@@ -21302,7 +21307,7 @@
   "Finish setup": {
     "count": 5,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1303"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1365"
   },
   "Finish setup before agents can use this account.": {
     "count": 1,
@@ -22162,7 +22167,7 @@
   "get api key": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1088"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1150"
   },
   "Get help creating an MCP config": {
     "count": 2,
@@ -22322,7 +22327,7 @@
   "GitHub repository": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1212"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1274"
   },
   "GitHub requires a unique name. Continue on GitHub, then return automatically to finish setup.": {
     "count": 1,
@@ -22477,7 +22482,7 @@
   "Google": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1041"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1103"
   },
   "Google Calendar": {
     "count": 1,
@@ -22612,7 +22617,7 @@
   "Groq": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1043"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1105"
   },
   "Group": {
     "count": 14,
@@ -22887,7 +22892,7 @@
   "Hermes API base URL": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1152"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1214"
   },
   "Hermes API server base URL that Paperclip can reach, such as http://127.0.0.1:8642 or a private HTTPS URL. Default dashboard root/chat URLs such as http://127.0.0.1:9119/chat are accepted and map to /api.": {
     "count": 1,
@@ -23332,12 +23337,12 @@
   "https://github.com/your-org/repo": {
     "count": 1,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1220"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1282"
   },
   "https://hermes.example.com": {
     "count": 1,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1160"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1222"
   },
   "https://mcp.example.com": {
     "count": 1,
@@ -23595,7 +23600,7 @@
     "first": "src/pages/DesignGuide.tsx:835"
   },
   "Identity": {
-    "count": 5,
+    "count": 6,
     "kind": "dyn",
     "first": "src/components/AgentConfigForm.tsx:1488"
   },
@@ -25742,17 +25747,17 @@
   "Kimi API base URL": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1195"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1257"
   },
   "Kimi API model name": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1166"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1228"
   },
   "Kimi API protocol": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1177"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1239"
   },
   "Kimi Code": {
     "count": 4,
@@ -25767,7 +25772,7 @@
   "kimi-for-coding": {
     "count": 1,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1174"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1236"
   },
   "Kind": {
     "count": 4,
@@ -27272,7 +27277,7 @@
   "Loading your agent…": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:629"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:640"
   },
   "Loading, errors, empty search, mobile, and short viewports are covered in the Project repos Storybook stories.": {
     "count": 1,
@@ -27362,7 +27367,7 @@
   "Local machine": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:675"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:686"
   },
   "Local non-git path": {
     "count": 2,
@@ -29032,7 +29037,7 @@
   "Native app server runner": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:700"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:711"
   },
   "Native method": {
     "count": 2,
@@ -29357,7 +29362,7 @@
   "New keys are saved as organization secrets when you finish setup.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1125"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1187"
   },
   "New label": {
     "count": 2,
@@ -30707,7 +30712,7 @@
   "No managed environment is available. Configure an environment before continuing.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:725"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:736"
   },
   "No managed routines.": {
     "count": 1,
@@ -33267,7 +33272,7 @@
   "OpenCode Go": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1045"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1107"
   },
   "OpenCode Go · subscription": {
     "count": 3,
@@ -33302,7 +33307,7 @@
   "OpenCode Zen": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1044"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1106"
   },
   "OpenCode Zen · pay-as-you-go": {
     "count": 3,
@@ -33362,12 +33367,12 @@
   "OpenRouter connection": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:895"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:957"
   },
   "OpenRouter connection uses the account picker below. Provider API key runs this agent on an OpenCode, Anthropic, OpenAI, Google, xAI or Groq key stored as an organization secret.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:874"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:936"
   },
   "OPENROUTER_API_KEY": {
     "count": 1,
@@ -33492,7 +33497,7 @@
   "Optional if already configured": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1079"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1141"
   },
   "Optional initial setup prompt for the first run": {
     "count": 2,
@@ -33562,7 +33567,7 @@
   "Optional override for your provider endpoint.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1196"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1258"
   },
   "Optional override. Leave blank to use the package name.": {
     "count": 2,
@@ -33667,7 +33672,7 @@
   "Or use an organization secret": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1101"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1163"
   },
   "Ordinary board comments remain Paperclip-only.": {
     "count": 1,
@@ -35217,7 +35222,7 @@
   "Paste the key to check plans. A saved personal secret cannot be read back here.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1143"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1205"
   },
   "Paste the MCP config snippet from the tool's README and we'll turn it into a friendly setup.": {
     "count": 1,
@@ -37222,7 +37227,7 @@
   "Provider API key": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:896"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:958"
   },
   "Provider authorization uses ": {
     "count": 1,
@@ -37232,7 +37237,7 @@
   "Provider default": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1205"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1267"
   },
   "Provider detail: ": {
     "count": 1,
@@ -40190,7 +40195,7 @@
     "first": "src/components/task-chat/tool-taxonomy.ts:205"
   },
   "Reports to": {
-    "count": 5,
+    "count": 7,
     "kind": "attr",
     "first": "src/components/AgentConfigForm.tsx:1510"
   },
@@ -40222,7 +40227,7 @@
   "Repository default": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1226"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1288"
   },
   "Request access": {
     "count": 2,
@@ -41990,7 +41995,7 @@
     "first": "src/components/ApprovalPayload.tsx:216"
   },
   "Role": {
-    "count": 8,
+    "count": 11,
     "kind": "attr",
     "first": "src/adapters/openclaw-gateway/config-fields.tsx:262"
   },
@@ -42005,7 +42010,7 @@
     "first": "src/pages/CompanySkills.production.tsx:2143"
   },
   "Roles drive default permissions and the org chart. A company needs one CEO to approve join requests and act as the root manager.": {
-    "count": 2,
+    "count": 4,
     "kind": "attr",
     "first": "src/components/AgentConfigForm.tsx:1521"
   },
@@ -42882,7 +42887,7 @@
   "Runtime": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:870"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:932"
   },
   "Runtime ": {
     "count": 2,
@@ -44527,7 +44532,7 @@
   "Select an organization to create an agent.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:88"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:90"
   },
   "Select an organization to edit pipeline settings.": {
     "count": 2,
@@ -46422,7 +46427,7 @@
   "Sign-in method": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:873"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:935"
   },
   "Sign-in sends the operator back to Paperclip, so this instance has to be reachable over HTTPS. Ask your Paperclip admin to configure it.": {
     "count": 1,
@@ -50642,7 +50647,7 @@
   "This adapter is unavailable. Choose an enabled adapter.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:718"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:729"
   },
   "This adapter needs command or endpoint fields before it can run. Provision the built-in row now, then finish those fields from the full agent configuration.": {
     "count": 1,
@@ -50793,6 +50798,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/components/IssueChatThread.tsx:5706"
+  },
+  "This company has no CEO yet, so this agent defaults to CEO. Pick another role only if a CEO already exists.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/new-agent/NewAgentSetup.tsx:926"
   },
   "This confirmation expired automatically when the issue reached a terminal state.": {
     "count": 1,
@@ -52160,7 +52170,7 @@
     "first": "src/pages/DesignGuide.tsx:2033"
   },
   "Title": {
-    "count": 17,
+    "count": 19,
     "kind": "attr",
     "first": "src/components/AgentConfigForm.tsx:1501"
   },
@@ -54827,12 +54837,12 @@
   "Using saved key": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:1073"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:1135"
   },
   "Using the connection selected in the Connect step.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:903"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:965"
   },
   "utilization this month": {
     "count": 2,
@@ -57447,7 +57457,7 @@
   "Your agent is ready": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:813"
+    "first": "src/components/new-agent/NewAgentSetup.tsx:824"
   },
   "Your agent runs on a computer managed by Paperclip.": {
     "count": 1,
