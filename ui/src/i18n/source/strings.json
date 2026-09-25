@@ -67,7 +67,7 @@
   " · Kubernetes sandbox": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1563"
+    "first": "src/components/AgentConfigForm.tsx:1581"
   },
   " · last summary ": {
     "count": 1,
@@ -627,7 +627,7 @@
   " Debugging": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2179"
+    "first": "src/components/AgentConfigForm.tsx:2197"
   },
   " decided": {
     "count": 2,
@@ -1802,7 +1802,7 @@
   " Run Policy": {
     "count": 4,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2015"
+    "first": "src/components/AgentConfigForm.tsx:2033"
   },
   " running": {
     "count": 2,
@@ -3142,7 +3142,7 @@
   "/path/to/project": {
     "count": 1,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1746"
+    "first": "src/components/AgentConfigForm.tsx:1764"
   },
   "/path/to/worktree or provider ref": {
     "count": 1,
@@ -3282,7 +3282,7 @@
   "0 0 24 24": {
     "count": 5,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3917"
+    "first": "src/components/AgentConfigForm.tsx:3935"
   },
   "0 0 716 716": {
     "count": 2,
@@ -3437,12 +3437,12 @@
   "1. Authorization URL": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3569"
+    "first": "src/components/AgentConfigForm.tsx:3587"
   },
   "1. Code": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2786"
+    "first": "src/components/AgentConfigForm.tsx:2804"
   },
   "1. Download your agent’s avatar": {
     "count": 1,
@@ -3517,12 +3517,12 @@
   "2. Authentication URL": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2795"
+    "first": "src/components/AgentConfigForm.tsx:2813"
   },
   "2. Browser code": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3592"
+    "first": "src/components/AgentConfigForm.tsx:3610"
   },
   "2. Upload it in Slack": {
     "count": 1,
@@ -4487,7 +4487,7 @@
   "Adapter": {
     "count": 9,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1613"
+    "first": "src/components/AgentConfigForm.tsx:1631"
   },
   "Adapter credential supplied during agent setup.": {
     "count": 2,
@@ -4542,7 +4542,7 @@
   "Adapter type": {
     "count": 6,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1631"
+    "first": "src/components/AgentConfigForm.tsx:1649"
   },
   "adapter: ": {
     "count": 2,
@@ -5147,7 +5147,7 @@
   "Advanced": {
     "count": 20,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1920"
+    "first": "src/components/AgentConfigForm.tsx:1938"
   },
   "Advanced access, scoped assignment, and explicit grant controls are provided by installed organization settings extensions.": {
     "count": 1,
@@ -5202,7 +5202,7 @@
   "Advanced Run Policy": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2031"
+    "first": "src/components/AgentConfigForm.tsx:2049"
   },
   "Advanced runtime JSON": {
     "count": 2,
@@ -5367,7 +5367,7 @@
   "Agent bound to the signed-in account.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2836"
+    "first": "src/components/AgentConfigForm.tsx:2854"
   },
   "Agent bubble": {
     "count": 1,
@@ -5482,7 +5482,7 @@
   "Agent name": {
     "count": 6,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1497"
+    "first": "src/components/AgentConfigForm.tsx:1498"
   },
   "Agent not found.": {
     "count": 1,
@@ -6602,7 +6602,7 @@
   "Anthropic": {
     "count": 4,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2401"
+    "first": "src/components/AgentConfigForm.tsx:2419"
   },
   "Anthropic OAuth": {
     "count": 1,
@@ -7542,7 +7542,7 @@
   "Ask": {
     "count": 2,
     "kind": "obj",
-    "first": "src/components/AgentConfigForm.tsx:297"
+    "first": "src/components/AgentConfigForm.tsx:298"
   },
   "Ask agent for recommendation": {
     "count": 1,
@@ -7987,7 +7987,7 @@
   "Authenticated. The environment has credentials now.": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2288"
+    "first": "src/components/AgentConfigForm.tsx:2306"
   },
   "Authentication": {
     "count": 2,
@@ -8132,7 +8132,7 @@
   "Auto": {
     "count": 16,
     "kind": "obj",
-    "first": "src/components/AgentConfigForm.tsx:285"
+    "first": "src/components/AgentConfigForm.tsx:286"
   },
   "Auto mode": {
     "count": 2,
@@ -8797,7 +8797,7 @@
   "Binding this agent to the signed-in account...": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2830"
+    "first": "src/components/AgentConfigForm.tsx:2848"
   },
   "BindingsTable (reused in the audit row drilldown)": {
     "count": 2,
@@ -9097,12 +9097,12 @@
   "Bootstrap prompt (legacy)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1893"
+    "first": "src/components/AgentConfigForm.tsx:1911"
   },
   "Bootstrap prompt is legacy and will be removed in a future release. Consider moving this content into the agent's prompt template or instructions file instead.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1912"
+    "first": "src/components/AgentConfigForm.tsx:1930"
   },
   "Bootstrap status": {
     "count": 2,
@@ -9342,7 +9342,7 @@
   "Browser code": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:3597"
+    "first": "src/components/AgentConfigForm.tsx:3615"
   },
   "Browser security blocks apps from reading full local paths via a file picker. Copy the absolute path and paste it into the input.": {
     "count": 1,
@@ -9912,7 +9912,7 @@
   "Capture raw provider traces": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2195"
+    "first": "src/components/AgentConfigForm.tsx:2213"
   },
   "Capture setup pitfalls and screenshots.": {
     "count": 1,
@@ -11037,7 +11037,7 @@
   "Choose manager…": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1515"
+    "first": "src/components/AgentConfigForm.tsx:1516"
   },
   "Choose options": {
     "count": 2,
@@ -11782,7 +11782,7 @@
   "Codex may reject `minimal` thinking when search is enabled.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1872"
+    "first": "src/components/AgentConfigForm.tsx:1890"
   },
   "Codex options": {
     "count": 1,
@@ -11932,7 +11932,7 @@
   "Coming soon": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3751"
+    "first": "src/components/AgentConfigForm.tsx:3769"
   },
   "Comma-separated assessment categories.": {
     "count": 1,
@@ -12202,7 +12202,7 @@
   "Completing the login…": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3629"
+    "first": "src/components/AgentConfigForm.tsx:3647"
   },
   "Complex value — edit in YAML.": {
     "count": 2,
@@ -12272,7 +12272,7 @@
   "config": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:4014"
+    "first": "src/components/AgentConfigForm.tsx:4032"
   },
   "Config": {
     "count": 1,
@@ -12292,7 +12292,7 @@
   "Configuration": {
     "count": 17,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1887"
+    "first": "src/components/AgentConfigForm.tsx:1905"
   },
   "Configuration incomplete": {
     "count": 1,
@@ -13512,12 +13512,12 @@
   "Continuation attempts": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2143"
+    "first": "src/components/AgentConfigForm.tsx:2161"
   },
   "Continuation delay (sec)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2154"
+    "first": "src/components/AgentConfigForm.tsx:2172"
   },
   "Continuation exhausted": {
     "count": 1,
@@ -13552,7 +13552,7 @@
   "Continue after max-turn stop": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2136"
+    "first": "src/components/AgentConfigForm.tsx:2154"
   },
   "Continue at ": {
     "count": 1,
@@ -13702,7 +13702,7 @@
   "Cooldown (sec)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2110"
+    "first": "src/components/AgentConfigForm.tsx:2128"
   },
   "Copied": {
     "count": 24,
@@ -13817,7 +13817,7 @@
   "Copy code": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2791"
+    "first": "src/components/AgentConfigForm.tsx:2809"
   },
   "Copy command": {
     "count": 2,
@@ -14012,7 +14012,7 @@
   "Copy the code, then open the authentication page.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2766"
+    "first": "src/components/AgentConfigForm.tsx:2784"
   },
   "Copy the invite URL manually from the field below.": {
     "count": 1,
@@ -14057,7 +14057,7 @@
   "Copy URL": {
     "count": 5,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2801"
+    "first": "src/components/AgentConfigForm.tsx:2819"
   },
   "Copy value": {
     "count": 1,
@@ -14152,17 +14152,17 @@
   "Could not bind this agent to the signed-in account.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2842"
+    "first": "src/components/AgentConfigForm.tsx:2860"
   },
   "Could not cancel the login.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2480"
+    "first": "src/components/AgentConfigForm.tsx:2498"
   },
   "Could not check for an active login.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2611"
+    "first": "src/components/AgentConfigForm.tsx:2629"
   },
   "Could not check local sign-in.": {
     "count": 1,
@@ -14172,7 +14172,7 @@
   "Could not check OpenCode plans.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:946"
+    "first": "src/components/AgentConfigForm.tsx:947"
   },
   "Could not check what uses this environment. Close this dialog and retry.": {
     "count": 1,
@@ -14627,7 +14627,7 @@
   "Could not start the login.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2463"
+    "first": "src/components/AgentConfigForm.tsx:2481"
   },
   "Could not store the API key.": {
     "count": 1,
@@ -14642,7 +14642,7 @@
   "Could not submit the browser code.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3207"
+    "first": "src/components/AgentConfigForm.tsx:3225"
   },
   "Could not test the agent.": {
     "count": 1,
@@ -15962,7 +15962,7 @@
   "current": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3971"
+    "first": "src/components/AgentConfigForm.tsx:3989"
   },
   "Current": {
     "count": 7,
@@ -16407,7 +16407,7 @@
   "Default": {
     "count": 21,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3897"
+    "first": "src/components/AgentConfigForm.tsx:3915"
   },
   "default ": {
     "count": 1,
@@ -16472,7 +16472,7 @@
   "Default environment": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1558"
+    "first": "src/components/AgentConfigForm.tsx:1576"
   },
   "Default environment update failed.": {
     "count": 1,
@@ -16577,7 +16577,7 @@
   "Default: ": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1596"
+    "first": "src/components/AgentConfigForm.tsx:1614"
   },
   "Defaults to 0, which closes the ACP process after each run while retaining persistent session state.": {
     "count": 6,
@@ -17157,17 +17157,17 @@
   "Detect from config": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3937"
+    "first": "src/components/AgentConfigForm.tsx:3955"
   },
   "Detect model": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1819"
+    "first": "src/components/AgentConfigForm.tsx:1837"
   },
   "detected": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3990"
+    "first": "src/components/AgentConfigForm.tsx:4008"
   },
   "Detected from `": {
     "count": 1,
@@ -17182,7 +17182,7 @@
   "Detecting...": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3937"
+    "first": "src/components/AgentConfigForm.tsx:3955"
   },
   "Deterministic local fixture for measuring the current direct-render issue chat path with hundreds of merged thread rows, markdown-heavy assistant bodies, linked runs, documents, sub-issues, and sidebar context.": {
     "count": 1,
@@ -18067,7 +18067,7 @@
   "e.g. --verbose, --foo=bar": {
     "count": 1,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1985"
+    "first": "src/components/AgentConfigForm.tsx:2003"
   },
   "e.g. Chief of staff": {
     "count": 1,
@@ -18122,7 +18122,7 @@
   "e.g. VP of Engineering": {
     "count": 1,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1506"
+    "first": "src/components/AgentConfigForm.tsx:1507"
   },
   "Each approved post publishes immediately; rejected posts go back for a revision pass with your reason attached.": {
     "count": 1,
@@ -19037,7 +19037,7 @@
   "Environment": {
     "count": 10,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1553"
+    "first": "src/components/AgentConfigForm.tsx:1571"
   },
   "Environment ": {
     "count": 1,
@@ -19067,7 +19067,7 @@
   "Environment override": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1582"
+    "first": "src/components/AgentConfigForm.tsx:1600"
   },
   "Environment probe failed": {
     "count": 3,
@@ -19097,7 +19097,7 @@
   "Environment test failed": {
     "count": 3,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1204"
+    "first": "src/components/AgentConfigForm.tsx:1205"
   },
   "Environment updated": {
     "count": 1,
@@ -19107,7 +19107,7 @@
   "Environment variables": {
     "count": 8,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1433"
+    "first": "src/components/AgentConfigForm.tsx:1434"
   },
   "Environment Variables Editor": {
     "count": 2,
@@ -19747,7 +19747,7 @@
   "Experimental": {
     "count": 12,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3762"
+    "first": "src/components/AgentConfigForm.tsx:3780"
   },
   "Experimental features": {
     "count": 1,
@@ -20032,7 +20032,7 @@
   "Extra args (comma-separated)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1972"
+    "first": "src/components/AgentConfigForm.tsx:1990"
   },
   "Extra CLI arguments for local adapters, comma-separated.": {
     "count": 1,
@@ -20322,7 +20322,7 @@
   "Failed to load adapter models.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1827"
+    "first": "src/components/AgentConfigForm.tsx:1845"
   },
   "Failed to load app state": {
     "count": 1,
@@ -20522,7 +20522,7 @@
   "Failed to refresh adapter models.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1295"
+    "first": "src/components/AgentConfigForm.tsx:1296"
   },
   "Failed to reject": {
     "count": 3,
@@ -21812,7 +21812,7 @@
   "Free": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1773"
+    "first": "src/components/AgentConfigForm.tsx:1791"
   },
   "Free models only. Add credits or subscribe to unlock the rest.": {
     "count": 1,
@@ -22832,7 +22832,7 @@
   "Heartbeat on interval": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2020"
+    "first": "src/components/AgentConfigForm.tsx:2038"
   },
   "Heartbeat pending...": {
     "count": 1,
@@ -23067,7 +23067,7 @@
   "High": {
     "count": 26,
     "kind": "obj",
-    "first": "src/components/AgentConfigForm.tsx:289"
+    "first": "src/components/AgentConfigForm.tsx:290"
   },
   "High priority": {
     "count": 2,
@@ -23082,7 +23082,7 @@
   "Hint: ": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3685"
+    "first": "src/components/AgentConfigForm.tsx:3703"
   },
   "Hire Agent": {
     "count": 1,
@@ -23597,7 +23597,7 @@
   "Identity": {
     "count": 5,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1487"
+    "first": "src/components/AgentConfigForm.tsx:1488"
   },
   "Identity linked": {
     "count": 1,
@@ -24722,7 +24722,7 @@
   "Interrupt grace period (sec)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2084"
+    "first": "src/components/AgentConfigForm.tsx:2102"
   },
   "Interrupt requested": {
     "count": 4,
@@ -26617,7 +26617,7 @@
   "Live OpenCode model discovery only runs for Local environments. Using the curated list and manual entry for ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1833"
+    "first": "src/components/AgentConfigForm.tsx:1851"
   },
   "Live quotas": {
     "count": 2,
@@ -27457,17 +27457,17 @@
   "Login cancelled": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2296"
+    "first": "src/components/AgentConfigForm.tsx:2314"
   },
   "Login failed": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2297"
+    "first": "src/components/AgentConfigForm.tsx:2315"
   },
   "Login timed out": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2294"
+    "first": "src/components/AgentConfigForm.tsx:2312"
   },
   "Login to Claude Code": {
     "count": 2,
@@ -27597,7 +27597,7 @@
   "Low": {
     "count": 24,
     "kind": "obj",
-    "first": "src/components/AgentConfigForm.tsx:287"
+    "first": "src/components/AgentConfigForm.tsx:288"
   },
   "Low trust limits Paperclip access; it does not sandbox the runtime. Review filesystem, tool, and secret access separately.": {
     "count": 1,
@@ -27667,32 +27667,32 @@
   "M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3934"
+    "first": "src/components/AgentConfigForm.tsx:3952"
   },
   "M21 12a9 9 0 0 1-15.28 6.36L3 16": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3952"
+    "first": "src/components/AgentConfigForm.tsx:3970"
   },
   "M21 3v5h-5": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3951"
+    "first": "src/components/AgentConfigForm.tsx:3969"
   },
   "M3 12a9 9 0 0 1 15.28-6.36L21 8": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3950"
+    "first": "src/components/AgentConfigForm.tsx:3968"
   },
   "M3 3v5h5": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3935"
+    "first": "src/components/AgentConfigForm.tsx:3953"
   },
   "M8 16H3v5": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3953"
+    "first": "src/components/AgentConfigForm.tsx:3971"
   },
   "M9 18c-4.51 2-5-2-7-2": {
     "count": 1,
@@ -28072,12 +28072,12 @@
   "Max": {
     "count": 9,
     "kind": "obj",
-    "first": "src/components/AgentConfigForm.tsx:291"
+    "first": "src/components/AgentConfigForm.tsx:292"
   },
   "Max concurrent runs": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2122"
+    "first": "src/components/AgentConfigForm.tsx:2140"
   },
   "Max duration": {
     "count": 2,
@@ -28182,7 +28182,7 @@
   "Medium": {
     "count": 22,
     "kind": "obj",
-    "first": "src/components/AgentConfigForm.tsx:288"
+    "first": "src/components/AgentConfigForm.tsx:289"
   },
   "Meet your next agent": {
     "count": 1,
@@ -28447,7 +28447,7 @@
   "Minimal": {
     "count": 9,
     "kind": "obj",
-    "first": "src/components/AgentConfigForm.tsx:286"
+    "first": "src/components/AgentConfigForm.tsx:287"
   },
   "Minimize": {
     "count": 1,
@@ -28977,7 +28977,7 @@
   "Name": {
     "count": 37,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1491"
+    "first": "src/components/AgentConfigForm.tsx:1492"
   },
   "Name and title fields are kept unique for each new ": {
     "count": 1,
@@ -30782,12 +30782,12 @@
   "No model detected. Select or enter one manually.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1820"
+    "first": "src/components/AgentConfigForm.tsx:1838"
   },
   "No models found.": {
     "count": 5,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:4083"
+    "first": "src/components/AgentConfigForm.tsx:4101"
   },
   "No monthly cap configured": {
     "count": 2,
@@ -33127,17 +33127,17 @@
   "Open the authentication page": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2807"
+    "first": "src/components/AgentConfigForm.tsx:2825"
   },
   "Open the authorization page": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:3581"
+    "first": "src/components/AgentConfigForm.tsx:3599"
   },
   "Open the authorization page, then enter the browser code it shows.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3564"
+    "first": "src/components/AgentConfigForm.tsx:3582"
   },
   "Open the bot's private chat.": {
     "count": 1,
@@ -33272,7 +33272,7 @@
   "OpenCode Go · subscription": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1761"
+    "first": "src/components/AgentConfigForm.tsx:1779"
   },
   "OpenCode models are still loading. Please wait and try again.": {
     "count": 1,
@@ -33307,7 +33307,7 @@
   "OpenCode Zen · pay-as-you-go": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1763"
+    "first": "src/components/AgentConfigForm.tsx:1781"
   },
   "Opened": {
     "count": 1,
@@ -33497,7 +33497,7 @@
   "Optional initial setup prompt for the first run": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1903"
+    "first": "src/components/AgentConfigForm.tsx:1921"
   },
   "Optional JSON merged into remote adapter request payloads before Paperclip adds its standard wake and workspace fields.": {
     "count": 1,
@@ -34417,7 +34417,7 @@
   "Paperclip Computer": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:896"
+    "first": "src/components/AgentConfigForm.tsx:897"
   },
   "Paperclip computes the result for the exact reviewed commit. Incomplete reviews cannot pass. To require it before merging, select “Paperclip Review” in your GitHub branch protection or ruleset settings and choose this bot’s GitHub App as the expected source. Run a review first so the check appears in GitHub’s selector.": {
     "count": 1,
@@ -36457,7 +36457,7 @@
   "Preparing...": {
     "count": 4,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2760"
+    "first": "src/components/AgentConfigForm.tsx:2778"
   },
   "Preparing…": {
     "count": 1,
@@ -37072,12 +37072,12 @@
   "Prompt Template": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1520"
+    "first": "src/components/AgentConfigForm.tsx:1538"
   },
   "Prompt template is replayed on every heartbeat. Keep it compact and dynamic to avoid recurring token cost and cache churn.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1537"
+    "first": "src/components/AgentConfigForm.tsx:1555"
   },
   "Prompt the user for this value before each manual run.": {
     "count": 1,
@@ -37992,7 +37992,7 @@
   "Raw tracing is on for future runs. Paperclip keeps at most 64 MiB per run and automatically deletes it after 24 hours.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2205"
+    "first": "src/components/AgentConfigForm.tsx:2223"
   },
   "Raw tracing on": {
     "count": 1,
@@ -38022,7 +38022,7 @@
   "Re-detect from config": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3937"
+    "first": "src/components/AgentConfigForm.tsx:3955"
   },
   "Re-install latest": {
     "count": 1,
@@ -39217,7 +39217,7 @@
   "Refresh models": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3955"
+    "first": "src/components/AgentConfigForm.tsx:3973"
   },
   "Refresh now": {
     "count": 1,
@@ -39287,7 +39287,7 @@
   "Refreshing...": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3955"
+    "first": "src/components/AgentConfigForm.tsx:3973"
   },
   "Refreshing…": {
     "count": 2,
@@ -40192,7 +40192,7 @@
   "Reports to": {
     "count": 5,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1509"
+    "first": "src/components/AgentConfigForm.tsx:1510"
   },
   "Reports To": {
     "count": 2,
@@ -41990,7 +41990,7 @@
     "first": "src/components/ApprovalPayload.tsx:216"
   },
   "Role": {
-    "count": 6,
+    "count": 8,
     "kind": "attr",
     "first": "src/adapters/openclaw-gateway/config-fields.tsx:262"
   },
@@ -42003,6 +42003,11 @@
     "count": 2,
     "kind": "jsx",
     "first": "src/pages/CompanySkills.production.tsx:2143"
+  },
+  "Roles drive default permissions and the org chart. A company needs one CEO to approve join requests and act as the root manager.": {
+    "count": 2,
+    "kind": "attr",
+    "first": "src/components/AgentConfigForm.tsx:1521"
   },
   "Roles: ": {
     "count": 2,
@@ -42392,7 +42397,7 @@
   "Run heartbeat every": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2027"
+    "first": "src/components/AgentConfigForm.tsx:2045"
   },
   "Run ID": {
     "count": 2,
@@ -43047,7 +43052,7 @@
   "Save": {
     "count": 26,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1424"
+    "first": "src/components/AgentConfigForm.tsx:1425"
   },
   "Save & exit": {
     "count": 7,
@@ -43817,12 +43822,12 @@
   "Search models...": {
     "count": 3,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3906"
+    "first": "src/components/AgentConfigForm.tsx:3924"
   },
   "Search models... (type to create)": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3906"
+    "first": "src/components/AgentConfigForm.tsx:3924"
   },
   "Search operations, fields, and events": {
     "count": 2,
@@ -44127,7 +44132,7 @@
   "Secret access": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1444"
+    "first": "src/components/AgentConfigForm.tsx:1445"
   },
   "Secret approved": {
     "count": 1,
@@ -44752,12 +44757,12 @@
   "Select model": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3897"
+    "first": "src/components/AgentConfigForm.tsx:3915"
   },
   "Select model (required)": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3897"
+    "first": "src/components/AgentConfigForm.tsx:3915"
   },
   "Select organization": {
     "count": 2,
@@ -46107,7 +46112,7 @@
   "Sign in": {
     "count": 7,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2742"
+    "first": "src/components/AgentConfigForm.tsx:2760"
   },
   "Sign In": {
     "count": 2,
@@ -46182,12 +46187,12 @@
   "Sign in to replace": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3513"
+    "first": "src/components/AgentConfigForm.tsx:3531"
   },
   "Sign in to the environment": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2407"
+    "first": "src/components/AgentConfigForm.tsx:2425"
   },
   "Sign in with Airtable": {
     "count": 1,
@@ -48072,7 +48077,7 @@
   "Stores exact provider traffic for every future run until disabled. Traces may contain sensitive prompts and tool arguments, are administrator-only, and expire after 24 hours.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2196"
+    "first": "src/components/AgentConfigForm.tsx:2214"
   },
   "Stranded Task": {
     "count": 1,
@@ -48252,7 +48257,7 @@
   "Submit": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3618"
+    "first": "src/components/AgentConfigForm.tsx:3636"
   },
   "Submit agent details": {
     "count": 2,
@@ -49932,12 +49937,12 @@
   "The login did not finish. Start it again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2704"
+    "first": "src/components/AgentConfigForm.tsx:2722"
   },
   "The login did not finish. Start the login again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2874"
+    "first": "src/components/AgentConfigForm.tsx:2892"
   },
   "The login did not return a saved connection. Try again.": {
     "count": 1,
@@ -49947,17 +49952,17 @@
   "The login timed out. Start it again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2701"
+    "first": "src/components/AgentConfigForm.tsx:2719"
   },
   "The login timed out. Start the login again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2891"
+    "first": "src/components/AgentConfigForm.tsx:2909"
   },
   "The login was cancelled.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2703"
+    "first": "src/components/AgentConfigForm.tsx:2721"
   },
   "The long-form run page with the `Nice | Raw` toggle and the most inspectable transcript view.": {
     "count": 2,
@@ -50252,7 +50257,7 @@
   "The saved Claude login is bound to this agent now.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3531"
+    "first": "src/components/AgentConfigForm.tsx:3549"
   },
   "The saved connection no longer exists or is not available to this organization.": {
     "count": 1,
@@ -50547,7 +50552,7 @@
   "Thinking effort": {
     "count": 8,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:4110"
+    "first": "src/components/AgentConfigForm.tsx:4128"
   },
   "Thinking through the plan...": {
     "count": 1,
@@ -50822,7 +50827,7 @@
   "This connection is not encrypted. The login code travels in clear text on this network. Continue only on a network you trust.": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3434"
+    "first": "src/components/AgentConfigForm.tsx:3452"
   },
   "This connector is unavailable on this instance.": {
     "count": 1,
@@ -51017,7 +51022,7 @@
   "This instance requires the Kubernetes sandbox, but no managed Kubernetes environment is available for this organization yet. Configure one before creating agents; execution will not fall back to local.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1566"
+    "first": "src/components/AgentConfigForm.tsx:1584"
   },
   "This instance runs agents only in its managed sandbox environment, but no ": {
     "count": 1,
@@ -51027,7 +51032,7 @@
   "This instance runs all agents in the Kubernetes sandbox. Local execution is disabled.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1559"
+    "first": "src/components/AgentConfigForm.tsx:1577"
   },
   "This instance runs in invite-only mode. The operator must generate a one-time first-admin invite URL from the host. Once you have the link, open it from this browser to finish setup.": {
     "count": 1,
@@ -51202,7 +51207,7 @@
   "This key cannot use the selected model on its current OpenCode plans. Pick a covered model, add credits, or subscribe.": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1851"
+    "first": "src/components/AgentConfigForm.tsx:1869"
   },
   "This link could not be confirmed. It may have expired or been revoked.": {
     "count": 1,
@@ -52117,7 +52122,7 @@
   "Timeout (sec)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2070"
+    "first": "src/components/AgentConfigForm.tsx:2088"
   },
   "Timeout (seconds)": {
     "count": 2,
@@ -52157,7 +52162,7 @@
   "Title": {
     "count": 17,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1500"
+    "first": "src/components/AgentConfigForm.tsx:1501"
   },
   "Title (single-line)": {
     "count": 1,
@@ -53767,7 +53772,7 @@
   "Unsaved changes": {
     "count": 9,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1422"
+    "first": "src/components/AgentConfigForm.tsx:1423"
   },
   "Unsaved edits": {
     "count": 1,
@@ -54462,7 +54467,7 @@
   "Use manual model": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:4046"
+    "first": "src/components/AgentConfigForm.tsx:4064"
   },
   "Use Paperclip instead": {
     "count": 1,
@@ -54482,7 +54487,7 @@
   "Use saved login": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3501"
+    "first": "src/components/AgentConfigForm.tsx:3519"
   },
   "Use saved subscription": {
     "count": 1,
@@ -54817,7 +54822,7 @@
   "Uses this agent's saved OpenCode key to label and filter the model list by plan.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1847"
+    "first": "src/components/AgentConfigForm.tsx:1865"
   },
   "Using saved key": {
     "count": 1,
@@ -55702,7 +55707,7 @@
   "Wake on demand": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2101"
+    "first": "src/components/AgentConfigForm.tsx:2119"
   },
   "Want to set more than one containment boundary?": {
     "count": 1,
@@ -56677,7 +56682,7 @@
   "Working directory (deprecated)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1730"
+    "first": "src/components/AgentConfigForm.tsx:1748"
   },
   "Working on a response...": {
     "count": 1,
@@ -57297,7 +57302,7 @@
   "You have a saved Claude login. Use it to bind this agent, or log in again to replace the stored token.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3522"
+    "first": "src/components/AgentConfigForm.tsx:3540"
   },
   "You have edited this skill after installing. Updates from the catalog will overwrite your changes.": {
     "count": 2,

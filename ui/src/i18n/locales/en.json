@@ -8400,6 +8400,7 @@
   "Role": "Role",
   "role=\"status\"": "role=\"status\"",
   "Roles": "Roles",
+  "Roles drive default permissions and the org chart. A company needs one CEO to approve join requests and act as the root manager.": "Roles drive default permissions and the org chart. A company needs one CEO to approve join requests and act as the root manager.",
   "Roles: ": "Roles: ",
   "Rollback": "Rollback",
   "Rollback failed.": "Rollback failed.",

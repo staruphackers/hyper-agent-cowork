@@ -7880,6 +7880,7 @@
   "Risks": "風險",
   "Role": "角色",
   "Roles": "角色",
+  "Roles drive default permissions and the org chart. A company needs one CEO to approve join requests and act as the root manager.": "角色決定預設權限與組織圖。公司需要一位 CEO 才能核准加入請求，並作為組織圖的最上層主管。",
   "Roles: ": "角色",
   "Rollback": "回滾",
   "Rollback failed.": "回滾失敗。",

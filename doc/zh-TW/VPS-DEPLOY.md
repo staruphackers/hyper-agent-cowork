@@ -269,6 +269,7 @@ docker compose up -d
 | 認領按鈕不見了 | `PAPERCLIP_DEPLOYMENT_EXPOSURE` 不是 `private`。改回 `private` 後 `docker compose up -d` |
 | 容器一直重啟、log 出現 `authenticated public deployments require DATABASE_URL` | `.env` 被改成 `PAPERCLIP_DEPLOYMENT_EXPOSURE=public`，但沒有外部 PostgreSQL。改回 `private` 後 `docker compose up -d` |
 | Hostinger Docker Manager 顯示「YAML 文件無法處理」、專案圖示只是一個字母 | 面板的編輯器讀不懂用 CLI 建立的 compose（Traefik 標籤含反引號、變數展開後留下的空白行），Docker 本身沒問題，容器狀態以 `docker compose ps` 為準。不要在面板按「部署／更新」，一律用 SSH 管理。字母圖示是面板對非範本專案的預設佔位圖 |
+| 核准加入請求時出現 `no active CEO` | 公司裡沒有角色是 CEO 的代理人。到該代理人的設定頁「身份」區塊，把「角色」下拉改成 CEO 後儲存（本發行版新增的欄位，上游只能在建立時決定角色） |
 | 容器一直重啟、log 出現 `EACCES /paperclip` | volume 權限問題。entrypoint 會自動 `chown`；若你改用 bind mount，請確認目錄可由 UID 1000 寫入 |
 | agent 一直「權限錯誤」 | 訂閱登入是用 root 做的（第 6 節），請以 `-u node` 重做 |
 | agent 跑到一半被殺 | RAM 不足。加記憶體或先加 swap：`sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile` |

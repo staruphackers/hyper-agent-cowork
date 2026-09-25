@@ -739,6 +739,26 @@ describe("AgentConfigForm environment selector", () => {
     vi.clearAllMocks();
   });
 
+  it("lets the board change an agent's role from the identity section", async () => {
+    let save: (() => void) | null = null;
+    const result = await renderForm([], { role: "general" }, {
+      hideInlineSave: true,
+      onSaveActionChange: action => { save = action; },
+    });
+    roots.push(result.root);
+    const select = result.container.querySelector<HTMLSelectElement>('select[aria-label="Role"]')!;
+    expect(select).toBeTruthy();
+    expect(select.value).toBe("general");
+    expect([...select.options].map(option => option.value)).toContain("ceo");
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value")!.set!.call(select, "ceo");
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await flushReact();
+    await act(async () => { await save?.(); });
+    expect(result.onSave).toHaveBeenCalledWith(expect.objectContaining({ role: "ceo" }));
+  });
+
   it("promotes environment drafts through the page Save action and discards them through the page Discard action", async () => {
     const dirty = vi.fn();
     let save: (() => void) | null = null;

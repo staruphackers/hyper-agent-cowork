@@ -19,7 +19,7 @@ import type {
   EnvSecretRefBinding,
   Environment,
 } from "@paperclipai/shared";
-import { AGENT_DEFAULT_MAX_CONCURRENT_RUNS, supportedEnvironmentDriversForAdapter, isValidBrowserCode, ADAPTER_AUTH_MISSING_CHECK_CODE } from "@paperclipai/shared";
+import { AGENT_DEFAULT_MAX_CONCURRENT_RUNS, AGENT_ROLES, supportedEnvironmentDriversForAdapter, isValidBrowserCode, ADAPTER_AUTH_MISSING_CHECK_CODE } from "@paperclipai/shared";
 import type { AdapterModel } from "../api/agents";
 import { agentsApi } from "../api/agents";
 import { OpenCodePlansPanel } from "./opencode/OpenCodePlansPanel";
@@ -79,6 +79,7 @@ import {
   DraftNumberInput,
   help,
   adapterLabels,
+  roleLabels,
 } from "./agent-config-primitives";
 import { defaultCreateValues } from "./agent-config-defaults";
 import { getUIAdapter } from "../adapters";
@@ -1514,6 +1515,23 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
                 excludeAgentIds={[props.agent.id]}
                 chooseLabel="Choose manager…"
               />
+            </Field>
+            <Field
+              label="Role"
+              hint="Roles drive default permissions and the org chart. A company needs one CEO to approve join requests and act as the root manager."
+            >
+              <select
+                aria-label="Role"
+                className={inputClass}
+                value={eff("identity", "role", props.agent.role)}
+                onChange={(event) => mark("identity", "role", event.target.value)}
+              >
+                {AGENT_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {roleLabels[role] ?? role}
+                  </option>
+                ))}
+              </select>
             </Field>
             {isLocal && !props.hidePromptTemplate && (
               <>
