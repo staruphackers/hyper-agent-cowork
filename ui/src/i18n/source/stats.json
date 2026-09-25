@@ -1,24 +1,24 @@
 {
-  "generatedAt": "2026-09-25T17:08:55.717Z",
+  "generatedAt": "2026-09-25T18:38:35.900Z",
   "filesScanned": 1074,
   "filesWithParseErrors": 0,
   "parseErrors": [],
   "sharedFilesScanned": 79,
   "sharedFilesWithParseErrors": 0,
   "sharedParseErrors": [],
-  "totalUniqueStrings": 11533,
-  "totalOccurrences": 21905,
+  "totalUniqueStrings": 11534,
+  "totalOccurrences": 21906,
   "byKind": {
     "jsx": 6936,
     "attr": 2461,
     "obj": 1975,
     "expr": 12945,
     "manual": 5,
-    "dyn": 9978,
+    "dyn": 9979,
     "shared": 550
   },
   "byTopLevelDir": {
-    "pages": 17837,
+    "pages": 17838,
     "components": 13996,
     "features": 704,
     "lib": 699,
@@ -56,7 +56,7 @@
     },
     {
       "file": "src/pages/AgentDetail.tsx",
-      "count": 538
+      "count": 539
     },
     {
       "file": "src/pages/AgentDetail.production.tsx",

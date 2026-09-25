@@ -697,6 +697,132 @@ describe.sequential("agent permission routes", () => {
     expect(res.status).toBe(403);
   });
 
+  describe("agent self-updates that touch profile fields", () => {
+    function stubSelfEditDecisions() {
+      mockAccessService.decide.mockImplementation(async (input: { action?: string; scope?: { requiresChangeGrant?: boolean } }) => {
+        if (input.scope?.requiresChangeGrant) {
+          return {
+            allowed: false,
+            reason: "deny_missing_consent",
+            explanation: "Permission agents:suggest-changes requires accepted change consent before applying this mutation.",
+          };
+        }
+        return {
+          allowed: true,
+          reason: "allow_self",
+          explanation: "Allowed because the actor is updating its own agent configuration.",
+        };
+      });
+    }
+
+    function createSelfApp() {
+      return createApp({
+        type: "agent",
+        agentId,
+        companyId,
+        runId: null,
+        source: "agent_key",
+      });
+    }
+
+    it("still lets an agent change its own non-profile fields", async () => {
+      stubSelfEditDecisions();
+      const res = await requestApp(createSelfApp(), (baseUrl) => request(baseUrl)
+        .patch(`/api/agents/${agentId}`)
+        .send({ icon: "bot" }));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(200);
+      expect(mockAgentService.update).toHaveBeenCalledWith(
+        agentId,
+        expect.objectContaining({ icon: "bot" }),
+        expect.anything(),
+      );
+    });
+
+    it("refuses an unconsented role change even when the patch carries other fields", async () => {
+      stubSelfEditDecisions();
+      const res = await requestApp(createSelfApp(), (baseUrl) => request(baseUrl)
+        .patch(`/api/agents/${agentId}`)
+        .send({ role: "ceo", icon: "bot" }));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(403);
+      expect(mockAgentService.update).not.toHaveBeenCalled();
+      expect(mockAccessService.decide).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: "agent_config:update",
+          scope: expect.objectContaining({ requiresChangeGrant: true }),
+        }),
+      );
+    });
+
+    it("refuses an unconsented profile-only role change", async () => {
+      stubSelfEditDecisions();
+      const res = await requestApp(createSelfApp(), (baseUrl) => request(baseUrl)
+        .patch(`/api/agents/${agentId}`)
+        .send({ role: "ceo" }));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(403);
+      expect(mockAgentService.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("harness switches while runs are active", () => {
+    // The db stub answers every select with one row, which stands in for one
+    // active heartbeat run of this agent.
+    function createBoardApp() {
+      return createApp({
+        type: "board",
+        userId: "board-user",
+        source: "local_implicit",
+        isInstanceAdmin: true,
+        companyIds: [companyId],
+      });
+    }
+
+    it("refuses the switch and reports the active runs", async () => {
+      mockAgentService.getById.mockResolvedValue({ ...baseAgent, adapterType: "codex_local" });
+
+      const res = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .patch(`/api/agents/${agentId}`)
+        .send({ adapterType: "process" }));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(409);
+      expect(res.body.code ?? res.body.details?.code).toBe("agent_runs_active");
+      expect(mockHeartbeatService.cancelRun).not.toHaveBeenCalled();
+      expect(mockAgentService.update).not.toHaveBeenCalled();
+    });
+
+    it("cancels the active runs first when the caller asks for it", async () => {
+      mockAgentService.getById.mockResolvedValue({ ...baseAgent, adapterType: "codex_local" });
+      mockAgentService.update.mockResolvedValue({ ...baseAgent, adapterType: "process" });
+
+      const res = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .patch(`/api/agents/${agentId}?cancelActiveRuns=true`)
+        .send({ adapterType: "process" }));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(200);
+      expect(mockHeartbeatService.cancelRun).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.stringContaining("harness changed"),
+        expect.objectContaining({ errorCode: "agent_adapter_switched" }),
+      );
+      expect(mockAgentService.update).toHaveBeenCalledWith(
+        agentId,
+        expect.objectContaining({ adapterType: "process" }),
+        expect.anything(),
+      );
+    });
+
+    it("does not consult runs when the harness stays the same", async () => {
+      const res = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .patch(`/api/agents/${agentId}`)
+        .send({ title: "Same harness" }));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(200);
+      expect(mockHeartbeatService.cancelRun).not.toHaveBeenCalled();
+    });
+  });
+
   it("requires instance administration to enable agent-scoped raw provider traces", async () => {
     const app = await createApp({
       type: "board",

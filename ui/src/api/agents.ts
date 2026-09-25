@@ -146,8 +146,16 @@ export const agentsApi = {
     api.post<Agent>(`/companies/${companyId}/agents`, data),
   hire: (companyId: string, data: Record<string, unknown>) =>
     api.post<AgentHireResponse>(`/companies/${companyId}/agent-hires`, data),
-  update: (id: string, data: Record<string, unknown>, companyId?: string) =>
-    api.patch<Agent>(agentPath(id, companyId), data),
+  update: (
+    id: string,
+    data: Record<string, unknown>,
+    companyId?: string,
+    options?: { cancelActiveRuns?: boolean },
+  ) =>
+    api.patch<Agent>(
+      agentPath(id, companyId, options?.cancelActiveRuns ? "?cancelActiveRuns=true" : ""),
+      data,
+    ),
   updatePermissions: (id: string, data: AgentPermissionUpdate, companyId?: string) =>
     api.patch<AgentDetail>(agentPath(id, companyId, "/permissions"), data),
   instructionsBundle: (id: string, companyId?: string) =>

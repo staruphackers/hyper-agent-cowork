@@ -558,7 +558,26 @@ export function describeAdapterExecutionTarget(
 export type AdapterExecutionTargetTimeoutSource =
   | "configured"
   | "sandbox_default"
+  | "instance_default"
   | "unlimited";
+
+/**
+ * Operator-wide fallback for local and SSH runs that leave `timeoutSec`
+ * unset. Unset or invalid keeps the historical "no adapter timeout"
+ * behavior; a positive number of seconds becomes the last-resort kill switch
+ * so a looping cheap model cannot run (and bill) forever on a small host.
+ */
+export const LOCAL_ADAPTER_TIMEOUT_ENV_KEY = "PAPERCLIP_LOCAL_ADAPTER_TIMEOUT_SEC";
+
+export function readInstanceDefaultLocalAdapterTimeoutSec(
+  env: Record<string, string | undefined> = process.env,
+): number | null {
+  const raw = env[LOCAL_ADAPTER_TIMEOUT_ENV_KEY];
+  if (typeof raw !== "string" || raw.trim().length === 0) return null;
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  return parsed;
+}
 
 export interface AdapterExecutionTargetTimeoutResolution {
   /** Resolved wall-clock timeout in seconds; 0 means no adapter timeout. */
@@ -595,6 +614,10 @@ export function resolveAdapterExecutionTargetTimeout(
   if (target?.kind === "remote" && target.transport === "sandbox") {
     return { timeoutSec: DEFAULT_REMOTE_SANDBOX_ADAPTER_TIMEOUT_SEC, source: "sandbox_default" };
   }
+  const instanceDefault = readInstanceDefaultLocalAdapterTimeoutSec();
+  if (instanceDefault !== null) {
+    return { timeoutSec: instanceDefault, source: "instance_default" };
+  }
   return { timeoutSec: 0, source: "unlimited" };
 }
 
@@ -613,6 +636,8 @@ function describeAdapterExecutionTimeoutSource(
       return "configured via adapterConfig.timeoutSec";
     case "sandbox_default":
       return "sandbox default";
+    case "instance_default":
+      return `instance default via ${LOCAL_ADAPTER_TIMEOUT_ENV_KEY}`;
     case "unlimited":
       return "no adapter wall-clock timeout";
   }

@@ -139,6 +139,8 @@ import {
   issueWriteDenialResponse,
   type IssueWriteDenialCode,
   type IssueWriteDenialContext,
+  aiConnectionBindingSchema,
+  isAiConnectionCompatible,
 } from "@paperclipai/shared";
 import { trackAgentTaskCompleted } from "@paperclipai/shared/telemetry";
 import { getTelemetryClient } from "../telemetry.js";
@@ -3544,6 +3546,47 @@ export function issueRoutes(
     opts.searchRateLimiter ?? defaultCompanySearchRateLimiter;
   const instanceSettings = instanceSettingsService(db);
   const agentsSvc = agentService(db);
+  /**
+   * A task-level model override runs on the assignee's harness and AI
+   * connection. Reject an override the run-time selector would refuse, so the
+   * board learns about the mismatch when saving instead of when the task
+   * finally wakes and fails with "Select an AI connection compatible…".
+   */
+  async function assertAssigneeAdapterOverridesCompatible(
+    companyId: string,
+    assigneeAgentId: string | null | undefined,
+    overrides: unknown,
+  ) {
+    if (!assigneeAgentId || !overrides || typeof overrides !== "object") return;
+    const overrideConfig = (overrides as { adapterConfig?: unknown }).adapterConfig;
+    if (!overrideConfig || typeof overrideConfig !== "object") return;
+    const overrideModel = (overrideConfig as Record<string, unknown>).model;
+    if (typeof overrideModel !== "string" || overrideModel.trim().length === 0) return;
+    const agent = await agentsSvc.getById(assigneeAgentId);
+    if (!agent || agent.companyId !== companyId) return;
+    const binding = aiConnectionBindingSchema.safeParse(
+      (agent.runtimeConfig as Record<string, unknown> | null)?.aiConnection,
+    ).data;
+    if (!binding) return;
+    const merged = {
+      ...((agent.adapterConfig ?? {}) as Record<string, unknown>),
+      ...(overrideConfig as Record<string, unknown>),
+    };
+    if (
+      !isAiConnectionCompatible(
+        binding,
+        agent.adapterType,
+        merged.model,
+        merged.provider,
+        merged.acpxAgent,
+      )
+    ) {
+      throw unprocessable(
+        "The task model override is not compatible with the assignee's AI connection. Pick a model this connection can run, or change the agent's connection first.",
+        { code: "ai_connection_incompatible", assigneeAgentId, model: overrideModel },
+      );
+    }
+  }
   const projectsSvc = projectService(db);
   const goalsSvc = goalService(db);
   const issueApprovalsSvc = issueApprovalService(db);
@@ -11781,6 +11824,11 @@ export function issueRoutes(
       if (rawCreateBody.assigneeAgentId || rawCreateBody.assigneeUserId) {
         await assertCanAssignTasks(req, companyId, createAssignmentScope);
       }
+      await assertAssigneeAdapterOverridesCompatible(
+        companyId,
+        createBody.assigneeAgentId ?? null,
+        createBody.assigneeAdapterOverrides,
+      );
       await assertIssueEnvironmentSelection(
         companyId,
         createBody.executionWorkspaceSettings?.environmentId,
@@ -13360,6 +13408,18 @@ export function issueRoutes(
       const assigneeWillChange =
         nextAssigneeAgentId !== existing.assigneeAgentId ||
         nextAssigneeUserId !== existing.assigneeUserId;
+      if (
+        updateFields.assigneeAdapterOverrides !== undefined ||
+        (assigneeWillChange && existing.assigneeAdapterOverrides)
+      ) {
+        await assertAssigneeAdapterOverridesCompatible(
+          existing.companyId,
+          nextAssigneeAgentId,
+          updateFields.assigneeAdapterOverrides === undefined
+            ? existing.assigneeAdapterOverrides
+            : updateFields.assigneeAdapterOverrides,
+        );
+      }
       const isAgentReturningIssueToCreator =
         req.actor.type === "agent" &&
         !!req.actor.agentId &&

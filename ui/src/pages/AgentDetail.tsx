@@ -159,6 +159,12 @@ const SECRET_ENV_KEY_RE =
 const COMMAND_ENV_KEY_RE = /(^command$|^cmd$|command[-_]?line|resolved[-_]?command|PAPERCLIP_RESOLVED_COMMAND)/i;
 const JWT_VALUE_RE = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)?$/;
 
+function isActiveRunsConflict(err: unknown): err is ApiError {
+  if (!(err instanceof ApiError) || err.status !== 409) return false;
+  const body = err.body as { code?: unknown; details?: { code?: unknown } } | null;
+  return body?.code === "agent_runs_active" || body?.details?.code === "agent_runs_active";
+}
+
 function formatOrgChainHealthPath(agent: AgentDetailRecord) {
   return agent.orgChainHealth?.fullChain
     .map((entry) => `${entry.name}${entry.status !== "active" && entry.status !== "idle" ? ` (${entry.status})` : ""}`)
@@ -1998,7 +2004,20 @@ export function ConfigurationTab({
   });
 
   const updateAgent = useMutation({
-    mutationFn: (data: Record<string, unknown>) => agentsApi.update(agent.id, data, companyId),
+    mutationFn: async (data: Record<string, unknown>) => {
+      try {
+        return await agentsApi.update(agent.id, data, companyId);
+      } catch (err) {
+        // A harness switch is refused while runs are active. Let the operator
+        // decide whether to cancel them instead of silently losing the work.
+        if (!isActiveRunsConflict(err)) throw err;
+        const confirmed = window.confirm(
+          "This agent still has active runs. Switching the harness cancels them and resets every task session. Cancel the runs and switch now?",
+        );
+        if (!confirmed) throw err;
+        return await agentsApi.update(agent.id, data, companyId, { cancelActiveRuns: true });
+      }
+    },
     onMutate: () => {
       setAwaitingRefreshAfterSave(true);
     },

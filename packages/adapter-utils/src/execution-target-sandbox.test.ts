@@ -30,8 +30,10 @@ import {
   ensureAdapterExecutionTargetCommandResolvable,
   formatAdapterExecutionTimeoutErrorMessage,
   formatAdapterExecutionTimeoutStartLogLine,
+  LOCAL_ADAPTER_TIMEOUT_ENV_KEY,
   parseAdapterExecutionTarget,
   postedIssueCommentLogMarker,
+  readInstanceDefaultLocalAdapterTimeoutSec,
   resolveAdapterExecutionTargetTimeout,
   resolveAdapterExecutionTargetTimeoutSec,
   runAdapterExecutionTargetProcess,
@@ -1952,6 +1954,48 @@ describe("sandbox adapter execution targets", () => {
       timeoutSec: 0.5,
       source: "configured",
     });
+  });
+
+  it("applies the instance default timeout only to local and SSH runs that leave timeoutSec unset", () => {
+    const previous = process.env[LOCAL_ADAPTER_TIMEOUT_ENV_KEY];
+    try {
+      process.env[LOCAL_ADAPTER_TIMEOUT_ENV_KEY] = "5400";
+      expect(readInstanceDefaultLocalAdapterTimeoutSec()).toBe(5400);
+      expect(resolveAdapterExecutionTargetTimeout({ kind: "local" }, 0)).toEqual({
+        timeoutSec: 5400,
+        source: "instance_default",
+      });
+      // An explicit configuration still wins, including the negative opt-out.
+      expect(resolveAdapterExecutionTargetTimeout({ kind: "local" }, 90)).toEqual({
+        timeoutSec: 90,
+        source: "configured",
+      });
+      expect(resolveAdapterExecutionTargetTimeout({ kind: "local" }, -1)).toEqual({
+        timeoutSec: 0,
+        source: "configured",
+      });
+      // Sandbox runs keep their own default.
+      const sandboxTarget: AdapterSandboxExecutionTarget = {
+        kind: "remote",
+        transport: "sandbox",
+        remoteCwd: "/workspace",
+        runner: createLocalSandboxRunner(),
+      };
+      expect(resolveAdapterExecutionTargetTimeout(sandboxTarget, 0).source).toBe("sandbox_default");
+
+      // Invalid values fall back to the historical unlimited behavior.
+      for (const invalid of ["", "  ", "abc", "0", "-30"]) {
+        process.env[LOCAL_ADAPTER_TIMEOUT_ENV_KEY] = invalid;
+        expect(readInstanceDefaultLocalAdapterTimeoutSec()).toBeNull();
+        expect(resolveAdapterExecutionTargetTimeout({ kind: "local" }, 0)).toEqual({
+          timeoutSec: 0,
+          source: "unlimited",
+        });
+      }
+    } finally {
+      if (previous === undefined) delete process.env[LOCAL_ADAPTER_TIMEOUT_ENV_KEY];
+      else process.env[LOCAL_ADAPTER_TIMEOUT_ENV_KEY] = previous;
+    }
   });
 
   it("treats a negative timeoutSec as the explicit no-timeout opt-out, even on sandbox targets", () => {

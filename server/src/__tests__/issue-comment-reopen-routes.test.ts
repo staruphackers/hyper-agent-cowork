@@ -538,6 +538,77 @@ describe.sequential("issue comment reopen routes", () => {
     );
   });
 
+  describe("task-level model overrides against the assignee's AI connection", () => {
+    const openCodeAgentOnOpenRouter = {
+      id: "22222222-2222-4222-8222-222222222222",
+      companyId: "company-1",
+      name: "OpenCode Builder",
+      role: "engineer",
+      status: "idle",
+      adapterType: "opencode_local",
+      adapterConfig: { model: "openrouter/anthropic/claude-sonnet-4-5" },
+      runtimeConfig: {
+        aiConnection: {
+          mode: "shared",
+          provider: "openrouter",
+          method: "api_key",
+          connectionId: "55555555-5555-4555-8555-555555555555",
+          grantId: "66666666-6666-4666-8666-666666666666",
+        },
+      },
+    };
+
+    it("rejects an override model the assignee's connection cannot run", async () => {
+      const issue = makeIssue("todo");
+      mockIssueService.getById.mockResolvedValue(issue);
+      mockAgentService.getById.mockResolvedValue(openCodeAgentOnOpenRouter);
+      mockIssueService.update.mockImplementation(
+        async (_id: string, patch: Record<string, unknown>) =>
+          makeIssueUpdateReceipt(issue, patch),
+      );
+
+      const res = await request(await installActor(createApp()))
+        .patch(`/api/issues/${issue.id}`)
+        .send({
+          assigneeAdapterOverrides: {
+            adapterConfig: { model: "anthropic/claude-sonnet-4-5" },
+          },
+        });
+
+      expect(res.status, JSON.stringify(res.body)).toBe(422);
+      expect(res.body.details?.code ?? res.body.code).toBe("ai_connection_incompatible");
+      expect(mockIssueService.update).not.toHaveBeenCalled();
+    });
+
+    it("accepts an override model the assignee's connection can run", async () => {
+      const issue = makeIssue("todo");
+      mockIssueService.getById.mockResolvedValue(issue);
+      mockAgentService.getById.mockResolvedValue(openCodeAgentOnOpenRouter);
+      mockIssueService.update.mockImplementation(
+        async (_id: string, patch: Record<string, unknown>) =>
+          makeIssueUpdateReceipt(issue, patch),
+      );
+
+      const res = await request(await installActor(createApp()))
+        .patch(`/api/issues/${issue.id}`)
+        .send({
+          assigneeAdapterOverrides: {
+            adapterConfig: { model: "openrouter/openai/gpt-5.6-terra" },
+          },
+        });
+
+      expect(res.status, JSON.stringify(res.body)).toBe(200);
+      expect(mockIssueService.update).toHaveBeenCalledWith(
+        issue.id,
+        expect.objectContaining({
+          assigneeAdapterOverrides: {
+            adapterConfig: { model: "openrouter/openai/gpt-5.6-terra" },
+          },
+        }),
+      );
+    });
+  });
+
   it("binds explicit attachments in the same transaction as a PATCH comment reassignment", async () => {
     const issue = makeIssue("todo");
     const id = "9af8228f-0be7-45ae-a104-6fbe0af6f1d3";

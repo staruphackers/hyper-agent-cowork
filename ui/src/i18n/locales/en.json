@@ -10140,6 +10140,7 @@
   "This agent is permanent for the connection. Connect another channel to represent a different agent.": "This agent is permanent for the connection. Connect another channel to represent a different agent.",
   "This agent is set to low-trust review, but no project, root issue, or issue scope is set in the core policy. Add a scope before this agent can run without denial.": "This agent is set to low-trust review, but no project, root issue, or issue scope is set in the core policy. Add a scope before this agent can run without denial.",
   "This agent keeps its current authentication until you choose and test a managed connection. Confirm the account and who may use it before adopting.": "This agent keeps its current authentication until you choose and test a managed connection. Confirm the account and who may use it before adopting.",
+  "This agent still has active runs. Switching the harness cancels them and resets every task session. Cancel the runs and switch now?": "This agent still has active runs. Switching the harness cancels them and resets every task session. Cancel the runs and switch now?",
   "This agent uses this GitHub account for everyone’s work, instead of the person giving instructions.": "This agent uses this GitHub account for everyone’s work, instead of the person giving instructions.",
   "This app doesn’t exist anymore.": "This app doesn’t exist anymore.",
   "This app needs reconnecting": "This app needs reconnecting",

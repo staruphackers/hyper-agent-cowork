@@ -78,7 +78,7 @@ Company
 | SW-4 | P1 | 任務層模型覆寫（Model lane）只支援 `claude_local`／`codex_local`／`opencode_local`；Pi、Grok、Gemini、Kimi、Cursor 都不能在任務層換模型 | `ui/src/lib/issue-assignee-overrides.ts:1-9`；`IssueProperties.tsx:720-845` | 想要「這個任務用便宜模型」只能改 Agent 全域設定 | 把白名單改成「凡是有模型清單的 harness 都支援」，並加入各 harness 的 effort 鍵對應 |
 | SW-5 | P1 | 任務層覆寫與 AI 連線的相容性只在執行時檢查；存覆寫時不檢查；Agent 改 harness 後舊覆寫也不會重新驗證 | 執行時：`ai-connection-runtime.ts:222-231` → `ai-connections.ts:224-235`；存檔時：`routes/issues.ts` 無檢查 | 任務排程後才報「Select an AI connection compatible…」，Agent 卡住 | 儲存覆寫時做 preflight（同一支 `isAiConnectionCompatible`）；Agent 切 harness 時掃描其待辦任務的覆寫並標記失效 |
 | SW-6 | P0（已修） | 切換到不支援 AI 連線的 harness 時，舊的 `runtimeConfig.aiConnection` 被帶過去，存檔就 422 | 修正於 `routes/agents.ts:5428-5443`（commit `22435f8`，zhtw.6） | Grok→Pi 無法切換 | 已修；保留回歸測試 |
-| SW-7 | P1 | 切換 harness 後 `defaultEnvironmentId` 若與新 harness 的 driver 不相容會 422，不會自動清空 | `routes/agents.ts:5456-5466`；`packages/shared/src/environment-support.ts:67-87` | 和 SW-6 同型的「切不過去」 | 同 SW-6 的處理方式：不相容就清空並提示 |
+| SW-7 | P2 | 切換 harness 後 `defaultEnvironmentId` 若與新 harness 的 driver 不相容會 422，不會自動清空。複查：這是上游刻意的行為（有測試保護，訊息也清楚），不是 bug | `routes/agents.ts:5456-5466`；`agent-permissions-routes.test.ts`「rejects switching an agent away from an SSH-capable runtime…」 | 只影響有用 SSH／sandbox 環境的部署 | 留在 backlog：UI 在切換 harness 時自動把不相容的環境選項清掉並提示 |
 | SW-8 | P2 | 切換 harness 不會清掉前一個 harness 的 skills 目錄（`~/.claude/skills`、`~/.pi/agent/skills`…）與受管憑證 home（`codex-home`、`grok-home`） | 各 adapter `skills.ts`；`codex-home.ts:129-139`、`grok-home.ts:94-104` | 磁碟殘留、舊 skill 版本被舊 harness 誤用 | 加「清理前一 harness 落點」的 best-effort 步驟，寫進活動紀錄 |
 | SW-9 | P2 | 沒有 per-run 模型參數：`wakeAgentSchema` 無 model 欄位，Routine 也沒有模型／harness 欄位 | `packages/shared/src/validators/agent.ts:220-241`；`packages/db/src/schema/routines.ts:26-55` | 定時任務無法指定便宜模型 | 納入 Routing Policy（第 5 節） |
 | SW-10 | P2 | 沒有任何 fallback：provider 失敗只會重試同一模型（Codex 的 transient fallback 只換 session／呼叫方式，不換模型） | `codex-local/src/server/execute.ts:279-304`；`heartbeat.ts:15241-15245` | 模型限流或停機時整個 Agent 停擺 | 納入 Routing Policy 的 fallback 規則，但要遵守上游「不得靜默 fallback」原則：必須寫入 run 紀錄與留言 |
@@ -125,7 +125,7 @@ Company
 | RB-3 | P1 | Gemini、Pi 的 429／限流沒有分類，落成一般失敗，不會設 quota monitor；Claude／Codex 有完整分類（auth_required、model_not_found、provider_quota、transient） | `gemini-local parse.ts:267-290` vs `execute.ts:744-752`；`pi-local/src/server/execute.ts`（無分類）；`claude-local parse.ts:13-30` | 用 OpenCode Go／Pi 時限流會被當成程式錯誤，Agent 進入 `error` | 在 adapter-utils 做共用的 429／quota 分類器 |
 | RB-4 | P2 | 重試：transient／quota 各 2 次、間隔 30 秒、無 jitter；用盡後 issue 設 monitor（provider 給的 reset time 或 1 小時）；復原 owner 是 system，不進 attention；`failed_run` 只在重試用盡後出現；Agent 在 `error` 狀態仍可被喚醒 | `heartbeat.ts:788-798, 1063-1120, 25081-25085`；`recovery/service.ts:519-679`；`attention-exhausted-runs.ts:14-50` | 可接受，但使用者不知道「為什麼 1 小時後才動」 | 在任務頁顯示 monitor 到期時間與原因 |
 | RB-5 | P2 | 本機執行預設**沒有 timeout**（sandbox 4 小時）；silent-run watchdog（1h／4h）只會開評估 issue，不會殺 run | `adapter-utils/src/execution-target.ts:378, 570-599`；`recovery/service.ts:156-158` | 便宜模型陷入迴圈時會一直跑、一直燒 token | VPS 預設 `timeoutSec`（建議 5400 秒）並在 UI 標示 |
-| RB-6 | P2 | 執行投影顯示 `maxAttempts: 3`，實際 bounded retry 是 2 | `execution-projection.ts:176` vs `heartbeat.ts:788-798` | 顯示錯誤 | 改成讀同一常數 |
+| RB-6 | 撤回 | 執行投影的 `maxAttempts: 3` 是「總嘗試次數」（1 次初跑＋2 次重試），與 `attempt = 重試次數 + 1` 的算法一致；複查後不是問題 | `execution-projection.ts:176`；`execution-projection.test.ts:163` | 無 | 不處理 |
 | RB-7 | P2 | 測試缺口：(a) 預算硬停真的取消 live run 沒有端對端測試；(b) 沒有「執行中改設定／切 harness」的測試；(c) timeout → `timed_out` + Agent `error` 沒有測試（fixture 用 `adapter_timed_out`，程式發 `timeout`）；(d) Gemini／Pi 限流無測試；(e) Codex 無價成本無測試 | `budgets-service.test.ts:122, 417, 538`；`heartbeat-process-recovery.test.ts:9102` | 這正是「切換」相關的風險區 | 每個 Phase 0 修補都附回歸測試 |
 | RB-8 | ✅ 優點 | 重啟恢復完整：native recovery 有 controller generation 與 20 分鐘 lease；legacy run 60 秒 lease 每 10 秒續；graceful shutdown 標 `interrupted` 並排程重試；孤兒 run 每 5 分鐘清 | `native-restart-recovery.ts:449-612`；`legacy-controller-lease.ts:6-8, 67-111`；`heartbeat.ts:14972-15183`；`index.ts:1441-1507, 1760-1764` | VPS 升級／重啟不會遺失任務 | 保留；升級 SOP 已寫在 `doc/zh-TW/VPS-DEPLOY.md` |
 
@@ -231,6 +231,22 @@ handoff (issue document, append-only revisions)
 - 所有 schema 變更 additive；舊欄位雙寫；新功能在 `enableAgentCowork` 後面，關閉時行為與上游一致。
 - 每個 Phase 都先 rebase 上游最新 release 再開工，避免在 29k 行的 `heartbeat.ts` 上累積衝突。
 - 適合回饋上游的部分：RL-1 安全修正、RB-3 限流分類、SW-4 覆寫白名單、RB-6 顯示不一致。
+
+## 5.9 Phase 0 出貨狀態（2026-09-26 更新）
+
+`zhtw.7` 已實作的 Phase 0 項目：
+
+| 發現 | 做法 | 驗證 |
+|---|---|---|
+| RL-1 | patch 只要觸及 `name`／`role`／`title`／`capabilities` 就套用同意閘；其餘欄位仍走一般更新授權 | `agent-permissions-routes.test.ts`「agent self-updates that touch profile fields」 |
+| SW-3 | 有 queued／running／scheduled_retry 的 run 時，切換 harness 回 409 `agent_runs_active`；帶 `?cancelActiveRuns=true` 才取消（errorCode `agent_adapter_switched`）後切換；設定頁會先詢問 | 同上「harness switches while runs are active」 |
+| SW-5 | 任務建立與更新時，覆寫模型會用 `isAiConnectionCompatible` 對 assignee 的 AI 連線做 preflight，不相容回 422 `ai_connection_incompatible` | `issue-comment-reopen-routes.test.ts`「task-level model overrides…」 |
+| DS-1 | `PAPERCLIP_MAX_CONCURRENT_RUNS`：整台 instance 的同時執行上限，於佇列放行時與每代理人上限取小 | `instance-run-cap.test.ts` |
+| RB-5 | `PAPERCLIP_LOCAL_ADAPTER_TIMEOUT_SEC`：本機／SSH 執行未設 `timeoutSec` 時的預設逾時 | `execution-target-sandbox.test.ts`「applies the instance default timeout…」 |
+| RB-3 | adapter-utils 新增共用的 `classifyProviderFailureText`；Pi、OpenCode、Gemini 失敗時回報 `errorFamily`（`transient_upstream`／`provider_quota`）與 `retryNotBefore` | `provider-failure-classification.test.ts` |
+| RB-1 | run 結束時若代理人的 harness 已變更，不再把舊 harness 的 session／adapterType 寫回 runtime state，也不重建任務 session | 靠既有 `heartbeat-process-recovery.test.ts` 回歸；尚無專屬測試 |
+
+未納入 Phase 0：SW-7（上游刻意行為）、RB-6（撤回）。
 
 ## 6. 升級路線圖
 

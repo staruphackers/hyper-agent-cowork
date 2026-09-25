@@ -11233,5 +11233,6 @@
   "”. Clear the search to see them all.": "”。清除搜尋以檢視全部。",
   "← Back to cases": "← 返回案例",
   "→ Returns to:": "→ 返回到：",
-  "● Editing · unsaved": "● 編輯中 · 未儲存"
+  "● Editing · unsaved": "● 編輯中 · 未儲存",
+  "This agent still has active runs. Switching the harness cancels them and resets every task session. Cancel the runs and switch now?": "這個代理人還有執行中的 run。切換轉接器會取消這些 run，並重置所有任務的對話 session。要取消這些 run 並立即切換嗎？"
 }

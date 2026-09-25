@@ -5325,6 +5325,43 @@ export function agentRoutes(
     const requestedAdapterType = nextAdapterType === existing.adapterType
       ? nextAdapterType
       : await assertSelectableAdapterType(nextAdapterType);
+    if (requestedAdapterType !== existing.adapterType) {
+      // A harness switch deletes every task session and aborts a run that is
+      // still starting. Refuse it while runs are active unless the caller
+      // explicitly asked to cancel them, so the board sees the impact before
+      // in-flight work is lost.
+      const activeRuns = await db
+        .select({ id: heartbeatRuns.id, status: heartbeatRuns.status })
+        .from(heartbeatRuns)
+        .where(
+          and(
+            eq(heartbeatRuns.agentId, existing.id),
+            inArray(heartbeatRuns.status, ["queued", "running", "scheduled_retry"]),
+          ),
+        );
+      if (activeRuns.length > 0) {
+        await assertCanUpdateAgent(req, existing);
+        const cancelRequested =
+          req.query.cancelActiveRuns === "true" || req.query.cancelActiveRuns === "1";
+        if (!cancelRequested) {
+          throw conflict(
+            `This agent has ${activeRuns.length} active run${activeRuns.length === 1 ? "" : "s"}. Wait for them to finish, or cancel them, before switching the harness.`,
+            {
+              code: "agent_runs_active",
+              activeRunCount: activeRuns.length,
+              activeRunIds: activeRuns.map((run) => run.id),
+            },
+          );
+        }
+        for (const run of activeRuns) {
+          await heartbeat.cancelRun(
+            run.id,
+            `Cancelled because the agent harness changed from ${existing.adapterType} to ${requestedAdapterType}`,
+            { errorCode: "agent_adapter_switched" },
+          );
+        }
+      }
+    }
     let requestedRuntimeConfig: Record<string, unknown> | null = null;
     if (hasOwn(patchData, "runtimeConfig")) {
       const runtimeConfig = asRecord(patchData.runtimeConfig);
@@ -5465,13 +5502,18 @@ export function agentRoutes(
         },
       );
     }
+    // Profile fields (name, role, title, capabilities) always need the
+    // protected-change authority, even when the patch also carries ordinary
+    // configuration keys. Gating only "profile-only" patches let an agent
+    // promote itself to CEO by adding any unrelated field to the same request.
     const touchesProfileFields = touchesAgentProfileChangeConsentFields(patchData);
-    const profileOnlyChange = touchesProfileFields && Object.keys(patchData).every((key) =>
-      (AGENT_PROFILE_CHANGE_CONSENT_FIELDS as readonly string[]).includes(key),
+    const touchesNonProfileFields = Object.keys(patchData).some((key) =>
+      !(AGENT_PROFILE_CHANGE_CONSENT_FIELDS as readonly string[]).includes(key),
     );
-    if (profileOnlyChange) {
+    if (touchesProfileFields) {
       await assertCanApplyAgentProfileChange(req, existing);
-    } else {
+    }
+    if (!touchesProfileFields || touchesNonProfileFields) {
       await assertCanUpdateAgent(req, existing);
     }
 

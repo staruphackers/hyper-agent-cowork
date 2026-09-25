@@ -89,6 +89,10 @@ services:
       HOST: "0.0.0.0"
       PAPERCLIP_HOME: /paperclip
       SERVE_UI: "true"
+      # KVM 2 建議值：整台主機最多同時跑 2 個 agent run，其餘排隊等下一個 tick
+      PAPERCLIP_MAX_CONCURRENT_RUNS: "2"
+      # 本機執行的 run 若沒設定 timeoutSec，最多跑 90 分鐘就強制結束（sandbox 另有 4 小時預設）
+      PAPERCLIP_LOCAL_ADAPTER_TIMEOUT_SEC: "5400"
     volumes:
       # 內嵌 PostgreSQL、上傳檔、secrets 主金鑰、agent 工作區全部在這個 volume
       - hac-data:/paperclip
@@ -98,6 +102,13 @@ volumes:
 ```
 
 正式環境建議把 `latest` 換成固定版本（例如 `:2026.925.0-zhtw.1`），升級時自己改 tag，避免某次 `pull` 意外升級。
+
+兩個 `zhtw.7` 起才有的變數（都可以不設，不設就是上游行為）：
+
+| 變數 | 建議值 | 作用 |
+| --- | --- | --- |
+| `PAPERCLIP_MAX_CONCURRENT_RUNS` | KVM 2 設 `2`，KVM 4 設 `3`～`4` | 整台主機同時執行的 agent run 上限。上游只有「每個代理人最多 20 個」的限制，幾個代理人同時開工就會把小主機拖垮。超過上限的 run 會排隊，每 30 秒的排程 tick 再放行 |
+| `PAPERCLIP_LOCAL_ADAPTER_TIMEOUT_SEC` | `5400`（90 分鐘） | 本機執行的 run 若代理人設定裡沒填 `timeoutSec`，就用這個值當最後的強制結束時間，避免便宜模型鬼打牆一直燒 token。代理人設定裡填了 `timeoutSec` 就以代理人為準；填負數代表這個代理人不設逾時 |
 
 ## 4A. 方案 A：Tailscale 私網
 
@@ -274,6 +285,9 @@ docker compose up -d
 | 核准加入請求時出現 `no active CEO` | 公司裡沒有角色是 CEO 的代理人。到該代理人的設定頁「身份」區塊，把「角色」下拉改成 CEO 後儲存。新增代理人的精靈也有「身份」區塊可以選角色、職位與主管，公司沒有 CEO 時預設就是 CEO（這兩處都是本發行版新增，上游把第一個代理人寫死為 CEO、其餘寫死為一般成員且不能改） |
 | Pi 轉接器的代理人連不上、模型清單空的 | `zhtw.3` 以前的映像沒有裝 Pi，而且 Pi 只列出「已有金鑰的供應商」的模型。`zhtw.4` 起映像內建 Pi，模型清單也會列出所有可設定供應商。舊版先臨時補裝：`docker exec -u root hyper-agent-cowork npm install -g @earendil-works/pi-coding-agent@latest`（容器重建後會消失）。代理人的環境變數要有 `OPENCODE_API_KEY`（或對應供應商的金鑰）Pi 才能呼叫模型 |
 | 把代理人的轉接器從 Grok／Codex／Claude 切到 Pi 等後，儲存或測試出現 `Select an AI connection compatible with this harness and model` | 舊的訂閱連線綁定被上游沿用到新轉接器上，而 Pi、Gemini CLI、Kimi Code、Hermes 都不走訂閱連線。`zhtw.6` 起切換時會自動清掉舊綁定；舊版請改為新建一個代理人，不要原地切換 |
+| 切換代理人的轉接器時出現 `This agent has N active runs`（HTTP 409） | `zhtw.7` 起的保護：切換轉接器會刪掉該代理人所有任務的對話 session，並中止正在啟動的 run。介面會問你要不要「取消這些 run 並切換」；API 呼叫請加 `?cancelActiveRuns=true`，或等 run 跑完再切 |
+| 任務頁的「模型覆寫」存不進去，出現 `not compatible with the assignee's AI connection` | 覆寫的模型不是這個代理人綁定的 AI 連線能跑的（例如 OpenCode 綁 OpenRouter 連線，模型卻不是 `openrouter/` 開頭）。改選相容的模型，或先到代理人設定換連線。`zhtw.7` 以前這個錯誤要等到任務真的執行時才會冒出來 |
+| 代理人用自己的 API key 改自己的角色被拒（HTTP 403） | `zhtw.7` 起代理人改自己的 `name`／`role`／`title`／`capabilities` 一律要先取得看板同意（request confirmation），不管請求裡有沒有夾帶其他欄位。這是安全修正：以前只要多帶一個欄位就能把自己升成 CEO |
 | 容器一直重啟、log 出現 `EACCES /paperclip` | volume 權限問題。entrypoint 會自動 `chown`；若你改用 bind mount，請確認目錄可由 UID 1000 寫入 |
 | agent 一直「權限錯誤」 | 訂閱登入是用 root 做的（第 6 節），請以 `-u node` 重做 |
 | agent 跑到一半被殺 | RAM 不足。加記憶體或先加 swap：`sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile` |

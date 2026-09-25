@@ -157,3 +157,9 @@ export type {
   SandboxCallbackBridgeWorkerHandle,
   StartedSandboxCallbackBridgeServer,
 } from "./sandbox-callback-bridge.js";
+
+export {
+  classifyProviderFailureText,
+  parseProviderRetryNotBefore,
+  type ProviderFailureClassification,
+} from "./provider-failure-classification.js";

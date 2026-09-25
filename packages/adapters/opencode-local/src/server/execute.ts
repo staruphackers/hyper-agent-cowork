@@ -2,7 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { inferOpenAiCompatibleBiller, type AdapterExecutionContext, type AdapterExecutionResult } from "@paperclipai/adapter-utils";
+import {
+  classifyProviderFailureText,
+  inferOpenAiCompatibleBiller,
+  type AdapterExecutionContext,
+  type AdapterExecutionResult,
+} from "@paperclipai/adapter-utils";
 import {
   adapterExecutionTargetIsRemote,
   adapterExecutionTargetRemoteCwd,
@@ -704,6 +709,12 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         stderrLine ||
         `OpenCode exited with code ${synthesizedExitCode ?? -1}`;
       const modelId = model || null;
+      // OpenCode relays provider 429/quota errors as plain text. Classify it so
+      // the server treats rate limits as transient and exhausted plans as quota
+      // waits instead of generic adapter failures.
+      const providerFailure = (synthesizedExitCode ?? 0) === 0
+        ? { errorFamily: null, retryNotBefore: null }
+        : classifyProviderFailureText([parsedError, attempt.proc.stderr, attempt.proc.stdout]);
 
       return {
         exitCode: synthesizedExitCode,
@@ -714,6 +725,8 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         // A lost duplex control channel surfaces the typed `duplex_channel_lost`
         // code; every other result carries no code here.
         errorCode: attempt.proc.errorCode ?? null,
+        ...(providerFailure.errorFamily ? { errorFamily: providerFailure.errorFamily } : {}),
+        ...(providerFailure.retryNotBefore ? { retryNotBefore: providerFailure.retryNotBefore } : {}),
         usage: {
           inputTokens: attempt.parsed.usage.inputTokens,
           outputTokens: attempt.parsed.usage.outputTokens,

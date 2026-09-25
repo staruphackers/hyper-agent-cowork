@@ -4497,7 +4497,7 @@
   "Adapter default": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:1732"
+    "first": "src/pages/AgentDetail.tsx:1738"
   },
   "Adapter environment test failed": {
     "count": 1,
@@ -5447,7 +5447,7 @@
   "Agent identity": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:2080"
+    "first": "src/pages/AgentDetail.tsx:2099"
   },
   "Agent inheritance now follows the updated instance default.": {
     "count": 1,
@@ -17267,7 +17267,7 @@
   "Direct reports": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/AgentDetail.tsx:1755"
+    "first": "src/pages/AgentDetail.tsx:1761"
   },
   "Directed to ": {
     "count": 1,
@@ -18772,7 +18772,7 @@
   "Enabled by simple organization-wide task assignment defaults.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:2058"
+    "first": "src/pages/AgentDetail.tsx:2077"
   },
   "Enabled on this agent": {
     "count": 2,
@@ -18792,7 +18792,7 @@
   "Enabled via explicit organization permission grant.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:2056"
+    "first": "src/pages/AgentDetail.tsx:2075"
   },
   "enables native file receipt and consent-based sending in personal chats; channel and group-chat files need a separate Microsoft Graph connection and are not ingested here.": {
     "count": 1,
@@ -22297,7 +22297,7 @@
   "GitHub identity history": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:3516"
+    "first": "src/pages/AgentDetail.tsx:3535"
   },
   "GitHub installation access is unavailable": {
     "count": 1,
@@ -22722,7 +22722,7 @@
   "Harness / Runtime": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:1761"
+    "first": "src/pages/AgentDetail.tsx:1767"
   },
   "Has access — tick to load its tools into this agent's context.": {
     "count": 1,
@@ -24622,12 +24622,12 @@
   "Instruction file editor": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/AgentDetail.tsx:2992"
+    "first": "src/pages/AgentDetail.tsx:3011"
   },
   "Instruction file view": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/AgentDetail.tsx:2892"
+    "first": "src/pages/AgentDetail.tsx:2911"
   },
   "Instructions": {
     "count": 9,
@@ -26302,7 +26302,7 @@
   "Lets this agent install, import, create, and scan organization skills without creating agents.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:2133"
+    "first": "src/pages/AgentDetail.tsx:2152"
   },
   "Level": {
     "count": 1,
@@ -27757,7 +27757,7 @@
   "Manage": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:1786"
+    "first": "src/pages/AgentDetail.tsx:1792"
   },
   "Manage access": {
     "count": 1,
@@ -30207,7 +30207,7 @@
   "No capability summary has been added.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:1779"
+    "first": "src/pages/AgentDetail.tsx:1785"
   },
   "No cases match these filters.": {
     "count": 2,
@@ -30552,7 +30552,7 @@
   "No GitHub operation recorded": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:3530"
+    "first": "src/pages/AgentDetail.tsx:3549"
   },
   "No goals yet.": {
     "count": 2,
@@ -31137,7 +31137,7 @@
   "No responsible person": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:3522"
+    "first": "src/pages/AgentDetail.tsx:3541"
   },
   "No responsible selected": {
     "count": 1,
@@ -31392,7 +31392,7 @@
   "No session": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:1767"
+    "first": "src/pages/AgentDetail.tsx:1773"
   },
   "No sheets are connected yet.": {
     "count": 1,
@@ -31417,7 +31417,7 @@
   "No skills enabled.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:1794"
+    "first": "src/pages/AgentDetail.tsx:1800"
   },
   "No skills found": {
     "count": 1,
@@ -41377,7 +41377,7 @@
   "Retry was skipped.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/api/agents.ts:289"
+    "first": "src/api/agents.ts:297"
   },
   "Retry, or re-export the package without large attachments to shrink it.": {
     "count": 1,
@@ -43367,7 +43367,7 @@
   "Saving changes…": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:1502"
+    "first": "src/pages/AgentDetail.tsx:1508"
   },
   "Saving creates rev ": {
     "count": 1,
@@ -50704,6 +50704,11 @@
     "kind": "jsx",
     "first": "src/components/ai-connections/AiConnectionManagement.tsx:15"
   },
+  "This agent still has active runs. Switching the harness cancels them and resets every task session. Cancel the runs and switch now?": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/AgentDetail.tsx:2015"
+  },
   "This agent uses this GitHub account for everyone’s work, instead of the person giving instructions.": {
     "count": 2,
     "kind": "jsx",
@@ -51062,7 +51067,7 @@
   "This instruction file is empty.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:2954"
+    "first": "src/pages/AgentDetail.tsx:2973"
   },
   "This invite has already been used.": {
     "count": 1,
@@ -57332,7 +57337,7 @@
   "You have unsaved changes.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:1502"
+    "first": "src/pages/AgentDetail.tsx:1508"
   },
   "You haven't edited this, so Paperclip will replace it with the newer shipped version. Nothing you customized is affected, and your adapter credentials and settings are not touched.": {
     "count": 1,

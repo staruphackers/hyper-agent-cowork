@@ -3,7 +3,11 @@ import type { Dirent } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { AdapterExecutionContext, AdapterExecutionResult } from "@paperclipai/adapter-utils";
+import {
+  classifyProviderFailureText,
+  type AdapterExecutionContext,
+  type AdapterExecutionResult,
+} from "@paperclipai/adapter-utils";
 import {
   adapterExecutionTargetIsRemote,
   adapterExecutionTargetRemoteCwd,
@@ -706,6 +710,16 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       attempt.parsed.resultEvent,
       attempt.proc.exitCode,
     );
+    // Gemini's quota detector only runs during the environment check; a 429
+    // or RESOURCE_EXHAUSTED during a task used to end as a generic failure.
+    const providerFailure = failed
+      ? classifyProviderFailureText([
+          parsedError,
+          structuredFailure,
+          attempt.proc.stderr,
+          attempt.proc.stdout,
+        ])
+      : { errorFamily: null, retryNotBefore: null };
 
     // On retry, don't fall back to old session ID — the old session was stale
     const canFallbackToRuntimeSession = !isRetry;
@@ -750,6 +764,8 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         : failed && networkUnavailable
         ? "gemini_network_unavailable"
         : null,
+      ...(providerFailure.errorFamily ? { errorFamily: providerFailure.errorFamily } : {}),
+      ...(providerFailure.retryNotBefore ? { retryNotBefore: providerFailure.retryNotBefore } : {}),
       usage: attempt.parsed.usage,
       sessionId: resolvedSessionId,
       sessionParams: resolvedSessionParams,

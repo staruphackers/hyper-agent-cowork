@@ -2,7 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { inferOpenAiCompatibleBiller, type AdapterExecutionContext, type AdapterExecutionResult } from "@paperclipai/adapter-utils";
+import {
+  classifyProviderFailureText,
+  inferOpenAiCompatibleBiller,
+  type AdapterExecutionContext,
+  type AdapterExecutionResult,
+} from "@paperclipai/adapter-utils";
 import {
   adapterExecutionTargetIsRemote,
   adapterExecutionTargetRemoteCwd,
@@ -795,6 +800,13 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       const parsedError = attempt.parsed.errors.find((error) => error.trim().length > 0) ?? "";
       const effectiveExitCode = (rawExitCode ?? 0) === 0 && parsedError ? 1 : rawExitCode;
       const fallbackErrorMessage = parsedError || stderrLine || `Pi exited with code ${rawExitCode ?? -1}`;
+      // Pi surfaces provider rate limits and exhausted quotas only as a
+      // non-zero exit with the provider's message. Classify that text so the
+      // server schedules a bounded retry or a quota monitor instead of parking
+      // the agent in `error`.
+      const providerFailure = (effectiveExitCode ?? 0) === 0
+        ? { errorFamily: null, retryNotBefore: null }
+        : classifyProviderFailureText([parsedError, attempt.proc.stderr, attempt.proc.stdout]);
 
       return {
         exitCode: effectiveExitCode,
@@ -805,6 +817,8 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         // A lost duplex control channel surfaces the typed `duplex_channel_lost`
         // code; every other result carries no code here.
         errorCode: attempt.proc.errorCode ?? null,
+        ...(providerFailure.errorFamily ? { errorFamily: providerFailure.errorFamily } : {}),
+        ...(providerFailure.retryNotBefore ? { retryNotBefore: providerFailure.retryNotBefore } : {}),
         usage: {
           inputTokens: attempt.parsed.usage.inputTokens,
           outputTokens: attempt.parsed.usage.outputTokens,

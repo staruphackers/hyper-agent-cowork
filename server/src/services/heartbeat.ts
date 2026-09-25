@@ -33,6 +33,7 @@ import {
   waitForAdapterStop,
 } from "./adapter-execution-control.js";
 import { executionFailureRetryCount } from "./execution-recovery-attempt.js";
+import { availableRunSlots, readInstanceMaxConcurrentRuns } from "./instance-run-cap.js";
 import { buildHeartbeatRunStatusLiveEventPayload } from "./heartbeat-run-status-payload.js";
 export { buildHeartbeatRunStatusLiveEventPayload } from "./heartbeat-run-status-payload.js";
 import { buildExecutionContinuation } from "./execution-continuation.js";
@@ -16880,6 +16881,14 @@ export function heartbeatService(
     return Number(count ?? 0);
   }
 
+  async function countRunningRunsForInstance() {
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(heartbeatRuns)
+      .where(eq(heartbeatRuns.status, "running"));
+    return Number(count ?? 0);
+  }
+
   async function withChatControlRecoveryGate(
     run: typeof heartbeatRuns.$inferSelect,
     stage: "claim" | "dispatch",
@@ -19638,6 +19647,14 @@ export function heartbeatService(
     result: AdapterExecutionResult,
     session: { legacySessionId: string | null },
     normalizedUsage?: UsageTotals | null,
+    options?: {
+      /**
+       * The agent switched harness while this run executed. Usage and cost
+       * still belong to the run, but the run's adapter identity and session
+       * are stale and must not overwrite the switched agent's runtime state.
+       */
+      preserveAdapterIdentity?: boolean;
+    },
   ) {
     await ensureRuntimeState(agent);
     const usage = normalizedUsage ?? normalizeUsageTotals(result.usage);
@@ -19669,8 +19686,12 @@ export function heartbeatService(
     await db
       .update(agentRuntimeState)
       .set({
-        adapterType: agent.adapterType,
-        sessionId: session.legacySessionId,
+        ...(options?.preserveAdapterIdentity
+          ? {}
+          : {
+              adapterType: agent.adapterType,
+              sessionId: session.legacySessionId,
+            }),
         lastRunId: run.id,
         lastRunStatus: run.status,
         lastError: run.error ?? null,
@@ -19723,10 +19744,13 @@ export function heartbeatService(
       }
       const policy = parseHeartbeatPolicy(agent);
       const runningCount = await countRunningRunsForAgent(agentId);
-      const availableSlots = Math.max(
-        0,
-        policy.maxConcurrentRuns - runningCount,
-      );
+      const instanceCap = readInstanceMaxConcurrentRuns();
+      const availableSlots = availableRunSlots({
+        agentCap: policy.maxConcurrentRuns,
+        agentRunning: runningCount,
+        instanceCap,
+        instanceRunning: instanceCap === null ? 0 : await countRunningRunsForInstance(),
+      });
       if (availableSlots <= 0) return [];
 
       const queuedRuns = await db
@@ -25183,6 +25207,25 @@ export function heartbeatService(
         }
 
         if (finalizedRun) {
+          // The agent row was snapshotted when this run started. If an
+          // operator switched the harness meanwhile, that switch already
+          // deleted the task sessions and reset the runtime session; writing
+          // this run's adapter identity or session back would resurrect a
+          // session under the old harness.
+          const agentNow = await getAgent(agent.id);
+          const adapterSwitchedDuringRun =
+            Boolean(agentNow) && agentNow!.adapterType !== agent.adapterType;
+          if (adapterSwitchedDuringRun) {
+            logger.info(
+              {
+                runId: finalizedRun.id,
+                agentId: agent.id,
+                runAdapterType: agent.adapterType,
+                agentAdapterType: agentNow!.adapterType,
+              },
+              "agent harness changed during run; skipping session write-back",
+            );
+          }
           await updateRuntimeState(
             agent,
             finalizedRun,
@@ -25191,8 +25234,12 @@ export function heartbeatService(
               legacySessionId: nextSessionState.legacySessionId,
             },
             normalizedUsage,
+            { preserveAdapterIdentity: adapterSwitchedDuringRun },
           );
-          if (taskKey) {
+          if (taskKey && adapterSwitchedDuringRun) {
+            // Nothing to persist: the switch already cleared this harness's
+            // sessions and a new one must not be created for it.
+          } else if (taskKey) {
             if (
               adapterResult.clearSession ||
               (!nextSessionState.params && !nextSessionState.displayId)
