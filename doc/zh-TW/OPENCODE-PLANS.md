@@ -35,7 +35,11 @@
 - Go 的端點在 models.dev 註明為未公開文件的介面，格式若變動，偵測會顯示「無法確認」並退回容器內的模型清單，不影響建立代理人。
 - 偵測只是查詢，不產生模型費用。
 
-## 4. 選模型與費用控管
+## 4. Pi 轉接器也能用 OpenCode Go
+
+Pi（pi-coding-agent）內建 `opencode` 與 `opencode-go` 兩個 provider，同樣讀 `OPENCODE_API_KEY`，模型 id 例如 `opencode-go/deepseek-v4-flash`。`zhtw.4` 起 Docker 映像內建 Pi，新增代理人時模型清單會列出全部供應商。Pi 目前沒有「檢查方案」按鈕，方案是否開通請用 OpenCode 代理人那邊的偵測結果判斷，兩者用同一把金鑰。
+
+## 5. 選模型與費用控管
 
 - 策略型、需要長推理的代理人：用方案裡最強的模型。
 - 例行整理、格式化、摘要：用便宜或免費模型。

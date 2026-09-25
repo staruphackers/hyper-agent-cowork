@@ -4,6 +4,32 @@ import { asString, runChildProcess } from "@paperclipai/adapter-utils/server-uti
 
 const MODELS_CACHE_TTL_MS = 60_000;
 
+// Pi only enumerates providers that have credentials in its environment: a
+// bare `pi --list-models` on a fresh host prints "No models available". The
+// catalog listing behind the setup wizard runs before any key is stored, so it
+// injects placeholder credentials for the providers Paperclip can configure,
+// purely so Pi prints its registry. Real values already in the environment are
+// kept. The placeholders never reach an agent run: the run-time availability
+// check passes the agent's real env and no placeholders.
+export const PI_LISTING_PLACEHOLDER_ENV_KEYS = [
+  "ANTHROPIC_API_KEY",
+  "OPENAI_API_KEY",
+  "OPENROUTER_API_KEY",
+  "GEMINI_API_KEY",
+  "XAI_API_KEY",
+  "GROQ_API_KEY",
+  "OPENCODE_API_KEY",
+] as const;
+export const PI_LISTING_PLACEHOLDER_VALUE = "paperclip-model-listing-placeholder";
+
+export function withPiListingPlaceholders(env: Record<string, string>): Record<string, string> {
+  const next = { ...env };
+  for (const key of PI_LISTING_PLACEHOLDER_ENV_KEYS) {
+    if (!next[key] || !next[key].trim()) next[key] = PI_LISTING_PLACEHOLDER_VALUE;
+  }
+  return next;
+}
+
 function firstNonEmptyLine(text: string): string {
   return (
     text
@@ -104,11 +130,15 @@ export async function discoverPiModels(input: {
   command?: unknown;
   cwd?: unknown;
   env?: unknown;
+  /** Catalog mode: make Pi print every configurable provider, not only the
+   * ones that already hold credentials. Never set this for a run-time check. */
+  enumerateProviders?: boolean;
 } = {}): Promise<AdapterModel[]> {
   const command = resolvePiCommand(input.command);
   const cwd = asString(input.cwd, process.cwd());
   const env = normalizeEnv(input.env);
-  const runtimeEnv = normalizeEnv({ ...process.env, ...env });
+  const mergedEnv = normalizeEnv({ ...process.env, ...env });
+  const runtimeEnv = input.enumerateProviders ? withPiListingPlaceholders(mergedEnv) : mergedEnv;
 
   const result = await runChildProcess(
     `pi-models-${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -151,17 +181,19 @@ export async function discoverPiModelsCached(input: {
   command?: unknown;
   cwd?: unknown;
   env?: unknown;
+  enumerateProviders?: boolean;
 } = {}): Promise<AdapterModel[]> {
   const command = resolvePiCommand(input.command);
   const cwd = asString(input.cwd, process.cwd());
   const env = normalizeEnv(input.env);
-  const key = discoveryCacheKey(command, cwd, env);
+  const enumerateProviders = input.enumerateProviders === true;
+  const key = `${discoveryCacheKey(command, cwd, env)}\nenumerate=${enumerateProviders ? "1" : "0"}`;
   const now = Date.now();
   pruneExpiredDiscoveryCache(now);
   const cached = discoveryCache.get(key);
   if (cached && cached.expiresAt > now) return cached.models;
 
-  const models = await discoverPiModels({ command, cwd, env });
+  const models = await discoverPiModels({ command, cwd, env, enumerateProviders });
   discoveryCache.set(key, { expiresAt: now + MODELS_CACHE_TTL_MS, models });
   return models;
 }
@@ -199,7 +231,7 @@ export async function ensurePiModelConfiguredAndAvailable(input: {
 
 export async function listPiModels(): Promise<AdapterModel[]> {
   try {
-    return await discoverPiModelsCached();
+    return await discoverPiModelsCached({ enumerateProviders: true });
   } catch {
     return [];
   }
