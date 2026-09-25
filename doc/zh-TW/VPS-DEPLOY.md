@@ -207,8 +207,10 @@ sleep 20; curl -s http://127.0.0.1:3100/api/health | grep -o '"deploymentExposur
 docker exec -it -u node hyper-agent-cowork bash -lc "export CODEX_HOME=<畫面給的路徑> && mkdir -p \$CODEX_HOME && codex -c 'cli_auth_credentials_store=\"file\"' login --device-auth"
 ```
 
-Claude 的做法相同：`docker exec -it -u node hyper-agent-cowork bash -lc "<畫面給的指令>"`。
+Claude 與 Grok Build 的做法相同：`docker exec -it -u node hyper-agent-cowork bash -lc "<畫面給的指令>"`，Grok 的指令是 `grok login --device-auth`，會給你一個 accounts.x.ai 的網址與代碼。
 用 root 進容器登入的話，憑證檔會是 root 的，平台實際跑 agent 的 `node` 使用者讀不到，就會出現權限錯誤。
+
+映像內建的 CLI：Claude Code、Codex、OpenCode、Gemini CLI、Kimi Code、Pi（`zhtw.4` 起）、Grok Build（`zhtw.5` 起）。Cursor 與 Hermes 沒有內建，用不到的轉接器可以在「設定 → 執行個體 → 轉接器」停用，精靈就不會再列出。
 
 ### 6.1 OpenCode 代理人改用自己的 OpenCode／Anthropic／OpenAI 金鑰
 
