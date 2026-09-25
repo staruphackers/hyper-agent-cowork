@@ -347,6 +347,21 @@ docker exec -it -u node hyper-agent-cowork bash -lc "export CODEX_HOME=<畫面�
 
 > ⚠️ **不要使用 Docker Desktop 的「Exec」分頁執行登入指令。** 該分頁預設以 root 身分進入容器，產生的憑證檔權限屬於 root，平台實際執行 agent 的 `node` 使用者會讀不到，導致權限錯誤。請一律用上方的 `docker exec -u node` 指令。
 
+### 用 GitHub 原始碼安裝（不用 Docker）
+
+上游的受管理安裝程式支援直接從 GitHub 的 fork 與 tag 安裝，安裝出來就是本 fork 的繁中版：
+
+```bash
+npx --registry https://registry.npmjs.org paperclipai install \
+  --repo staruphackers/hyper-agent-cowork \
+  --ref v2026.925.0-zhtw.1
+paperclipai onboard
+```
+
+安裝程式會把該 tag 的原始碼抓下來、在你的機器上建置（`pnpm install` ＋ server 建置）再安裝成受管理的 CLI；之後用 `paperclipai update --repo staruphackers/hyper-agent-cowork --ref <新 tag>` 升級。
+
+> **系統需求比 Docker 高**：Node.js 24.11+、Rust 1.97 工具鏈（server 建置會編譯 Paperclip Runner 的 Rust 二進位檔，`rustup` 會依 `rust-toolchain.toml` 自動安裝）、4 GB 以上 RAM，第一次建置約 15–25 分鐘。沒有特別理由的話，請用上面的 Docker 方式。詳細步驟見 [`doc/zh-TW/VPS-DEPLOY.md`](doc/zh-TW/VPS-DEPLOY.md) 的方案 C。
+
 ### 上游原版安裝方式（英文介面）
 
 以下是上游 Paperclip 官方的安裝方式，照譯保留供參考。**注意：這些方式安裝到的是上游英文原版，不含本 fork 的繁體中文介面。**

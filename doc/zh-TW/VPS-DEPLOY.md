@@ -23,6 +23,7 @@
 | --- | --- | --- | --- |
 | **A. Tailscale 私網（推薦新手）** | 只有你或少數人用、不需要對外 webhook | `https://<主機名>.<tailnet>.ts.net` | 不開公網 port，最安全 |
 | **B. 公網網域＋Caddy HTTPS** | 要從任何地方登入、要接 Slack／GitHub webhook | `https://cowork.你的網域.com` | 需要防火牆、關閉自由註冊 |
+| **C. GitHub 原始碼安裝（不用 Docker）** | 不想跑 Docker、或要直接改程式碼 | 同 A 或 B | 要自備 Node 24＋Rust，升級要重新建置 |
 
 兩個方案的容器設定幾乎一樣，差別只在「誰站在 3100 port 前面」與 `PAPERCLIP_PUBLIC_URL` 填什麼。
 
@@ -138,6 +139,30 @@ sudo ufw status
 ```
 
 3100 因為只綁 `127.0.0.1`，從外面本來就連不到。
+
+## 4C. 方案 C：從 GitHub 原始碼安裝（不用 Docker，進階）
+
+適合不想跑 Docker、或要在同一台機器上直接改程式碼的人。缺點是要自備建置環境，而且升級要重新建置一次。
+
+```bash
+# 1. 建置工具：Node.js 24、Rust、基本編譯器
+curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - && sudo apt-get install -y nodejs build-essential pkg-config git
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && source "$HOME/.cargo/env"
+
+# 2. 從本 fork 的 tag 安裝（會在本機建置，4 GB RAM 以上，約 15–25 分鐘）
+npx --registry https://registry.npmjs.org paperclipai install \
+  --repo staruphackers/hyper-agent-cowork \
+  --ref v2026.925.0-zhtw.1
+
+# 3. 初始化並安裝成系統服務（互動式：選「Private network」或「Custom」並填公開網址）
+paperclipai onboard
+paperclipai service install   # 之後用 paperclipai service status / restart
+```
+
+- 反向代理與防火牆做法與方案 B 相同（Caddy 指到 `127.0.0.1:3100`）。
+- 升級：`paperclipai update --repo staruphackers/hyper-agent-cowork --ref <新 tag>`，會先自動備份資料庫再切換；`paperclipai update --rollback` 可回復。
+- 資料在 `~/.paperclip/`，備份請用 `paperclipai db:backup`。
+- 安裝 git ref 等於在你的機器上執行該版本的建置腳本，請只安裝你信任的 tag。
 
 ## 5. 啟動並建立第一個管理員
 
