@@ -73,6 +73,7 @@ ui/i18n-tools/babel-plugin-i18n-wrap.mjs
 | `jsx` | JSXText（`<div>這裡的文字</div>`） | 正規化後（JSX 標準的空白折疊演算法）至少含 2 個英文字母 |
 | `attr` | 白名單屬性（`title`／`placeholder`／`label`／`aria-label` 等 19 個） | 字串值至少含 2 個英文字母 |
 | `obj` | 白名單物件屬性 key（`label`／`title`／`description` 等 11 個） | 值以大寫字母開頭 **且**（含空白或長度 ≥12，**或**是單一個 3 字母以上的首字大寫英文單字，如 `label: "Unread"`）**且**不含 `/`、`_`、`{` |
+| `dyn`（物件值單字） | 任何物件屬性的值是單一個首字大寫英文單字（`request_confirmation: "Confirmations"` 這種以 id 為 key 的標籤對照表） | 只收進字串清單（顯示時經 `__tv` 查字典）；變數初始值、函式回傳值裡的單字不收，因為那多半是識別字 |
 | `dyn`（分支字面值） | JSX 子節點或白名單屬性裡的三元／`\|\|`／`??` 運算式（`{prev ? "Reconnect" : "Connect"}`） | 整個運算式在執行期以 `__tv(...)` 包裝；其單字字面值分支（首字大寫、3 字母以上）另外收進字串清單，讓 `check.mjs` 看得到、字典補得到 |
 | `manual` | 既有手寫的 `t("...")` / `__t("...")` 呼叫 | 只用來讓 `check.mjs` 的覆蓋率統計不要誤判「stale」，**永遠不會被 wrap 或重複包裝** |
 

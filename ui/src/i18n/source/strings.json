@@ -4004,6 +4004,11 @@
     "kind": "dyn",
     "first": "src/components/task-chat/task-protocol-surfaces.ts:104"
   },
+  "Accepted": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/InviteUxLab.tsx:66"
+  },
   "Accepted 1 task": {
     "count": 1,
     "kind": "dyn",
@@ -4020,7 +4025,7 @@
     "first": "src/pages/AdapterManager.tsx:469"
   },
   "Access": {
-    "count": 6,
+    "count": 9,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:149"
   },
@@ -4275,7 +4280,7 @@
     "first": "src/pages/DesignGuide.tsx:2118"
   },
   "Actions": {
-    "count": 9,
+    "count": 10,
     "kind": "attr",
     "first": "src/components/CommandPalette.tsx:316"
   },
@@ -4330,7 +4335,7 @@
     "first": "src/pages/CompanyImport.tsx:1570"
   },
   "Active": {
-    "count": 9,
+    "count": 18,
     "kind": "obj",
     "first": "src/lib/issue-filters.ts:84"
   },
@@ -4410,7 +4415,7 @@
     "first": "src/pages/Pipelines.tsx:3064"
   },
   "Activity": {
-    "count": 19,
+    "count": 29,
     "kind": "obj",
     "first": "src/components/AgentContextualSidebar.tsx:45"
   },
@@ -4465,7 +4470,7 @@
     "first": "src/pages/ResponsibleUserDenialUxLab.tsx:133"
   },
   "Adapter": {
-    "count": 8,
+    "count": 9,
     "kind": "dyn",
     "first": "src/components/AgentConfigForm.tsx:1577"
   },
@@ -4535,7 +4540,7 @@
     "first": "src/pages/AgentDetail.production.tsx:461"
   },
   "Adapters": {
-    "count": 6,
+    "count": 8,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:206"
   },
@@ -5105,7 +5110,7 @@
     "first": "src/pages/Secrets.tsx:3813"
   },
   "Admin": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/access/InvitesSection.tsx:29"
   },
@@ -5125,7 +5130,7 @@
     "first": "src/pages/PipelineSettings.tsx:3232"
   },
   "Advanced": {
-    "count": 15,
+    "count": 20,
     "kind": "attr",
     "first": "src/components/AgentConfigForm.tsx:1844"
   },
@@ -5265,7 +5270,7 @@
     "first": "src/pages/CompanyImport.tsx:624"
   },
   "Agent": {
-    "count": 22,
+    "count": 30,
     "kind": "dyn",
     "first": "src/components/AgentIdentity.tsx:7"
   },
@@ -5595,7 +5600,7 @@
     "first": "src/pages/apps/chat/EmailEndpointSetup.tsx:453"
   },
   "Agents": {
-    "count": 23,
+    "count": 36,
     "kind": "jsx",
     "first": "src/components/CommandPalette.tsx:378"
   },
@@ -5765,7 +5770,7 @@
     "first": "src/pages/Secrets.tsx:3792"
   },
   "All": {
-    "count": 20,
+    "count": 32,
     "kind": "obj",
     "first": "src/components/ActivityFeed.tsx:116"
   },
@@ -6015,7 +6020,7 @@
     "first": "src/pages/UserProfile.tsx:286"
   },
   "Allow": {
-    "count": 3,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/ProjectProperties.tsx:71"
   },
@@ -6120,7 +6125,7 @@
     "first": "src/pages/TeamCatalog.tsx:1608"
   },
   "Allowed": {
-    "count": 7,
+    "count": 13,
     "kind": "obj",
     "first": "src/components/transcript/RunTranscriptView.tsx:433"
   },
@@ -6205,7 +6210,7 @@
     "first": "src/pages/AdapterManager.tsx:405"
   },
   "Alphabetical": {
-    "count": 3,
+    "count": 8,
     "kind": "obj",
     "first": "src/components/SidebarAgents.production.tsx:71"
   },
@@ -6580,9 +6585,9 @@
     "first": "src/pages/IssueDetail.tsx:4735"
   },
   "Anthropic": {
-    "count": 2,
+    "count": 4,
     "kind": "dyn",
-    "first": "src/components/new-agent/NewAgentSetup.tsx:922"
+    "first": "src/components/AgentConfigForm.tsx:2325"
   },
   "Anthropic OAuth": {
     "count": 1,
@@ -6690,7 +6695,7 @@
     "first": "src/lib/issue-filters.ts:67"
   },
   "Anyone": {
-    "count": 1,
+    "count": 2,
     "kind": "jsx",
     "first": "src/components/InteractionGovernancePanel.tsx:247"
   },
@@ -6900,7 +6905,7 @@
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:610"
   },
   "Application": {
-    "count": 7,
+    "count": 12,
     "kind": "obj",
     "first": "src/components/actions/ActionCard.tsx:149"
   },
@@ -6980,7 +6985,7 @@
     "first": "src/components/IssueThreadInteractionCard.tsx:3406"
   },
   "Approval": {
-    "count": 2,
+    "count": 3,
     "kind": "dyn",
     "first": "src/components/BuiltInAgentBadges.tsx:36"
   },
@@ -7050,12 +7055,12 @@
     "first": "src/components/IssueFiltersPopover.tsx:266"
   },
   "Approvals": {
-    "count": 6,
+    "count": 11,
     "kind": "attr",
     "first": "src/components/issue-properties/IssueProperties.tsx:2596"
   },
   "Approve": {
-    "count": 24,
+    "count": 26,
     "kind": "dyn",
     "first": "src/components/ApprovalCard.tsx:123"
   },
@@ -7180,7 +7185,7 @@
     "first": "src/components/TaskChatThread.tsx:442"
   },
   "Approved": {
-    "count": 4,
+    "count": 9,
     "kind": "obj",
     "first": "src/components/IssueThreadInteractionCard.tsx:293"
   },
@@ -7250,7 +7255,7 @@
     "first": "src/components/IssueThreadInteractionCard.tsx:2159"
   },
   "Apps": {
-    "count": 8,
+    "count": 11,
     "kind": "jsx",
     "first": "src/pages/apps/Connections.tsx:690"
   },
@@ -7300,12 +7305,12 @@
     "first": "src/components/RoutineVariablesEditor.tsx:266"
   },
   "Arcade": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/arcade.json:0"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/features/connections/remote-mcp/providers.ts:30"
   },
   "Archive": {
-    "count": 18,
+    "count": 25,
     "kind": "attr",
     "first": "src/components/IssueRow.tsx:112"
   },
@@ -7370,7 +7375,7 @@
     "first": "src/components/ProjectProperties.tsx:157"
   },
   "Archived": {
-    "count": 9,
+    "count": 13,
     "kind": "dyn",
     "first": "src/components/RoutineList.tsx:189"
   },
@@ -7445,9 +7450,9 @@
     "first": "src/pages/Secrets.tsx:2716"
   },
   "Artifact": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/components/search/SearchResultRow.tsx:20"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/adapters/paperclip-runner/index.ts:692"
   },
   "Artifact generation failed": {
     "count": 1,
@@ -7465,7 +7470,7 @@
     "first": "src/components/task-chat/task-chat-activity-presentation.ts:118"
   },
   "Artifacts": {
-    "count": 9,
+    "count": 15,
     "kind": "jsx",
     "first": "src/components/ArtifactsPanel.tsx:134"
   },
@@ -7505,9 +7510,9 @@
     "first": "src/pages/tools/AuditTab.tsx:486"
   },
   "Asana": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/asana.json:0"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/lib/external-objects.ts:171"
   },
   "Asc": {
     "count": 3,
@@ -7520,7 +7525,7 @@
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:1219"
   },
   "Ask": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/AgentConfigForm.tsx:288"
   },
@@ -7630,12 +7635,12 @@
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:1135"
   },
   "Assets": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/TeamCatalog.tsx:251"
   },
   "Assign": {
-    "count": 3,
+    "count": 4,
     "kind": "jsx",
     "first": "src/pages/tools/profiles/ProfileDetail.tsx:224"
   },
@@ -7720,7 +7725,7 @@
     "first": "src/lib/search-query-parser.ts:45"
   },
   "Assignee": {
-    "count": 11,
+    "count": 12,
     "kind": "jsx",
     "first": "src/components/CommentThread.tsx:515"
   },
@@ -7753,6 +7758,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/components/NewIssueDialog.tsx:2292"
+  },
+  "Assignment": {
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/pages/AgentDetail.production.tsx:225"
   },
   "Assignment recovery": {
     "count": 1,
@@ -7835,7 +7845,7 @@
     "first": "src/components/IssueAttachmentsSection.tsx:100"
   },
   "Attachments": {
-    "count": 4,
+    "count": 6,
     "kind": "jsx",
     "first": "src/components/IssueAttachmentsSection.tsx:269"
   },
@@ -7885,12 +7895,12 @@
     "first": "src/pages/apps/AppDetail.tsx:395"
   },
   "Audio": {
-    "count": 5,
+    "count": 10,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-attachments.ts:56"
   },
   "Audit": {
-    "count": 7,
+    "count": 10,
     "kind": "jsx",
     "first": "src/components/AgentContextualSidebar.tsx:120"
   },
@@ -8100,7 +8110,7 @@
     "first": "src/pages/SystemNoticeUxLab.tsx:374"
   },
   "Auto": {
-    "count": 9,
+    "count": 16,
     "kind": "obj",
     "first": "src/components/AgentConfigForm.tsx:276"
   },
@@ -8220,9 +8230,9 @@
     "first": "src/components/agent-config-primitives.tsx:61"
   },
   "Automation": {
-    "count": 3,
-    "kind": "obj",
-    "first": "src/pages/PipelineSettings.tsx:172"
+    "count": 8,
+    "kind": "dyn",
+    "first": "src/pages/AgentDetail.production.tsx:227"
   },
   "Automation completed — ran ": {
     "count": 1,
@@ -8515,9 +8525,9 @@
     "first": "src/pages/DesignGuide.tsx:1495"
   },
   "Backlog": {
-    "count": 4,
-    "kind": "obj",
-    "first": "src/components/NewIssueDialog.tsx:277"
+    "count": 9,
+    "kind": "dyn",
+    "first": "src/components/ActivityCharts.tsx:246"
   },
   "Backup retention": {
     "count": 1,
@@ -8558,6 +8568,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/IssueChatLongThreadPerf.tsx:182"
+  },
+  "Bash": {
+    "count": 4,
+    "kind": "dyn",
+    "first": "src/components/MarkdownEditor.tsx:331"
   },
   "bash ./scripts/provision-worktree-runtime.sh": {
     "count": 2,
@@ -8795,9 +8810,9 @@
     "first": "src/pages/PipelineSettings.tsx:3214"
   },
   "Blocked": {
-    "count": 9,
-    "kind": "obj",
-    "first": "src/components/IssueRunLedger.tsx:115"
+    "count": 20,
+    "kind": "dyn",
+    "first": "src/components/ActivityCharts.tsx:244"
   },
   "Blocked · covered by 1 active dependency": {
     "count": 1,
@@ -8904,6 +8919,11 @@
     "kind": "dyn",
     "first": "src/lib/blockedInbox.ts:113"
   },
+  "Blockers": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/issue-change-receipt.ts:23"
+  },
   "Blocking": {
     "count": 1,
     "kind": "attr",
@@ -8920,7 +8940,7 @@
     "first": "src/components/ExecutionWorkspaceCloseDialog.tsx:133"
   },
   "Board": {
-    "count": 6,
+    "count": 7,
     "kind": "jsx",
     "first": "src/components/IssueRecoveryActionCard.tsx:1189"
   },
@@ -9350,7 +9370,7 @@
     "first": "src/pages/BootstrapSetupUxLab.tsx:191"
   },
   "Budget": {
-    "count": 9,
+    "count": 14,
     "kind": "jsx",
     "first": "src/components/BudgetPolicyCard.tsx:66"
   },
@@ -9395,7 +9415,7 @@
     "first": "src/components/BudgetSidebarMarker.tsx:13"
   },
   "Budgets": {
-    "count": 4,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/AgentContextualSidebar.tsx:48"
   },
@@ -9500,7 +9520,7 @@
     "first": "src/components/BuiltInBundlePanel.tsx:320"
   },
   "Bundled": {
-    "count": 9,
+    "count": 11,
     "kind": "jsx",
     "first": "src/pages/CompanySkills.production.tsx:447"
   },
@@ -9665,9 +9685,9 @@
     "first": "src/components/FileViewerSheet.tsx:165"
   },
   "Cancel": {
-    "count": 152,
-    "kind": "jsx",
-    "first": "src/components/AgentActionButtons.tsx:452"
+    "count": 154,
+    "kind": "dyn",
+    "first": "src/adapters/paperclip-runner/index.ts:450"
   },
   "Cancel editing": {
     "count": 1,
@@ -9755,9 +9775,9 @@
     "first": "src/components/task-chat/task-protocol-surfaces.ts:101"
   },
   "Cancelled": {
-    "count": 4,
-    "kind": "obj",
-    "first": "src/components/IssueThreadInteractionCard.tsx:504"
+    "count": 14,
+    "kind": "dyn",
+    "first": "src/components/ActiveAgentsPanel.tsx:31"
   },
   "Cancelled 1 question": {
     "count": 1,
@@ -9965,7 +9985,7 @@
     "first": "src/pages/CaseDetail.tsx:129"
   },
   "Cases": {
-    "count": 7,
+    "count": 9,
     "kind": "jsx",
     "first": "src/components/IssueCasesPanel.tsx:40"
   },
@@ -9990,7 +10010,7 @@
     "first": "src/pages/CompanyEnvironments.tsx:386"
   },
   "Catalog": {
-    "count": 4,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/actions/ActionCard.tsx:158"
   },
@@ -10220,7 +10240,7 @@
     "first": "src/components/chat/ExternallyConnectedTaskBanner.tsx:82"
   },
   "Channels": {
-    "count": 3,
+    "count": 5,
     "kind": "jsx",
     "first": "src/components/chat/AgentChannelsPanel.tsx:42"
   },
@@ -11145,9 +11165,9 @@
     "first": "src/pages/InstanceExperimentalSettings.tsx:693"
   },
   "Claude": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/connect-flow-preview-main.tsx:75"
+    "count": 4,
+    "kind": "dyn",
+    "first": "src/components/AdapterLoginChrome.tsx:50"
   },
   "Claude (ACPX)": {
     "count": 1,
@@ -11343,6 +11363,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/components/IssueThreadInteractionCard.tsx:3016"
+  },
+  "Clearing": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/task-chat/RunnerGoalWidget.tsx:24"
   },
   "CLI access approved": {
     "count": 1,
@@ -11595,7 +11620,7 @@
     "first": "src/components/ExecutionWorkspaceCloseDialog.tsx:48"
   },
   "Closed": {
-    "count": 1,
+    "count": 3,
     "kind": "obj",
     "first": "src/components/task-chat/RichWorkProductCard.tsx:59"
   },
@@ -11655,7 +11680,7 @@
     "first": "../packages/shared/src/app-definitions/coda.json:0"
   },
   "Code": {
-    "count": 13,
+    "count": 22,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-attachments.ts:69"
   },
@@ -11690,7 +11715,7 @@
     "first": "src/pages/ProjectWorkspaceDetail.tsx:603"
   },
   "Codex": {
-    "count": 5,
+    "count": 8,
     "kind": "obj",
     "first": "src/adapters/adapter-display-registry.ts:78"
   },
@@ -11920,7 +11945,7 @@
     "first": "src/pages/AgentDetail.production.tsx:475"
   },
   "Comment": {
-    "count": 6,
+    "count": 8,
     "kind": "dyn",
     "first": "src/components/CommentThread.tsx:1085"
   },
@@ -11955,7 +11980,7 @@
     "first": "src/components/task-chat/tool-taxonomy.ts:226"
   },
   "Comments": {
-    "count": 2,
+    "count": 3,
     "kind": "jsx",
     "first": "src/pages/DesignGuide.tsx:1265"
   },
@@ -12020,7 +12045,7 @@
     "first": "src/components/task-chat/task-chat-activity-presentation.ts:114"
   },
   "Company": {
-    "count": 8,
+    "count": 12,
     "kind": "dyn",
     "first": "src/components/AppsSidebar.production.tsx:56"
   },
@@ -12090,7 +12115,7 @@
     "first": "src/pages/PipelineSettings.tsx:1030"
   },
   "Compatible": {
-    "count": 3,
+    "count": 4,
     "kind": "jsx",
     "first": "src/pages/CompanySkills.production.tsx:2134"
   },
@@ -12110,7 +12135,7 @@
     "first": "src/pages/apps/chat/ChatEndpointSetup.tsx:1946"
   },
   "Completed": {
-    "count": 9,
+    "count": 13,
     "kind": "obj",
     "first": "src/components/ArtifactsPanel.tsx:44"
   },
@@ -12170,9 +12195,9 @@
     "first": "src/components/task-chat/TaskChatComposer.tsx:1314"
   },
   "Composio": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/composio.json:0"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/features/connections/remote-mcp/providers.ts:40"
   },
   "Composio Connect": {
     "count": 1,
@@ -12190,7 +12215,7 @@
     "first": "src/pages/ExecutionWorkspaceDetail.tsx:1476"
   },
   "Concurrency": {
-    "count": 5,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/RoutineHistoryTab.tsx:556"
   },
@@ -12230,7 +12255,7 @@
     "first": "src/pages/DesignGuide.tsx:1252"
   },
   "Configuration": {
-    "count": 9,
+    "count": 17,
     "kind": "jsx",
     "first": "src/components/AgentConfigForm.tsx:1811"
   },
@@ -12265,7 +12290,7 @@
     "first": "src/components/IssueRecoveryActionCard.tsx:137"
   },
   "Configure": {
-    "count": 3,
+    "count": 4,
     "kind": "jsx",
     "first": "src/components/BuiltInBundlePanel.tsx:330"
   },
@@ -12405,7 +12430,7 @@
     "first": "src/components/ConfigureBuiltInAgentModal.tsx:243"
   },
   "Confirm": {
-    "count": 2,
+    "count": 3,
     "kind": "jsx",
     "first": "src/components/ProjectProperties.tsx:177"
   },
@@ -12485,9 +12510,9 @@
     "first": "src/pages/apps/Connections.tsx:615"
   },
   "Confirmation": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/components/task-chat/TaskChatCompactInteractionCard.tsx:99"
+    "count": 4,
+    "kind": "dyn",
+    "first": "src/components/new-agent/NewAgentSetup.tsx:596"
   },
   "Confirmation accepted": {
     "count": 1,
@@ -12524,6 +12549,11 @@
     "kind": "dyn",
     "first": "src/components/IssueThreadInteractionCard.tsx:3778"
   },
+  "Confirmations": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/InteractionGovernancePanel.tsx:22"
+  },
   "confirmed": {
     "count": 1,
     "kind": "jsx",
@@ -12550,7 +12580,7 @@
     "first": "src/components/IssueThreadInteractionCard.tsx:2749"
   },
   "Connect": {
-    "count": 14,
+    "count": 21,
     "kind": "obj",
     "first": "src/components/OnboardingWizard.tsx:1384"
   },
@@ -13075,9 +13105,9 @@
     "first": "src/features/connections/ConnectionSetupFlow.tsx:2915"
   },
   "Connected": {
-    "count": 4,
+    "count": 7,
     "kind": "dyn",
-    "first": "src/connect-flow-preview-main.tsx:311"
+    "first": "src/components/ai-connections/model.ts:37"
   },
   "Connected account": {
     "count": 1,
@@ -13100,7 +13130,7 @@
     "first": "src/components/ai-connections/AiConnectionAuth.tsx:77"
   },
   "Connecting": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/OnboardingWizard.tsx:1375"
   },
@@ -13120,7 +13150,7 @@
     "first": "src/components/OnboardingWizard.tsx:1226"
   },
   "Connection": {
-    "count": 9,
+    "count": 14,
     "kind": "obj",
     "first": "src/components/actions/ActionCard.tsx:157"
   },
@@ -13325,7 +13355,7 @@
     "first": "src/components/RoutineActivityRow.tsx:18"
   },
   "Connections": {
-    "count": 4,
+    "count": 5,
     "kind": "attr",
     "first": "src/components/AppsSidebar.production.tsx:86"
   },
@@ -13340,7 +13370,7 @@
     "first": "src/features/connections/ConnectionSetupFlow.tsx:3638"
   },
   "Connectors": {
-    "count": 18,
+    "count": 30,
     "kind": "jsx",
     "first": "src/components/AppsSidebar.production.tsx:60"
   },
@@ -13425,9 +13455,9 @@
     "first": "src/pages/apps/chat/GitHubChatSetup.tsx:450"
   },
   "Context": {
-    "count": 2,
-    "kind": "jsx",
-    "first": "src/pages/AgentDetail.production.tsx:505"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/adapters/paperclip-runner/index.ts:692"
   },
   "Context compaction failed": {
     "count": 1,
@@ -13615,7 +13645,7 @@
     "first": "src/adapters/hermes-gateway/config-fields.tsx:181"
   },
   "Conversation": {
-    "count": 1,
+    "count": 2,
     "kind": "attr",
     "first": "src/pages/Pipelines.tsx:3291"
   },
@@ -13640,7 +13670,7 @@
     "first": "src/components/AgentConfigForm.tsx:2034"
   },
   "Copied": {
-    "count": 20,
+    "count": 24,
     "kind": "jsx",
     "first": "src/components/CaseFieldsPanel.tsx:112"
   },
@@ -14050,7 +14080,7 @@
     "first": "src/pages/DesignGuide.tsx:1765"
   },
   "Costs": {
-    "count": 14,
+    "count": 20,
     "kind": "obj",
     "first": "src/components/AgentContextualSidebar.tsx:47"
   },
@@ -15150,7 +15180,7 @@
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:120"
   },
   "Coverage": {
-    "count": 2,
+    "count": 3,
     "kind": "obj",
     "first": "src/pages/Secrets.tsx:2483"
   },
@@ -15675,7 +15705,7 @@
     "first": "../packages/shared/src/app-definitions/google-calendar.json:0"
   },
   "Created": {
-    "count": 15,
+    "count": 16,
     "kind": "attr",
     "first": "src/components/AgentProperties.tsx:107"
   },
@@ -15840,14 +15870,14 @@
     "first": "src/components/FinanceBillerCard.tsx:33"
   },
   "Credits": {
-    "count": 2,
-    "kind": "attr",
-    "first": "src/pages/Costs.production.tsx:128"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/lib/utils.ts:141"
   },
   "Critical": {
-    "count": 4,
-    "kind": "obj",
-    "first": "src/components/NewIssueDialog.tsx:322"
+    "count": 9,
+    "kind": "dyn",
+    "first": "src/components/DecisionsToolbar.tsx:21"
   },
   "Critical output silence": {
     "count": 1,
@@ -15890,7 +15920,7 @@
     "first": "src/components/AgentConfigForm.tsx:3889"
   },
   "Current": {
-    "count": 6,
+    "count": 7,
     "kind": "jsx",
     "first": "src/components/DocumentFrameHeader.tsx:143"
   },
@@ -15960,7 +15990,7 @@
     "first": "src/pages/CompanySkills.production.tsx:5169"
   },
   "Cursor": {
-    "count": 3,
+    "count": 6,
     "kind": "obj",
     "first": "src/adapters/adapter-display-registry.ts:126"
   },
@@ -15985,7 +16015,7 @@
     "first": "src/pages/Secrets.tsx:4649"
   },
   "Custom": {
-    "count": 5,
+    "count": 7,
     "kind": "jsx",
     "first": "src/components/AttentionQueueRow.tsx:703"
   },
@@ -16105,7 +16135,7 @@
     "first": "src/adapters/hermes-gateway/config-fields.tsx:217"
   },
   "Dashboard": {
-    "count": 11,
+    "count": 16,
     "kind": "jsx",
     "first": "src/components/CommandPalette.tsx:358"
   },
@@ -16153,6 +16183,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/components/routine-triggers/TriggerWizard.tsx:324"
+  },
+  "Daytona": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/wizard-preview-main.tsx:91"
   },
   "Debit minus credit for the selected period": {
     "count": 4,
@@ -16210,7 +16245,7 @@
     "first": "src/components/task-chat/tool-taxonomy.ts:225"
   },
   "Decision": {
-    "count": 3,
+    "count": 4,
     "kind": "jsx",
     "first": "src/components/transcript/RunTranscriptView.tsx:1003"
   },
@@ -16245,7 +16280,7 @@
     "first": "src/lib/attention.ts:53"
   },
   "Decisions": {
-    "count": 7,
+    "count": 10,
     "kind": "obj",
     "first": "src/components/KeyboardShortcutsCheatsheet.tsx:42"
   },
@@ -16255,12 +16290,12 @@
     "first": "src/pages/DecisionQueuePage.tsx:268"
   },
   "Decline": {
-    "count": 5,
+    "count": 7,
     "kind": "dyn",
     "first": "src/components/IssueThreadInteractionCard.tsx:1739"
   },
   "Declined": {
-    "count": 3,
+    "count": 7,
     "kind": "obj",
     "first": "src/components/IssueThreadInteractionCard.tsx:499"
   },
@@ -16325,7 +16360,7 @@
     "first": "src/pages/secrets/ImportFromVaultDialog.tsx:926"
   },
   "Default": {
-    "count": 16,
+    "count": 21,
     "kind": "dyn",
     "first": "src/components/AgentConfigForm.tsx:3815"
   },
@@ -16509,10 +16544,15 @@
     "kind": "attr",
     "first": "src/pages/CompanyEnvironments.tsx:2278"
   },
-  "Deferred": {
+  "Defer": {
     "count": 1,
-    "kind": "jsx",
-    "first": "src/pages/ExecutionWorkspaceDetail.tsx:453"
+    "kind": "dyn",
+    "first": "src/components/IssueThreadInteractionCard.tsx:3072"
+  },
+  "Deferred": {
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/components/IssueThreadInteractionCard.tsx:3079"
   },
   "Define credentials that ": {
     "count": 1,
@@ -16539,6 +16579,11 @@
     "kind": "dyn",
     "first": "src/pages/secrets/UserSecretDefinitionsTab.tsx:126"
   },
+  "Degraded": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/WorkspaceAccessCard.tsx:37"
+  },
   "Degraded output (invalid / failed attachment metadata)": {
     "count": 1,
     "kind": "attr",
@@ -16564,8 +16609,13 @@
     "kind": "attr",
     "first": "src/components/task-chat/TaskChatProtocolActivityRow.tsx:157"
   },
+  "Delegation": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/adapters/paperclip-runner/index.ts:692"
+  },
   "Delete": {
-    "count": 13,
+    "count": 14,
     "kind": "dyn",
     "first": "src/components/IssueAttachmentsSection.tsx:391"
   },
@@ -16735,7 +16785,7 @@
     "first": "src/pages/Companies.tsx:316"
   },
   "Delivered": {
-    "count": 1,
+    "count": 2,
     "kind": "dyn",
     "first": "src/components/EmailMessageCard.tsx:134"
   },
@@ -16750,7 +16800,7 @@
     "first": "src/pages/tools/AuditTab.tsx:294"
   },
   "Delivery": {
-    "count": 2,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/RoutineContextualSidebar.tsx:42"
   },
@@ -16800,7 +16850,7 @@
     "first": "src/components/EmailMessageCard.tsx:138"
   },
   "Denied": {
-    "count": 2,
+    "count": 3,
     "kind": "obj",
     "first": "src/components/transcript/RunTranscriptView.tsx:414"
   },
@@ -16825,7 +16875,7 @@
     "first": "src/pages/RunTranscriptUxLab.tsx:41"
   },
   "Deny": {
-    "count": 6,
+    "count": 8,
     "kind": "jsx",
     "first": "src/adapters/claude-local/config-fields.tsx:176"
   },
@@ -16935,7 +16985,7 @@
     "first": "src/components/FrontmatterPanel.tsx:494"
   },
   "Description": {
-    "count": 22,
+    "count": 24,
     "kind": "obj",
     "first": "src/components/FileTree.tsx:226"
   },
@@ -17015,7 +17065,7 @@
     "first": "src/pages/tools/shared.tsx:39"
   },
   "Destructive": {
-    "count": 3,
+    "count": 4,
     "kind": "jsx",
     "first": "src/pages/DesignGuide.tsx:676"
   },
@@ -17035,12 +17085,12 @@
     "first": "src/components/IssueRecoveryActionCard.tsx:432"
   },
   "Detail": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/pages/CompanySkills.production.tsx:4311"
   },
   "Details": {
-    "count": 11,
+    "count": 13,
     "kind": "dyn",
     "first": "src/components/SystemNotice.tsx:329"
   },
@@ -17135,7 +17185,7 @@
     "first": "src/components/interrupt-handoff/InterruptHandoffViews.tsx:205"
   },
   "Diff": {
-    "count": 2,
+    "count": 3,
     "kind": "jsx",
     "first": "src/components/CaseRevisionRail.tsx:220"
   },
@@ -17255,7 +17305,7 @@
     "first": "src/components/BuiltInBundlePanel.tsx:390"
   },
   "Disabled": {
-    "count": 8,
+    "count": 9,
     "kind": "dyn",
     "first": "src/components/BudgetPolicyCard.tsx:68"
   },
@@ -17395,9 +17445,9 @@
     "first": "src/features/connections/remote-mcp/RemoteMcpManagement.tsx:34"
   },
   "Discord": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/discord.json:0"
+    "count": 8,
+    "kind": "dyn",
+    "first": "src/components/chat/AgentChannelsPanel.tsx:13"
   },
   "Discover": {
     "count": 1,
@@ -17510,7 +17560,7 @@
     "first": "src/components/interrupt-handoff/InterruptHandoffViews.tsx:221"
   },
   "Dismissed": {
-    "count": 2,
+    "count": 3,
     "kind": "obj",
     "first": "src/pages/WhatNeedsMe.tsx:435"
   },
@@ -17570,7 +17620,7 @@
     "first": "src/pages/SystemNoticeUxLab.tsx:227"
   },
   "Diverged": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/IssueRecoveryActionCard.tsx:403"
   },
@@ -17590,9 +17640,9 @@
     "first": "src/components/task-chat/TaskChatCompactInteractionCard.tsx:865"
   },
   "Doc": {
-    "count": 3,
-    "kind": "obj",
-    "first": "src/components/search/SearchResultRow.tsx:19"
+    "count": 7,
+    "kind": "dyn",
+    "first": "src/components/search/MatchSourceChip.tsx:20"
   },
   "Document": {
     "count": 1,
@@ -17675,7 +17725,7 @@
     "first": "src/components/SidebarAccountMenu.production.tsx:196"
   },
   "Documents": {
-    "count": 5,
+    "count": 8,
     "kind": "jsx",
     "first": "src/components/IssueDocumentsSection.tsx:905"
   },
@@ -17705,9 +17755,9 @@
     "first": "src/pages/tools/McpConfigHelpDialog.tsx:68"
   },
   "Done": {
-    "count": 24,
-    "kind": "obj",
-    "first": "src/components/ActivityFeed.tsx:119"
+    "count": 35,
+    "kind": "dyn",
+    "first": "src/components/ActivityCharts.tsx:243"
   },
   "Done — added a per-account token-bucket limiter and wired it into the login route. Tests pass.": {
     "count": 1,
@@ -17718,6 +17768,11 @@
     "count": 2,
     "kind": "obj",
     "first": "src/pages/DesignGuide.tsx:837"
+  },
+  "Dotta": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/CrossIssueCollaborationUxLab.tsx:270"
   },
   "Dotta asked me to flag that the retry window here overlaps TASK-482. Worth a look before you close this.": {
     "count": 1,
@@ -17735,7 +17790,7 @@
     "first": "src/pages/apps/app-detail/TestPanel.tsx:1660"
   },
   "Down": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/task-chat/RichWorkProductCard.tsx:194"
   },
@@ -17775,7 +17830,7 @@
     "first": "src/pages/apps/chat/SlackAvatarStep.tsx:72"
   },
   "Draft": {
-    "count": 3,
+    "count": 7,
     "kind": "dyn",
     "first": "src/components/RoutineList.tsx:189"
   },
@@ -17835,7 +17890,7 @@
     "first": "src/components/timeline/WorkTimelineChart.tsx:958"
   },
   "Drifted": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ResourceStatusChip.tsx:49"
   },
@@ -17953,6 +18008,11 @@
     "count": 2,
     "kind": "jsx",
     "first": "src/pages/AgentDetail.production.tsx:3488"
+  },
+  "Durations": {
+    "count": 8,
+    "kind": "dyn",
+    "first": "src/components/task-chat/motion-tokens.ts:35"
   },
   "During setup, deliveries only test the connection. They do not start the routine or create a task.": {
     "count": 1,
@@ -18090,7 +18150,7 @@
     "first": "src/pages/ExecutionWorkspaceDetail.tsx:447"
   },
   "Earlier": {
-    "count": 4,
+    "count": 7,
     "kind": "jsx",
     "first": "src/components/ActivityFeed.tsx:488"
   },
@@ -18099,8 +18159,13 @@
     "kind": "dyn",
     "first": "src/components/task-chat/task-chat-adapter.ts:74"
   },
+  "Easing": {
+    "count": 6,
+    "kind": "dyn",
+    "first": "src/components/task-chat/motion-tokens.ts:27"
+  },
   "Edit": {
-    "count": 14,
+    "count": 20,
     "kind": "jsx",
     "first": "src/components/IssueWorkspaceCard.tsx:380"
   },
@@ -18709,6 +18774,11 @@
     "kind": "attr",
     "first": "src/pages/DesignGuide.tsx:2013"
   },
+  "Engineer": {
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/fixtures/TaskChatPerfHarness.tsx:17"
+  },
   "Engineering laptops": {
     "count": 2,
     "kind": "attr",
@@ -18723,6 +18793,11 @@
     "count": 5,
     "kind": "attr",
     "first": "src/pages/CompanySkills.production.tsx:1627"
+  },
+  "English": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/LanguageSwitcher.tsx:19"
   },
   "Enqueue missed with cap": {
     "count": 4,
@@ -18885,7 +18960,7 @@
     "first": "src/pages/tools/ProfilesTab.tsx:880"
   },
   "Env": {
-    "count": 2,
+    "count": 3,
     "kind": "attr",
     "first": "src/components/ProjectProperties.tsx:456"
   },
@@ -19020,7 +19095,7 @@
     "first": "src/components/IssueWorkspaceCard.tsx:409"
   },
   "Environments": {
-    "count": 7,
+    "count": 10,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:141"
   },
@@ -19035,7 +19110,7 @@
     "first": "src/components/FileTree.tsx:366"
   },
   "Error": {
-    "count": 7,
+    "count": 11,
     "kind": "obj",
     "first": "src/components/ResourceStatusChip.tsx:39"
   },
@@ -19365,7 +19440,7 @@
     "first": "src/components/NewIssueDialog.tsx:285"
   },
   "Executed": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/IssueThreadInteractionCard.tsx:485"
   },
@@ -19475,9 +19550,9 @@
     "first": "src/pages/audit/AuditRuns.tsx:85"
   },
   "Executor": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/executor.json:0"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/features/connections/remote-mcp/providers.ts:50"
   },
   "Exercise every integration path (P1–P7) end-to-end against deterministic local fixtures — a fake OAuth provider and loopback MCP servers. Nothing here touches a real vendor or a real credential. Start the services, install the fixture apps, then drive the governed lifecycle from a browser smoke run. New here? Follow the": {
     "count": 1,
@@ -19625,7 +19700,7 @@
     "first": "src/components/ResourceStatusChip.tsx:38"
   },
   "Experimental": {
-    "count": 10,
+    "count": 12,
     "kind": "jsx",
     "first": "src/components/AgentConfigForm.tsx:3686"
   },
@@ -19650,9 +19725,9 @@
     "first": "src/adapters/adapter-display-registry.ts:85"
   },
   "Expired": {
-    "count": 4,
-    "kind": "obj",
-    "first": "src/components/IssueThreadInteractionCard.tsx:309"
+    "count": 11,
+    "kind": "dyn",
+    "first": "src/components/DecisionTriageStrip.tsx:55"
   },
   "Expired — send it again": {
     "count": 1,
@@ -19704,6 +19779,11 @@
     "kind": "jsx",
     "first": "src/components/IssueThreadInteractionCard.tsx:2014"
   },
+  "Expiring": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/apps/gateways/gateway-helpers.ts:42"
+  },
   "Expiry": {
     "count": 2,
     "kind": "jsx",
@@ -19740,7 +19820,7 @@
     "first": "src/lib/announcement-preview.ts:12"
   },
   "Export": {
-    "count": 4,
+    "count": 6,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:163"
   },
@@ -19800,7 +19880,7 @@
     "first": "src/pages/TeamCatalog.tsx:578"
   },
   "External": {
-    "count": 4,
+    "count": 6,
     "kind": "jsx",
     "first": "src/components/EmailMessageCard.tsx:82"
   },
@@ -19924,6 +20004,11 @@
     "kind": "jsx",
     "first": "src/pages/DesignGuide.tsx:683"
   },
+  "Fable": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/CrossIssueCollaborationUxLab.tsx:268"
+  },
   "fail": {
     "count": 1,
     "kind": "attr",
@@ -19935,9 +20020,9 @@
     "first": "src/adapters/claude-local/config-fields.tsx:177"
   },
   "Failed": {
-    "count": 13,
-    "kind": "obj",
-    "first": "src/components/ActivityCharts.tsx:135"
+    "count": 26,
+    "kind": "dyn",
+    "first": "src/components/ActiveAgentsPanel.tsx:29"
   },
   "FAILED · binding was not created": {
     "count": 1,
@@ -20870,7 +20955,7 @@
     "first": "src/components/CaseFieldsPanel.tsx:241"
   },
   "File": {
-    "count": 2,
+    "count": 3,
     "kind": "attr",
     "first": "src/components/artifacts/ArtifactCard.tsx:163"
   },
@@ -20940,7 +21025,7 @@
     "first": "src/pages/Routines.production.tsx:1108"
   },
   "Files": {
-    "count": 13,
+    "count": 18,
     "kind": "obj",
     "first": "src/components/task-side-panel/TaskSidePanel.tsx:505"
   },
@@ -21335,7 +21420,7 @@
     "first": "src/lib/skill-policy-denial.ts:83"
   },
   "Fixed": {
-    "count": 1,
+    "count": 2,
     "kind": "jsx",
     "first": "src/adapters/openclaw-gateway/config-fields.tsx:221"
   },
@@ -21650,7 +21735,7 @@
     "first": "src/pages/DesignGuide.tsx:911"
   },
   "Former": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/TaskChatLab.tsx:149"
   },
@@ -21685,17 +21770,17 @@
     "first": "src/pages/tools/connection-dialogs.tsx:476"
   },
   "Fresh": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/lib/status-card-state.ts:62"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/lib/external-objects.ts:97"
   },
   "Fri": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:34"
   },
   "From": {
-    "count": 4,
+    "count": 5,
     "kind": "jsx",
     "first": "src/components/DecisionDateChips.tsx:51"
   },
@@ -21875,7 +21960,7 @@
     "first": "src/pages/apps/gateways/EditGatewayDialog.tsx:60"
   },
   "Gateways": {
-    "count": 3,
+    "count": 6,
     "kind": "obj",
     "first": "src/pages/apps/gateways/GatewayDetail.tsx:107"
   },
@@ -21900,7 +21985,7 @@
     "first": "src/adapters/adapter-display-registry.ts:91"
   },
   "General": {
-    "count": 8,
+    "count": 10,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:103"
   },
@@ -22270,14 +22355,14 @@
     "first": "src/pages/Secrets.tsx:3803"
   },
   "Global": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/KeyboardShortcutsCheatsheet.tsx:53"
   },
   "Gmail": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/gmail.json:0"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/fixtures/issueThreadInteractionFixtures.ts:846"
   },
   "Go back": {
     "count": 2,
@@ -22310,9 +22395,9 @@
     "first": "src/pages/apps/app-detail/TestPanel.tsx:489"
   },
   "Goal": {
-    "count": 2,
-    "kind": "obj",
-    "first": "src/pages/audit/AuditFeed.production.tsx:52"
+    "count": 6,
+    "kind": "dyn",
+    "first": "src/components/task-chat/TaskChatComposer.tsx:645"
   },
   "Goal objective": {
     "count": 1,
@@ -22325,7 +22410,7 @@
     "first": "src/components/NewGoalDialog.tsx:157"
   },
   "Goals": {
-    "count": 7,
+    "count": 11,
     "kind": "jsx",
     "first": "src/components/CommandPalette.tsx:374"
   },
@@ -22333,6 +22418,11 @@
     "count": 2,
     "kind": "attr",
     "first": "src/pages/InstanceExperimentalSettings.tsx:707"
+  },
+  "Google": {
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/components/new-agent/NewAgentSetup.tsx:924"
   },
   "Google Calendar": {
     "count": 1,
@@ -22390,7 +22480,7 @@
     "first": "../packages/shared/src/app-definitions/google-workspace-search.json:0"
   },
   "Governance": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/agent-detail-navigation.ts:40"
   },
@@ -22424,10 +22514,15 @@
     "kind": "dyn",
     "first": "src/pages/InviteUxLab.tsx:377"
   },
+  "Grep": {
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/components/task-chat/task-chat-fixtures.ts:71"
+  },
   "Grok": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/xai.json:0"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/components/AdapterLoginChrome.tsx:52"
   },
   "Grok API key": {
     "count": 1,
@@ -22458,6 +22553,11 @@
     "count": 2,
     "kind": "dyn",
     "first": "src/components/ai-connections/model.ts:23"
+  },
+  "Groq": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/new-agent/NewAgentSetup.tsx:926"
   },
   "Group": {
     "count": 14,
@@ -22670,7 +22770,7 @@
     "first": "src/components/SidebarServerInfo.tsx:109"
   },
   "Healthy": {
-    "count": 6,
+    "count": 7,
     "kind": "dyn",
     "first": "src/components/BudgetPolicyCard.tsx:181"
   },
@@ -22725,7 +22825,7 @@
     "first": "src/pages/BoardChat.tsx:738"
   },
   "Hermes": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/adapters/adapter-display-registry.ts:111"
   },
@@ -22765,7 +22865,7 @@
     "first": "src/components/OnboardingChat.tsx:434"
   },
   "Hidden": {
-    "count": 1,
+    "count": 2,
     "kind": "jsx",
     "first": "src/components/RunnerInspector.tsx:1138"
   },
@@ -22910,7 +23010,7 @@
     "first": "src/pages/SystemNoticeUxLab.tsx:128"
   },
   "High": {
-    "count": 11,
+    "count": 26,
     "kind": "obj",
     "first": "src/components/AgentConfigForm.tsx:280"
   },
@@ -22965,7 +23065,7 @@
     "first": "src/components/IssueRunLedger.tsx:832"
   },
   "History": {
-    "count": 5,
+    "count": 9,
     "kind": "jsx",
     "first": "src/components/PipelineStageHistoryPanel.tsx:81"
   },
@@ -22990,7 +23090,7 @@
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:1487"
   },
   "Home": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/MobileBottomNav.tsx:46"
   },
@@ -23003,6 +23103,11 @@
     "count": 1,
     "kind": "shared",
     "first": "../packages/shared/src/app-definitions/honcho.json:0"
+  },
+  "Hook": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/adapters/paperclip-runner/index.ts:692"
   },
   "Hook failed": {
     "count": 1,
@@ -23420,9 +23525,9 @@
     "first": "src/pages/DesignGuide.tsx:2102"
   },
   "Identifier": {
-    "count": 2,
-    "kind": "jsx",
-    "first": "src/pages/tools/profiles/ProfileDetail.tsx:657"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/components/search/MatchSourceChip.tsx:18"
   },
   "Identifier lookup:": {
     "count": 1,
@@ -23435,7 +23540,7 @@
     "first": "src/pages/DesignGuide.tsx:835"
   },
   "Identity": {
-    "count": 4,
+    "count": 5,
     "kind": "dyn",
     "first": "src/components/AgentConfigForm.tsx:1451"
   },
@@ -23560,7 +23665,7 @@
     "first": "src/components/MarkdownEditor.tsx:957"
   },
   "Images": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/Artifacts.tsx:34"
   },
@@ -23610,7 +23715,7 @@
     "first": "src/pages/IssueChatUxLab.tsx:79"
   },
   "Import": {
-    "count": 6,
+    "count": 8,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:166"
   },
@@ -23885,7 +23990,7 @@
     "first": "src/components/task-chat/task-protocol-surfaces.ts:88"
   },
   "Inactive": {
-    "count": 3,
+    "count": 6,
     "kind": "jsx",
     "first": "src/components/access/InvitesSection.tsx:348"
   },
@@ -23895,7 +24000,7 @@
     "first": "src/pages/apps/chat/ChatEndpointDetail.tsx:114"
   },
   "Inbox": {
-    "count": 9,
+    "count": 15,
     "kind": "jsx",
     "first": "src/components/CommandPalette.tsx:362"
   },
@@ -24034,6 +24139,11 @@
     "kind": "jsx",
     "first": "src/pages/ExecutionWorkspaceDetail.tsx:1333"
   },
+  "Initech": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/wizard-preview-main.tsx:27"
+  },
   "Initial": {
     "count": 2,
     "kind": "jsx",
@@ -24080,7 +24190,7 @@
     "first": "src/pages/DesignGuide.tsx:2344"
   },
   "Input": {
-    "count": 13,
+    "count": 14,
     "kind": "jsx",
     "first": "src/components/IssueChatThread.tsx:1677"
   },
@@ -24460,7 +24570,7 @@
     "first": "src/pages/AgentDetail.tsx:2892"
   },
   "Instructions": {
-    "count": 5,
+    "count": 9,
     "kind": "attr",
     "first": "src/adapters/hermes-gateway/config-fields.tsx:244"
   },
@@ -24575,9 +24685,9 @@
     "first": "src/lib/interrupt-handoff.ts:340"
   },
   "Interrupted": {
-    "count": 3,
-    "kind": "jsx",
-    "first": "src/components/task-chat/TaskChatToolCard.tsx:98"
+    "count": 6,
+    "kind": "dyn",
+    "first": "src/components/ActiveAgentsPanel.tsx:32"
   },
   "Interrupted a subagent": {
     "count": 1,
@@ -24615,7 +24725,7 @@
     "first": "src/components/TaskChatThread.tsx:2541"
   },
   "Invalid": {
-    "count": 3,
+    "count": 6,
     "kind": "obj",
     "first": "src/pages/CompanySkills.production.tsx:512"
   },
@@ -24805,7 +24915,7 @@
     "first": "src/components/access/InvitesSection.tsx:304"
   },
   "Invites": {
-    "count": 2,
+    "count": 3,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:133"
   },
@@ -24860,7 +24970,7 @@
     "first": "src/components/IssueWorkspaceCard.tsx:86"
   },
   "Issue": {
-    "count": 1,
+    "count": 2,
     "kind": "jsx",
     "first": "src/components/TrustPresetSection.tsx:163"
   },
@@ -25235,9 +25345,9 @@
     "first": "src/pages/CompanyEnvironments.tsx:387"
   },
   "Jira": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/jira.json:0"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/lib/external-objects.ts:169"
   },
   "Job title shown in the org chart.": {
     "count": 2,
@@ -25510,7 +25620,7 @@
     "first": "src/components/FrontmatterPanel.tsx:603"
   },
   "Key": {
-    "count": 12,
+    "count": 13,
     "kind": "attr",
     "first": "src/pages/CaseDetail.tsx:356"
   },
@@ -25605,9 +25715,9 @@
     "first": "src/components/new-agent/NewAgentSetup.tsx:1037"
   },
   "Kind": {
-    "count": 3,
-    "kind": "jsx",
-    "first": "src/components/InteractionGovernancePanel.tsx:264"
+    "count": 4,
+    "kind": "dyn",
+    "first": "src/components/FileTree.tsx:222"
   },
   "KMS key id": {
     "count": 2,
@@ -25625,12 +25735,12 @@
     "first": "src/pages/SystemNoticeUxLab.tsx:366"
   },
   "Label": {
-    "count": 8,
+    "count": 10,
     "kind": "attr",
     "first": "src/components/IssueThreadInteractionCard.tsx:674"
   },
   "Labels": {
-    "count": 4,
+    "count": 5,
     "kind": "jsx",
     "first": "src/components/IssueFiltersPopover.tsx:474"
   },
@@ -25950,7 +26060,7 @@
     "first": "src/lib/announcement-preview.ts:11"
   },
   "Learnings": {
-    "count": 2,
+    "count": 3,
     "kind": "obj",
     "first": "src/pages/Pipelines.tsx:5164"
   },
@@ -26200,9 +26310,9 @@
     "first": "src/pages/DesignGuide.tsx:1260"
   },
   "Linear": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/linear.json:0"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/lib/external-objects.ts:168"
   },
   "Link": {
     "count": 1,
@@ -26325,7 +26435,7 @@
     "first": "src/pages/Pipelines.tsx:3450"
   },
   "Linux": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/PathInstructionsModal.tsx:17"
   },
@@ -27125,7 +27235,7 @@
     "first": "src/components/AnimatedPaperclipIcon.tsx:33"
   },
   "Local": {
-    "count": 5,
+    "count": 7,
     "kind": "obj",
     "first": "src/pages/Agents.production.tsx:71"
   },
@@ -27270,7 +27380,7 @@
     "first": "src/components/IssueDocumentsSection.tsx:1079"
   },
   "Log": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-attachments.ts:79"
   },
@@ -27323,6 +27433,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/CompanySettings.tsx:300"
+  },
+  "Logpush": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/utils.ts:201"
   },
   "Long user name truncates in the chip": {
     "count": 2,
@@ -27425,7 +27540,7 @@
     "first": "src/components/search/ZeroResultsRecovery.tsx:51"
   },
   "Low": {
-    "count": 11,
+    "count": 24,
     "kind": "obj",
     "first": "src/components/AgentConfigForm.tsx:278"
   },
@@ -27714,6 +27829,11 @@
     "kind": "jsx",
     "first": "src/pages/AgentDetail.production.tsx:2674"
   },
+  "Manager": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/CompanyExport.tsx:408"
+  },
   "Manifest copied": {
     "count": 1,
     "kind": "dyn",
@@ -27850,9 +27970,9 @@
     "first": "src/components/IssueThreadInteractionCard.tsx:3473"
   },
   "Markdown": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/components/task-chat/task-chat-attachments.ts:44"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/components/MarkdownEditor.tsx:325"
   },
   "Markdown bodies": {
     "count": 1,
@@ -27895,7 +28015,7 @@
     "first": "src/components/ResourceStatusChip.tsx:36"
   },
   "Max": {
-    "count": 4,
+    "count": 9,
     "kind": "obj",
     "first": "src/components/AgentConfigForm.tsx:282"
   },
@@ -28005,7 +28125,7 @@
     "first": "src/pages/DesignGuide.tsx:2318"
   },
   "Medium": {
-    "count": 10,
+    "count": 22,
     "kind": "obj",
     "first": "src/components/AgentConfigForm.tsx:279"
   },
@@ -28045,7 +28165,7 @@
     "first": "src/pages/Secrets.tsx:2185"
   },
   "Members": {
-    "count": 5,
+    "count": 8,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:115"
   },
@@ -28089,6 +28209,11 @@
     "kind": "dyn",
     "first": "src/components/task-chat/task-chat-activity-presentation.ts:130"
   },
+  "Mention": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/apps/chat/GitHubBotConfiguration.tsx:27"
+  },
   "Mention copied": {
     "count": 1,
     "kind": "jsx",
@@ -28110,7 +28235,7 @@
     "first": "src/pages/StatusCards/StatusCardDetailDrawer.tsx:561"
   },
   "Merged": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/task-chat/RichWorkProductCard.tsx:56"
   },
@@ -28260,12 +28385,12 @@
     "first": "src/pages/apps/chat/ChatEndpointSetup.tsx:1194"
   },
   "Mine": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/pages/Inbox.tsx:2408"
   },
   "Minimal": {
-    "count": 5,
+    "count": 9,
     "kind": "obj",
     "first": "src/components/AgentConfigForm.tsx:277"
   },
@@ -28295,7 +28420,7 @@
     "first": "../packages/shared/src/app-definitions/miro.json:0"
   },
   "Missing": {
-    "count": 2,
+    "count": 3,
     "kind": "obj",
     "first": "src/components/ResourceStatusChip.tsx:38"
   },
@@ -28360,9 +28485,9 @@
     "first": "src/pages/AgentDetail.production.tsx:2668"
   },
   "Model": {
-    "count": 8,
-    "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:3801"
+    "count": 9,
+    "kind": "dyn",
+    "first": "src/adapters/paperclip-runner/index.ts:692"
   },
   "Model lane": {
     "count": 6,
@@ -28405,9 +28530,14 @@
     "first": "src/components/CodexSubscriptionPanel.tsx:102"
   },
   "Mon": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:30"
+  },
+  "Monday": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/routine-triggers/TriggerWizard.tsx:44"
   },
   "Monitor": {
     "count": 2,
@@ -28440,7 +28570,7 @@
     "first": "src/hooks/useDateRange.ts:6"
   },
   "Monthly": {
-    "count": 2,
+    "count": 3,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:15"
   },
@@ -28790,7 +28920,7 @@
     "first": "src/components/FrontmatterPanel.tsx:477"
   },
   "Name": {
-    "count": 34,
+    "count": 37,
     "kind": "attr",
     "first": "src/components/AgentConfigForm.tsx:1455"
   },
@@ -29405,7 +29535,7 @@
     "first": "src/pages/apps/chat/GitHubBotConfiguration.tsx:95"
   },
   "Next": {
-    "count": 8,
+    "count": 10,
     "kind": "attr",
     "first": "src/components/ImageGalleryModal.tsx:168"
   },
@@ -31640,7 +31770,7 @@
     "first": "src/pages/CompanySkills.production.tsx:2127"
   },
   "None": {
-    "count": 31,
+    "count": 32,
     "kind": "jsx",
     "first": "src/adapters/hermes-gateway/config-fields.tsx:191"
   },
@@ -31929,10 +32059,15 @@
     "kind": "jsx",
     "first": "src/pages/Pipelines.tsx:3378"
   },
-  "Notion": {
+  "Notify": {
     "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/notion.json:0"
+    "kind": "dyn",
+    "first": "src/lib/interrupt-handoff.ts:259"
+  },
+  "Notion": {
+    "count": 5,
+    "kind": "dyn",
+    "first": "src/fixtures/issueThreadInteractionFixtures.ts:897"
   },
   "Now": {
     "count": 1,
@@ -32020,7 +32155,7 @@
     "first": "src/components/IssueRecoveryActionCard.tsx:193"
   },
   "Off": {
-    "count": 6,
+    "count": 10,
     "kind": "obj",
     "first": "src/components/InboxAgentPolicyControl.tsx:26"
   },
@@ -32400,7 +32535,7 @@
     "first": "src/pages/DesignGuide.tsx:831"
   },
   "Open": {
-    "count": 9,
+    "count": 13,
     "kind": "jsx",
     "first": "src/components/AttentionQueueRow.tsx:217"
   },
@@ -33140,7 +33275,7 @@
     "first": "../packages/shared/src/app-definitions/openrouter.json:0"
   },
   "Operate": {
-    "count": 3,
+    "count": 5,
     "kind": "jsx",
     "first": "src/components/RoutineContextualSidebar.tsx:103"
   },
@@ -33165,7 +33300,7 @@
     "first": "src/adapters/openclaw-gateway/config-fields.tsx:276"
   },
   "Operator": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/access/InvitesSection.tsx:23"
   },
@@ -33200,7 +33335,7 @@
     "first": "src/components/RepositoryEditor.tsx:48"
   },
   "Optional": {
-    "count": 12,
+    "count": 14,
     "kind": "jsx",
     "first": "src/components/environment-variables-editor/Row.tsx:468"
   },
@@ -33455,7 +33590,7 @@
     "first": "src/pages/Agents.production.tsx:514"
   },
   "Organization": {
-    "count": 16,
+    "count": 21,
     "kind": "dyn",
     "first": "src/components/ContextualSidebarFrame.tsx:58"
   },
@@ -33565,7 +33700,7 @@
     "first": "src/components/agent-config-primitives.tsx:25"
   },
   "Organizations": {
-    "count": 4,
+    "count": 5,
     "kind": "jsx",
     "first": "src/components/CompanySwitcher.tsx:60"
   },
@@ -33583,6 +33718,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/components/folders/FolderControls.tsx:640"
+  },
+  "Origin": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/Pipelines.tsx:3805"
   },
   "origin/main": {
     "count": 4,
@@ -33605,7 +33745,7 @@
     "first": "src/pages/DesignGuide.tsx:1865"
   },
   "Other": {
-    "count": 3,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/ActivityCharts.tsx:136"
   },
@@ -33835,7 +33975,7 @@
     "first": "src/pages/AdapterManager.tsx:92"
   },
   "Overview": {
-    "count": 11,
+    "count": 20,
     "kind": "obj",
     "first": "src/components/RoutineContextualSidebar.tsx:39"
   },
@@ -33860,7 +34000,7 @@
     "first": "src/components/SecretBindingPicker.tsx:259"
   },
   "Owner": {
-    "count": 10,
+    "count": 14,
     "kind": "attr",
     "first": "src/components/GoalProperties.tsx:127"
   },
@@ -34025,7 +34165,7 @@
     "first": "src/adapters/openclaw-gateway/config-fields.tsx:242"
   },
   "Paperclip": {
-    "count": 9,
+    "count": 17,
     "kind": "obj",
     "first": "src/fixtures/systemNoticeFixtures.ts:134"
   },
@@ -34740,7 +34880,7 @@
     "first": "src/pages/tools/AuditTab.tsx:311"
   },
   "Parent": {
-    "count": 3,
+    "count": 4,
     "kind": "attr",
     "first": "src/components/issue-properties/IssueProperties.tsx:2429"
   },
@@ -35120,7 +35260,7 @@
     "first": "src/pages/tools/smoke-lab-matrix.ts:26"
   },
   "Patch": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-attachments.ts:80"
   },
@@ -35235,7 +35375,7 @@
     "first": "src/pages/CompanyImport.tsx:1779"
   },
   "Paused": {
-    "count": 23,
+    "count": 28,
     "kind": "jsx",
     "first": "src/components/AgentChatPicker.tsx:77"
   },
@@ -35300,7 +35440,7 @@
     "first": "src/pages/IssueDetail.tsx:2439"
   },
   "Payload": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/actions/ActionCard.tsx:160"
   },
@@ -35470,7 +35610,7 @@
     "first": "src/pages/audit/AuditFeed.production.tsx:251"
   },
   "Permissions": {
-    "count": 10,
+    "count": 11,
     "kind": "jsx",
     "first": "src/features/connections/remote-mcp/RemoteMcpConnectionSetup.tsx:76"
   },
@@ -35765,7 +35905,7 @@
     "first": "src/pages/CompanySkills.production.tsx:3533"
   },
   "Pipeline": {
-    "count": 3,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/RunnerInspector.tsx:92"
   },
@@ -35825,7 +35965,7 @@
     "first": "src/pages/PipelineSettings.tsx:2038"
   },
   "Pipelines": {
-    "count": 9,
+    "count": 14,
     "kind": "attr",
     "first": "src/components/Sidebar.production.tsx:189"
   },
@@ -35850,9 +35990,9 @@
     "first": "src/pages/SkillStudio.tsx:2890"
   },
   "Plan": {
-    "count": 6,
-    "kind": "obj",
-    "first": "src/components/AgentConfigForm.tsx:287"
+    "count": 9,
+    "kind": "dyn",
+    "first": "src/adapters/paperclip-runner/index.ts:692"
   },
   "PLAN": {
     "count": 1,
@@ -36050,7 +36190,7 @@
     "first": "src/lib/secret-delivery.ts:77"
   },
   "Plugins": {
-    "count": 6,
+    "count": 10,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:178"
   },
@@ -36265,7 +36405,7 @@
     "first": "src/components/IssueFieldChangeReceipt.tsx:68"
   },
   "Preview": {
-    "count": 3,
+    "count": 4,
     "kind": "jsx",
     "first": "src/components/task-chat/TaskChatProtocolCard.tsx:548"
   },
@@ -36390,9 +36530,9 @@
     "first": "src/pages/IssueChatUxLab.tsx:269"
   },
   "Priority": {
-    "count": 11,
-    "kind": "jsx",
-    "first": "src/components/IssueFiltersPopover.tsx:343"
+    "count": 16,
+    "kind": "dyn",
+    "first": "src/components/FileTree.tsx:227"
   },
   "PriorityIcon (interactive)": {
     "count": 2,
@@ -36480,7 +36620,7 @@
     "first": "src/pages/tools/connection-dialogs.tsx:556"
   },
   "Process": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/adapters/adapter-display-registry.ts:144"
   },
@@ -36530,7 +36670,7 @@
     "first": "src/components/RunnerInspector.tsx:625"
   },
   "Profile": {
-    "count": 6,
+    "count": 8,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:107"
   },
@@ -36615,7 +36755,7 @@
     "first": "src/fixtures/issueChatLongThreadFixture.ts:201"
   },
   "Profiles": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/tools/tool-tabs.ts:32"
   },
@@ -36645,7 +36785,7 @@
     "first": "src/components/task-chat/task-chat-states.ts:88"
   },
   "Project": {
-    "count": 31,
+    "count": 42,
     "kind": "attr",
     "first": "src/components/DecisionsToolbar.tsx:209"
   },
@@ -36770,7 +36910,7 @@
     "first": "src/components/ProjectProperties.tsx:692"
   },
   "Projects": {
-    "count": 21,
+    "count": 29,
     "kind": "attr",
     "first": "src/components/CommandPalette.tsx:294"
   },
@@ -36850,7 +36990,7 @@
     "first": "src/components/OnboardingWizard.tsx:2989"
   },
   "Properties": {
-    "count": 11,
+    "count": 14,
     "kind": "jsx",
     "first": "src/components/PropertiesPanel.tsx:34"
   },
@@ -37165,9 +37305,9 @@
     "first": "src/lib/utils.ts:202"
   },
   "Provisioning": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/lib/workspace-access-state.ts:212"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/components/WorkspaceAccessCard.tsx:34"
   },
   "Provisioning database": {
     "count": 2,
@@ -37324,6 +37464,11 @@
     "kind": "jsx",
     "first": "src/components/agent-config-primitives.tsx:432"
   },
+  "Python": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/MarkdownEditor.tsx:333"
+  },
   "QA Readout": {
     "count": 1,
     "kind": "dyn",
@@ -37410,7 +37555,7 @@
     "first": "src/components/IssueThreadInteractionCard.tsx:1360"
   },
   "Questions": {
-    "count": 1,
+    "count": 3,
     "kind": "obj",
     "first": "src/components/task-chat/TaskChatCompactInteractionCard.tsx:94"
   },
@@ -37485,9 +37630,9 @@
     "first": "src/pages/Routines.production.tsx:72"
   },
   "Queued": {
-    "count": 3,
-    "kind": "jsx",
-    "first": "src/components/CommentThread.tsx:358"
+    "count": 4,
+    "kind": "dyn",
+    "first": "src/components/ActiveAgentsPanel.tsx:27"
   },
   "Queued behind ": {
     "count": 1,
@@ -37618,6 +37763,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/components/BudgetIncidentCard.tsx:97"
+  },
+  "Ran": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/task-chat/tool-taxonomy.ts:331"
   },
   "Ran 1 command, called 1 tool": {
     "count": 1,
@@ -37828,6 +37978,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/DesignGuide.tsx:2239"
+  },
+  "Read": {
+    "count": 9,
+    "kind": "dyn",
+    "first": "src/components/task-chat/task-chat-fixtures.ts:97"
   },
   "Read & create": {
     "count": 2,
@@ -38180,7 +38335,7 @@
     "first": "../packages/shared/src/app-definitions/posthog.json:0"
   },
   "Ready": {
-    "count": 3,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/ResourceStatusChip.tsx:36"
   },
@@ -38225,7 +38380,7 @@
     "first": "src/components/AttentionQueueRow.tsx:297"
   },
   "Reason": {
-    "count": 9,
+    "count": 10,
     "kind": "jsx",
     "first": "src/components/RunnerInspector.tsx:565"
   },
@@ -38345,7 +38500,7 @@
     "first": "src/pages/apps/chat/EmailEndpointSetup.tsx:796"
   },
   "Recent": {
-    "count": 6,
+    "count": 12,
     "kind": "obj",
     "first": "src/components/SidebarAgents.production.tsx:72"
   },
@@ -38650,7 +38805,7 @@
     "first": "src/pages/apps/chat/ChatEndpointSetup.tsx:1075"
   },
   "Reconnected": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/apps/app-detail/AdvancedPanel.tsx:313"
   },
@@ -38658,6 +38813,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/features/connections/ConnectionSetupFlow.tsx:4139"
+  },
+  "Reconsider": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/fixtures/issueThreadInteractionFixtures.ts:1225"
   },
   "Record retry and retired outputs as history instead of deleting records.": {
     "count": 2,
@@ -38670,7 +38830,7 @@
     "first": "src/components/IssueBlockedNotice.tsx:618"
   },
   "Recorded": {
-    "count": 3,
+    "count": 5,
     "kind": "jsx",
     "first": "src/components/IssueRecoveryActionCard.tsx:1440"
   },
@@ -38695,7 +38855,7 @@
     "first": "src/components/task-chat/completed-activity-summary.ts:116"
   },
   "Recovered": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ActivityCharts.tsx:134"
   },
@@ -38705,7 +38865,7 @@
     "first": "src/components/task-chat/task-protocol-surfaces.ts:93"
   },
   "Recovery": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/lib/attention.ts:55"
   },
@@ -38799,10 +38959,20 @@
     "kind": "jsx",
     "first": "src/components/IssueRecoveryActionCard.tsx:1257"
   },
+  "Recreate": {
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/components/BuiltInBundlePanel.tsx:96"
+  },
   "Recreate this wireframe on pages Paperclip": {
     "count": 2,
     "kind": "obj",
     "first": "src/pages/DesignGuide.tsx:1201"
+  },
+  "Recurring": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/FileTree.tsx:230"
   },
   "Recurring monthly spend policies for individual agents.": {
     "count": 2,
@@ -38865,7 +39035,7 @@
     "first": "src/components/task-detail/TaskDetailRelationsPanel.tsx:224"
   },
   "References": {
-    "count": 4,
+    "count": 5,
     "kind": "attr",
     "first": "src/components/IssueRelatedWorkPanel.tsx:194"
   },
@@ -39020,7 +39190,7 @@
     "first": "src/pages/Costs.production.tsx:130"
   },
   "Refused": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-states.ts:158"
   },
@@ -39120,7 +39290,7 @@
     "first": "src/pages/AdapterManager.tsx:249"
   },
   "Reject": {
-    "count": 20,
+    "count": 27,
     "kind": "dyn",
     "first": "src/components/ApprovalCard.tsx:131"
   },
@@ -39140,9 +39310,9 @@
     "first": "src/pages/secrets/proposal-review.tsx:608"
   },
   "Rejected": {
-    "count": 1,
-    "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:101"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/components/IssueThreadInteractionCard.tsx:3078"
   },
   "Rejected 1 task": {
     "count": 1,
@@ -39198,6 +39368,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/fixtures/issueChatLongThreadFixture.ts:202"
+  },
+  "Relevance": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/search-filters.ts:17"
   },
   "Relink": {
     "count": 1,
@@ -39529,6 +39704,11 @@
     "kind": "jsx",
     "first": "src/pages/SkillStudio.tsx:3123"
   },
+  "Removed": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/pipeline-item-detail.ts:84"
+  },
   "Removed (strikethrough)": {
     "count": 2,
     "kind": "obj",
@@ -39634,6 +39814,11 @@
     "kind": "dyn",
     "first": "src/components/MarkdownBody.tsx:698"
   },
+  "Reopened": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/apps/chat/GitHubBotConfiguration.tsx:25"
+  },
   "Repair failed": {
     "count": 4,
     "kind": "obj",
@@ -39663,6 +39848,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/components/IssueRecoveryActionCard.tsx:665"
+  },
+  "Repairing": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/WorkspaceAccessCard.tsx:38"
   },
   "Repairing workspace database": {
     "count": 2,
@@ -39753,6 +39943,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/components/RoutineSaveBar.tsx:134"
+  },
+  "Replacing": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/task-chat/RunnerGoalWidget.tsx:21"
   },
   "Replay": {
     "count": 2,
@@ -40234,6 +40429,11 @@
     "kind": "jsx",
     "first": "src/components/IssueRecoveryActionCard.tsx:724"
   },
+  "Research": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/adapters/paperclip-runner/index.ts:692"
+  },
   "Research Lab (local source)": {
     "count": 1,
     "kind": "dyn",
@@ -40243,6 +40443,11 @@
     "count": 6,
     "kind": "attr",
     "first": "src/components/task-chat/TaskChatProtocolActivityRow.tsx:88"
+  },
+  "Researcher": {
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/fixtures/issueThreadInteractionFixtures.ts:900"
   },
   "Researcher needs this connection to continue.": {
     "count": 1,
@@ -40265,9 +40470,9 @@
     "first": "src/components/environment-variables-editor/model.ts:191"
   },
   "Reset": {
-    "count": 6,
+    "count": 7,
     "kind": "dyn",
-    "first": "src/components/ManagedRoutinesList.tsx:172"
+    "first": "src/components/BuiltInBundlePanel.tsx:89"
   },
   "Reset all": {
     "count": 2,
@@ -40525,12 +40730,12 @@
     "first": "src/components/OnboardingWizard.tsx:2991"
   },
   "Responding": {
-    "count": 3,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-fixtures.ts:92"
   },
   "Response": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/task-chat/TaskChatProtocolCard.tsx:707"
   },
@@ -40545,7 +40750,7 @@
     "first": "src/pages/tools/AuditTab.tsx:290"
   },
   "Responsible": {
-    "count": 17,
+    "count": 20,
     "kind": "attr",
     "first": "src/components/CommentThread.tsx:1050"
   },
@@ -40640,7 +40845,7 @@
     "first": "src/components/WorkspaceServiceControlBar.tsx:76"
   },
   "Restore": {
-    "count": 8,
+    "count": 9,
     "kind": "jsx",
     "first": "src/components/AttentionQueueRow.tsx:226"
   },
@@ -40750,7 +40955,7 @@
     "first": "src/pages/ApprovalDetail.tsx:122"
   },
   "Result": {
-    "count": 4,
+    "count": 5,
     "kind": "jsx",
     "first": "src/components/IssueChatThread.tsx:1711"
   },
@@ -40864,6 +41069,11 @@
     "kind": "dyn",
     "first": "src/components/task-chat/task-chat-activity-presentation.ts:104"
   },
+  "Resuming": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/task-chat/RunnerGoalWidget.tsx:23"
+  },
   "Resuming a subagent": {
     "count": 1,
     "kind": "dyn",
@@ -40890,7 +41100,7 @@
     "first": "src/pages/Pipelines.tsx:292"
   },
   "Retired": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/pages/apps/Browse.tsx:168"
   },
@@ -41155,7 +41365,7 @@
     "first": "src/components/environment-variables-editor/Row.tsx:535"
   },
   "Review": {
-    "count": 15,
+    "count": 22,
     "kind": "attr",
     "first": "src/components/AppsSidebar.production.tsx:72"
   },
@@ -41560,12 +41770,12 @@
     "first": "src/components/PipelineItemBodyDocument.tsx:204"
   },
   "Revisions": {
-    "count": 3,
+    "count": 4,
     "kind": "jsx",
     "first": "src/components/CaseRevisionRail.tsx:209"
   },
   "Revoke": {
-    "count": 10,
+    "count": 12,
     "kind": "jsx",
     "first": "src/components/access/InvitesSection.tsx:344"
   },
@@ -41595,9 +41805,9 @@
     "first": "src/pages/apps/gateways/panels/TokensPanel.tsx:431"
   },
   "Revoked": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/pages/apps/AppDetail.tsx:527"
+    "count": 5,
+    "kind": "dyn",
+    "first": "src/components/ai-connections/model.ts:40"
   },
   "revoked ": {
     "count": 1,
@@ -41750,7 +41960,7 @@
     "first": "src/pages/Secrets.tsx:3130"
   },
   "Rotated": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/Secrets.tsx:1169"
   },
@@ -41775,7 +41985,7 @@
     "first": "src/components/BuiltInBundlePanel.tsx:411"
   },
   "Routine": {
-    "count": 8,
+    "count": 11,
     "kind": "attr",
     "first": "src/components/BuiltInBundlePanel.tsx:356"
   },
@@ -41890,7 +42100,7 @@
     "first": "src/components/RoutineVariablesEditor.tsx:293"
   },
   "Routines": {
-    "count": 15,
+    "count": 24,
     "kind": "attr",
     "first": "src/components/Sidebar.production.tsx:187"
   },
@@ -41925,7 +42135,7 @@
     "first": "src/components/CommentThread.tsx:635"
   },
   "Run": {
-    "count": 9,
+    "count": 10,
     "kind": "jsx",
     "first": "src/components/IssueRunLedger.tsx:867"
   },
@@ -42315,9 +42525,9 @@
     "first": "src/components/AgentActionButtons.tsx:424"
   },
   "Runner": {
-    "count": 1,
-    "kind": "jsx",
-    "first": "src/components/new-agent/AgentBasicsDialog.tsx:266"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/components/RunnerInspector.tsx:613"
   },
   "Runner activity": {
     "count": 3,
@@ -42360,9 +42570,9 @@
     "first": "src/components/IssueBlockedNotice.tsx:168"
   },
   "Running": {
-    "count": 7,
-    "kind": "jsx",
-    "first": "src/components/IssueChatThread.tsx:2689"
+    "count": 15,
+    "kind": "dyn",
+    "first": "src/components/ActiveAgentsPanel.tsx:26"
   },
   "Running a command": {
     "count": 1,
@@ -42430,7 +42640,7 @@
     "first": "src/components/IssueThreadInteractionCard.tsx:477"
   },
   "Runs": {
-    "count": 16,
+    "count": 29,
     "kind": "obj",
     "first": "src/components/AgentContextualSidebar.tsx:46"
   },
@@ -42555,7 +42765,7 @@
     "first": "src/pages/apps/app-detail/PermissionsPanel.tsx:417"
   },
   "Runtime": {
-    "count": 2,
+    "count": 3,
     "kind": "jsx",
     "first": "src/components/new-agent/NewAgentSetup.tsx:813"
   },
@@ -42639,6 +42849,11 @@
     "kind": "attr",
     "first": "src/components/RuntimeTestCard.tsx:65"
   },
+  "Rust": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/MarkdownEditor.tsx:335"
+  },
   "Safe": {
     "count": 2,
     "kind": "jsx",
@@ -42715,7 +42930,7 @@
     "first": "../packages/shared/src/app-definitions/sanity.json:0"
   },
   "Sat": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:35"
   },
@@ -43015,7 +43230,7 @@
     "first": "src/pages/apps/chat/ChatCommunicationInstructions.tsx:53"
   },
   "Saving": {
-    "count": 1,
+    "count": 2,
     "kind": "jsx",
     "first": "src/components/ProjectProperties.tsx:80"
   },
@@ -43175,7 +43390,7 @@
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:311"
   },
   "Scripts": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/TeamCatalog.tsx:257"
   },
@@ -43205,7 +43420,7 @@
     "first": "src/components/MarkdownBody.tsx:788"
   },
   "Search": {
-    "count": 6,
+    "count": 9,
     "kind": "attr",
     "first": "src/components/CommandPalette.tsx:255"
   },
@@ -43875,7 +44090,7 @@
     "first": "src/components/environment-variables-editor/CreateSecretPopover.tsx:92"
   },
   "Secrets": {
-    "count": 15,
+    "count": 28,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:136"
   },
@@ -43960,7 +44175,7 @@
     "first": "src/pages/Cases.tsx:730"
   },
   "Select": {
-    "count": 6,
+    "count": 7,
     "kind": "dyn",
     "first": "src/pages/CompanySkills.production.tsx:1310"
   },
@@ -44555,7 +44770,7 @@
     "first": "src/pages/SkillStudio.tsx:2805"
   },
   "Selection": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/task-chat/TaskChatCompactInteractionCard.tsx:104"
   },
@@ -44835,7 +45050,7 @@
     "first": "src/components/RunnerInspector.tsx:1181"
   },
   "Serialize": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ProjectProperties.tsx:66"
   },
@@ -44875,7 +45090,7 @@
     "first": "src/features/connections/ConnectionSetupFlow.tsx:3646"
   },
   "Services": {
-    "count": 2,
+    "count": 3,
     "kind": "attr",
     "first": "src/components/WorkspaceRuntimeControls.tsx:593"
   },
@@ -45070,7 +45285,7 @@
     "first": "src/pages/StatusCards/StatusCardDetailDrawer.tsx:229"
   },
   "Settings": {
-    "count": 27,
+    "count": 42,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.tsx:87"
   },
@@ -45360,7 +45575,7 @@
     "first": "src/pages/CompanySkills.production.tsx:658"
   },
   "Sheet": {
-    "count": 3,
+    "count": 5,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-attachments.ts:48"
   },
@@ -45368,6 +45583,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/apps/app-detail/SetupPanel.tsx:167"
+  },
+  "Shell": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/MarkdownEditor.tsx:332"
   },
   "Shell Git and gh use this account for the run and are not constrained by per-tool Ask-first controls.": {
     "count": 1,
@@ -46375,7 +46595,7 @@
     "first": "src/components/FrontmatterPanel.tsx:202"
   },
   "Skills": {
-    "count": 16,
+    "count": 28,
     "kind": "jsx",
     "first": "src/components/ApprovalPayload.tsx:69"
   },
@@ -46525,9 +46745,9 @@
     "first": "src/pages/DesignGuide.tsx:853"
   },
   "Slack": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/slack.json:0"
+    "count": 11,
+    "kind": "dyn",
+    "first": "src/components/chat/AgentChannelsPanel.tsx:11"
   },
   "Slack · manifest v2.4.1": {
     "count": 1,
@@ -47045,7 +47265,7 @@
     "first": "src/pages/DesignGuide.tsx:1469"
   },
   "Stage": {
-    "count": 2,
+    "count": 3,
     "kind": "obj",
     "first": "src/pages/PipelineSettings.tsx:170"
   },
@@ -47110,9 +47330,9 @@
     "first": "src/pages/DesignGuide.tsx:2077"
   },
   "Stale": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/lib/status-card-state.ts:69"
+    "count": 4,
+    "kind": "dyn",
+    "first": "src/lib/external-objects.ts:98"
   },
   "Stale disposition warning": {
     "count": 1,
@@ -47133,6 +47353,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/InviteUxLab.tsx:908"
+  },
+  "Standard": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/trust-policy-ui.ts:19"
   },
   "Standard Card": {
     "count": 2,
@@ -47285,7 +47510,7 @@
     "first": "src/lib/workspace-access-state.ts:240"
   },
   "Started": {
-    "count": 1,
+    "count": 2,
     "kind": "attr",
     "first": "src/components/issue-properties/IssueProperties.tsx:2902"
   },
@@ -47313,6 +47538,11 @@
     "count": 2,
     "kind": "attr",
     "first": "src/pages/TeamCatalog.tsx:1833"
+  },
+  "Starting": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/task-chat/RunnerGoalWidget.tsx:19"
   },
   "Starting a subagent": {
     "count": 4,
@@ -47355,9 +47585,14 @@
     "first": "src/components/RoutineOverview.tsx:165"
   },
   "States": {
-    "count": 3,
-    "kind": "attr",
-    "first": "src/pages/DesignGuide.tsx:708"
+    "count": 26,
+    "kind": "dyn",
+    "first": "src/components/task-chat/motion-tokens.ts:47"
+  },
+  "Static": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/interrupt-handoff.ts:383"
   },
   "Static governance copy with a tone. Used for the PAP-10400 trust-tier banner on Runtime and the effective-access banner on Agent → Tools. Pass ": {
     "count": 1,
@@ -47370,7 +47605,7 @@
     "first": "src/pages/DesignGuide.tsx:829"
   },
   "Status": {
-    "count": 35,
+    "count": 45,
     "kind": "attr",
     "first": "src/components/AgentProperties.tsx:45"
   },
@@ -47600,7 +47835,7 @@
     "first": "src/fixtures/TaskChatPerfHarness.tsx:45"
   },
   "Stopped": {
-    "count": 4,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/WorkspaceServiceControlBar.tsx:84"
   },
@@ -47805,7 +48040,7 @@
     "first": "src/components/task-chat/task-protocol-surfaces.ts:117"
   },
   "Studio": {
-    "count": 4,
+    "count": 7,
     "kind": "jsx",
     "first": "src/pages/CompanySkills.production.tsx:1261"
   },
@@ -47990,7 +48225,7 @@
     "first": "src/pages/apps/chat/ChatEndpointSetup.tsx:1317"
   },
   "Subscription": {
-    "count": 2,
+    "count": 4,
     "kind": "jsx",
     "first": "src/components/ProviderQuotaCard.tsx:225"
   },
@@ -48015,7 +48250,7 @@
     "first": "src/components/task-detail/TaskDetailRelationsPanel.tsx:138"
   },
   "Subtasks": {
-    "count": 5,
+    "count": 7,
     "kind": "attr",
     "first": "src/components/issue-properties/IssueProperties.tsx:2534"
   },
@@ -48030,9 +48265,9 @@
     "first": "src/components/TaskTreeControls.tsx:211"
   },
   "Succeeded": {
-    "count": 2,
-    "kind": "obj",
-    "first": "src/components/ActivityCharts.tsx:133"
+    "count": 6,
+    "kind": "dyn",
+    "first": "src/components/ActiveAgentsPanel.tsx:28"
   },
   "Success Rate": {
     "count": 4,
@@ -48215,7 +48450,7 @@
     "first": "src/components/SummarySlotCard.tsx:355"
   },
   "Sun": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:36"
   },
@@ -48310,9 +48545,9 @@
     "first": "src/pages/TaskChatLab.tsx:172"
   },
   "System": {
-    "count": 3,
-    "kind": "jsx",
-    "first": "src/components/IssueRecoveryActionCard.tsx:1265"
+    "count": 5,
+    "kind": "dyn",
+    "first": "src/components/IssueDocumentsSection.tsx:173"
   },
   "System alert": {
     "count": 8,
@@ -48375,9 +48610,9 @@
     "first": "src/pages/SkillStudio.tsx:579"
   },
   "Tags": {
-    "count": 3,
-    "kind": "jsx",
-    "first": "src/components/folders/SkillFolderTree.tsx:416"
+    "count": 4,
+    "kind": "dyn",
+    "first": "src/components/IssueColumns.tsx:36"
   },
   "Tags: ": {
     "count": 2,
@@ -48450,7 +48685,7 @@
     "first": "src/pages/tools/ProfilesTab.tsx:1300"
   },
   "Task": {
-    "count": 5,
+    "count": 10,
     "kind": "jsx",
     "first": "src/components/MarkdownEditor.tsx:1617"
   },
@@ -48675,7 +48910,7 @@
     "first": "src/pages/UserProfile.tsx:222"
   },
   "Tasks": {
-    "count": 15,
+    "count": 27,
     "kind": "jsx",
     "first": "src/components/CommandPalette.tsx:366"
   },
@@ -48725,9 +48960,9 @@
     "first": "src/pages/Search.tsx:767"
   },
   "Team": {
-    "count": 1,
-    "kind": "jsx",
-    "first": "src/pages/apps/chat/ChatEndpointSetup.tsx:1185"
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/components/NewGoalDialog.tsx:31"
   },
   "Team Catalog": {
     "count": 2,
@@ -48755,7 +48990,7 @@
     "first": "src/pages/DesignGuide.tsx:1847"
   },
   "Teams": {
-    "count": 2,
+    "count": 3,
     "kind": "obj",
     "first": "src/pages/TeamCatalog.tsx:2291"
   },
@@ -48770,9 +49005,9 @@
     "first": "src/components/ProjectProperties.tsx:962"
   },
   "Telegram": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/telegram.json:0"
+    "count": 8,
+    "kind": "dyn",
+    "first": "src/components/chat/AgentChannelsPanel.tsx:15"
   },
   "Telegram group command": {
     "count": 1,
@@ -49030,9 +49265,9 @@
     "first": "src/components/OnboardingWizard.tsx:1371"
   },
   "Text": {
-    "count": 5,
+    "count": 10,
     "kind": "dyn",
-    "first": "src/components/artifacts/ArtifactCard.tsx:139"
+    "first": "src/components/MarkdownEditor.tsx:324"
   },
   "Text only — no scripts, no binaries, no assets.": {
     "count": 4,
@@ -50180,7 +50415,7 @@
     "first": "src/pages/apps/chat/ChatEndpointDetail.tsx:644"
   },
   "Thinking": {
-    "count": 5,
+    "count": 10,
     "kind": "jsx",
     "first": "src/components/task-chat/TaskChatRunnerTurn.tsx:113"
   },
@@ -51675,7 +51910,7 @@
     "first": "src/pages/SystemNoticeUxLab.tsx:195"
   },
   "Thu": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:33"
   },
@@ -51720,7 +51955,7 @@
     "first": "src/components/ActiveAgentsPanel.tsx:30"
   },
   "Timeline": {
-    "count": 3,
+    "count": 4,
     "kind": "attr",
     "first": "src/components/Sidebar.production.tsx:234"
   },
@@ -51764,6 +51999,11 @@
     "kind": "attr",
     "first": "src/adapters/hermes-gateway/config-fields.tsx:195"
   },
+  "Timer": {
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/pages/AgentDetail.production.tsx:224"
+  },
   "Times out ": {
     "count": 1,
     "kind": "jsx",
@@ -51785,7 +52025,7 @@
     "first": "src/pages/DesignGuide.tsx:2033"
   },
   "Title": {
-    "count": 12,
+    "count": 17,
     "kind": "attr",
     "first": "src/components/AgentConfigForm.tsx:1464"
   },
@@ -51875,9 +52115,9 @@
     "first": "src/components/EmailMessageCard.tsx:87"
   },
   "Today": {
-    "count": 1,
-    "kind": "obj",
-    "first": "src/pages/Timeline.tsx:409"
+    "count": 4,
+    "kind": "dyn",
+    "first": "src/lib/attention.ts:814"
   },
   "Today: ": {
     "count": 2,
@@ -51890,9 +52130,9 @@
     "first": "src/pages/SystemNoticeUxLab.tsx:291"
   },
   "Todo": {
-    "count": 3,
-    "kind": "obj",
-    "first": "src/components/NewIssueDialog.tsx:283"
+    "count": 6,
+    "kind": "dyn",
+    "first": "src/components/IssuesList.tsx:138"
   },
   "Todoist": {
     "count": 1,
@@ -52150,7 +52390,7 @@
     "first": "src/pages/DesignGuide.tsx:2277"
   },
   "Tokens": {
-    "count": 7,
+    "count": 8,
     "kind": "jsx",
     "first": "src/pages/DesignGuide.tsx:1771"
   },
@@ -52170,7 +52410,7 @@
     "first": "src/pages/Timeline.tsx:283"
   },
   "Tomorrow": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/DecisionTriageStrip.tsx:32"
   },
@@ -52210,9 +52450,9 @@
     "first": "src/components/task-chat/TaskChatQueuedMessages.tsx:349"
   },
   "Tool": {
-    "count": 4,
-    "kind": "jsx",
-    "first": "src/pages/AgentToolsTab.tsx:626"
+    "count": 6,
+    "kind": "dyn",
+    "first": "src/components/task-chat/task-chat-fixtures.ts:264"
   },
   "Tool access is enforced server-side by the tool gateway. These screens configure and observe that enforcement — they do not replace it. Agents see and call only the tools their profiles and policies allow; everything else is denied by default.": {
     "count": 1,
@@ -52295,7 +52535,7 @@
     "first": "src/pages/tools/profiles/ProfileWizard.tsx:290"
   },
   "Tools": {
-    "count": 6,
+    "count": 11,
     "kind": "obj",
     "first": "src/pages/AgentDetail.production.tsx:292"
   },
@@ -52340,7 +52580,7 @@
     "first": "src/pages/DesignGuide.tsx:1502"
   },
   "Top": {
-    "count": 3,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/SidebarAgents.production.tsx:70"
   },
@@ -52433,6 +52673,11 @@
     "count": 2,
     "kind": "jsx",
     "first": "src/pages/CompanySkills.production.tsx:3829"
+  },
+  "Training": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/utils.ts:203"
   },
   "Transcript (": {
     "count": 3,
@@ -52535,7 +52780,7 @@
     "first": "src/components/RoutineActivityRow.tsx:48"
   },
   "Triggers": {
-    "count": 5,
+    "count": 9,
     "kind": "obj",
     "first": "src/components/RoutineContextualSidebar.tsx:40"
   },
@@ -52565,7 +52810,7 @@
     "first": "src/components/RoutineRunVariablesDialog.tsx:488"
   },
   "Truncated": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-states.ts:165"
   },
@@ -52675,7 +52920,7 @@
     "first": "src/components/BlockedInboxView.tsx:175"
   },
   "Tue": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:31"
   },
@@ -52775,7 +53020,7 @@
     "first": "src/pages/DesignGuide.tsx:2117"
   },
   "Type": {
-    "count": 10,
+    "count": 13,
     "kind": "attr",
     "first": "src/components/DecisionsToolbar.tsx:183"
   },
@@ -52858,6 +53103,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/components/IssueBlockedNotice.tsx:697"
+  },
+  "Ultra": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/codex-reasoning-effort.ts:13"
   },
   "Unable to accept the suggested tasks": {
     "count": 1,
@@ -53075,7 +53325,7 @@
     "first": "src/components/issue-properties/IssueProperties.tsx:2962"
   },
   "Unassigned": {
-    "count": 5,
+    "count": 7,
     "kind": "jsx",
     "first": "src/components/IssueColumns.tsx:354"
   },
@@ -53105,7 +53355,7 @@
     "first": "src/pages/ResponsibleUserDenialUxLab.tsx:206"
   },
   "Unavailable": {
-    "count": 4,
+    "count": 5,
     "kind": "jsx",
     "first": "src/features/connections/ConnectionSetupFlow.tsx:2889"
   },
@@ -53180,7 +53430,7 @@
     "first": "src/pages/apps/chat/ChatEndpointSetup.tsx:1301"
   },
   "Undo": {
-    "count": 8,
+    "count": 14,
     "kind": "jsx",
     "first": "src/components/environment-variables-editor/Row.tsx:544"
   },
@@ -53205,7 +53455,7 @@
     "first": "src/components/folders/FolderControls.tsx:480"
   },
   "Unhealthy": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/WorkspaceServiceControlBar.tsx:81"
   },
@@ -53230,7 +53480,7 @@
     "first": "src/components/SourceResolvedFoldCallout.tsx:148"
   },
   "Unknown": {
-    "count": 4,
+    "count": 5,
     "kind": "dyn",
     "first": "src/components/ExecutionWorkspaceCloseDialog.tsx:182"
   },
@@ -53364,8 +53614,13 @@
     "kind": "jsx",
     "first": "src/pages/TeamCatalog.tsx:656"
   },
+  "Unreachable": {
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/lib/external-objects.ts:88"
+  },
   "Unread": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/pages/Inbox.tsx:2410"
   },
@@ -53500,9 +53755,9 @@
     "first": "src/pages/CompanySkills.production.tsx:3549"
   },
   "Update": {
-    "count": 4,
+    "count": 6,
     "kind": "dyn",
-    "first": "src/components/issue-properties/IssueProperties.tsx:1248"
+    "first": "src/components/BuiltInBundlePanel.tsx:80"
   },
   "Update available": {
     "count": 6,
@@ -53600,7 +53855,7 @@
     "first": "src/pages/secrets/SetMyUserSecretDialog.tsx:103"
   },
   "Updated": {
-    "count": 11,
+    "count": 13,
     "kind": "attr",
     "first": "src/components/GoalProperties.tsx:158"
   },
@@ -53690,7 +53945,7 @@
     "first": "src/pages/StatusCards/StatusCardSettingsForm.tsx:190"
   },
   "Updating": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/lib/status-card-state.ts:78"
   },
@@ -53895,7 +54150,7 @@
     "first": "src/pages/Costs.production.tsx:680"
   },
   "Usage": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/Secrets.tsx:2484"
   },
@@ -54380,7 +54635,7 @@
     "first": "src/pages/CompanyEnvironments.tsx:2288"
   },
   "Users": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/UserProfile.tsx:210"
   },
@@ -54475,7 +54730,7 @@
     "first": "src/pages/PipelineSettings.tsx:2470"
   },
   "Validating": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/lib/workspace-access-state.ts:255"
   },
@@ -54555,7 +54810,7 @@
     "first": "src/components/environment-variables-editor/Row.tsx:309"
   },
   "Variables": {
-    "count": 4,
+    "count": 9,
     "kind": "obj",
     "first": "src/components/RoutineContextualSidebar.tsx:41"
   },
@@ -54720,7 +54975,7 @@
     "first": "src/pages/RoutineDetail.tsx:95"
   },
   "Versions": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/pages/CompanySkills.production.tsx:2559"
   },
@@ -54740,7 +54995,7 @@
     "first": "src/pages/apps/ConnectionProvenanceChip.tsx:26"
   },
   "Video": {
-    "count": 5,
+    "count": 9,
     "kind": "dyn",
     "first": "src/components/artifacts/MediaArtifactCard.tsx:33"
   },
@@ -54755,7 +55010,7 @@
     "first": "src/components/FileViewerSheet.tsx:301"
   },
   "Videos": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/pages/Artifacts.tsx:35"
   },
@@ -54975,7 +55230,7 @@
     "first": "src/components/task-chat/tool-taxonomy.ts:198"
   },
   "Viewer": {
-    "count": 2,
+    "count": 4,
     "kind": "obj",
     "first": "src/components/access/InvitesSection.tsx:17"
   },
@@ -55079,10 +55334,15 @@
     "kind": "dyn",
     "first": "src/components/IssueRecoveryActionCard.tsx:134"
   },
+  "Waited": {
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/components/task-chat/completed-activity-summary.ts:23"
+  },
   "Waiting": {
-    "count": 3,
-    "kind": "obj",
-    "first": "src/pages/apps/gateways/panels/GatewayActivityPanel.tsx:18"
+    "count": 9,
+    "kind": "dyn",
+    "first": "src/components/task-chat/task-chat-activity-presentation.ts:136"
   },
   "Waiting — the app it needs wasn't ready yet.": {
     "count": 1,
@@ -55290,7 +55550,7 @@
     "first": "src/components/OnboardingChat.tsx:52"
   },
   "Wake": {
-    "count": 1,
+    "count": 2,
     "kind": "jsx",
     "first": "src/components/interrupt-handoff/InterruptHandoffViews.tsx:110"
   },
@@ -55625,12 +55885,12 @@
     "first": "src/pages/apps/chat/ChatEndpointSetup.tsx:1307"
   },
   "Wed": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:32"
   },
   "Weekdays": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/ScheduleEditor.tsx:13"
   },
@@ -55640,7 +55900,7 @@
     "first": "src/components/routine-triggers/TriggerWizard.tsx:308"
   },
   "Weekly": {
-    "count": 3,
+    "count": 5,
     "kind": "obj",
     "first": "src/components/ResourceStatusChip.tsx:58"
   },
@@ -56090,7 +56350,7 @@
     "first": "src/components/ApprovalPayload.tsx:138"
   },
   "Windows": {
-    "count": 1,
+    "count": 2,
     "kind": "obj",
     "first": "src/components/PathInstructionsModal.tsx:16"
   },
@@ -56155,7 +56415,7 @@
     "first": "../packages/shared/src/app-definitions/wix.json:0"
   },
   "Work": {
-    "count": 4,
+    "count": 5,
     "kind": "attr",
     "first": "src/components/Sidebar.production.tsx:182"
   },
@@ -56255,7 +56515,7 @@
     "first": "src/pages/PluginSettings.tsx:297"
   },
   "Working": {
-    "count": 4,
+    "count": 6,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-states.ts:109"
   },
@@ -56305,7 +56565,7 @@
     "first": "src/components/BuiltInBundlePanel.tsx:120"
   },
   "Workspace": {
-    "count": 7,
+    "count": 8,
     "kind": "jsx",
     "first": "src/components/CommentThread.tsx:530"
   },
@@ -56530,7 +56790,7 @@
     "first": "src/pages/ExecutionWorkspaceDetail.tsx:1261"
   },
   "Workspaces": {
-    "count": 8,
+    "count": 12,
     "kind": "attr",
     "first": "src/components/IssueFiltersPopover.tsx:497"
   },
@@ -56759,13 +57019,18 @@
     "kind": "jsx",
     "first": "src/pages/apps/app-detail/AdvancedPanel.tsx:574"
   },
+  "Yesterday": {
+    "count": 2,
+    "kind": "dyn",
+    "first": "src/lib/attention.ts:815"
+  },
   "YO": {
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/SystemNoticeUxLab.tsx:298"
   },
   "You": {
-    "count": 3,
+    "count": 4,
     "kind": "dyn",
     "first": "src/components/OnboardingChat.tsx:299"
   },
@@ -57215,9 +57480,9 @@
     "first": "../packages/shared/src/app-definitions/shopify.json:0"
   },
   "Zapier": {
-    "count": 1,
-    "kind": "shared",
-    "first": "../packages/shared/src/app-definitions/zapier.json:0"
+    "count": 3,
+    "kind": "dyn",
+    "first": "src/features/connections/ConnectionSetupFlow.tsx:2157"
   },
   "Zapier MCP URL": {
     "count": 1,

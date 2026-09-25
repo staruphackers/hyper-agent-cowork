@@ -1,118 +1,118 @@
 {
-  "generatedAt": "2026-09-25T02:40:27.342Z",
+  "generatedAt": "2026-09-25T02:50:21.296Z",
   "filesScanned": 1072,
   "filesWithParseErrors": 0,
   "parseErrors": [],
   "sharedFilesScanned": 79,
   "sharedFilesWithParseErrors": 0,
   "sharedParseErrors": [],
-  "totalUniqueStrings": 11449,
-  "totalOccurrences": 20760,
+  "totalUniqueStrings": 11502,
+  "totalOccurrences": 21846,
   "byKind": {
     "jsx": 6912,
     "attr": 2446,
     "obj": 1975,
     "expr": 12917,
     "manual": 5,
-    "dyn": 8872,
+    "dyn": 9958,
     "shared": 550
   },
   "byTopLevelDir": {
-    "pages": 17352,
-    "components": 13474,
-    "features": 696,
-    "lib": 594,
-    "adapters": 499,
-    "fixtures": 374,
+    "pages": 17837,
+    "components": 13910,
+    "features": 704,
+    "lib": 698,
+    "adapters": 515,
+    "fixtures": 404,
     "plugins": 38,
+    "connect-flow-preview-main.tsx": 29,
     "App.tsx": 28,
-    "connect-flow-preview-main.tsx": 25,
     "context": 24,
-    "hooks": 17,
+    "hooks": 18,
     "api": 4,
-    "main.tsx": 1,
-    "wizard-preview-main.tsx": 1
+    "wizard-preview-main.tsx": 3,
+    "main.tsx": 1
   },
   "top20FilesByOccurrenceCount": [
     {
       "file": "src/pages/CompanySkills.tsx",
-      "count": 783
+      "count": 798
     },
     {
       "file": "src/pages/CompanySkills.production.tsx",
-      "count": 771
+      "count": 786
     },
     {
       "file": "src/pages/Secrets.tsx",
-      "count": 752
+      "count": 763
     },
     {
       "file": "src/pages/DesignGuide.tsx",
-      "count": 714
+      "count": 729
     },
     {
       "file": "src/pages/Pipelines.tsx",
-      "count": 622
+      "count": 635
     },
     {
       "file": "src/pages/AgentDetail.tsx",
-      "count": 522
+      "count": 538
     },
     {
       "file": "src/pages/AgentDetail.production.tsx",
-      "count": 493
+      "count": 515
     },
     {
       "file": "src/pages/apps/chat/ChatEndpointSetup.tsx",
-      "count": 481
+      "count": 488
     },
     {
       "file": "src/pages/PipelineSettings.tsx",
-      "count": 469
+      "count": 487
     },
     {
       "file": "src/features/connections/ConnectionSetupFlow.tsx",
-      "count": 461
-    },
-    {
-      "file": "src/components/issue-properties/IssueProperties.tsx",
-      "count": 449
+      "count": 465
     },
     {
       "file": "src/components/IssueThreadInteractionCard.tsx",
-      "count": 437
+      "count": 454
+    },
+    {
+      "file": "src/components/issue-properties/IssueProperties.tsx",
+      "count": 454
     },
     {
       "file": "src/pages/SkillStudio.tsx",
-      "count": 418
+      "count": 426
+    },
+    {
+      "file": "src/components/AgentConfigForm.tsx",
+      "count": 409
     },
     {
       "file": "src/components/IssueChatThread.tsx",
       "count": 408
     },
     {
-      "file": "src/components/AgentConfigForm.tsx",
-      "count": 389
-    },
-    {
       "file": "src/pages/TeamCatalog.tsx",
-      "count": 375
+      "count": 382
     },
     {
       "file": "src/pages/CompanyEnvironments.tsx",
-      "count": 370
+      "count": 373
     },
     {
       "file": "src/pages/IssueDetail.tsx",
-      "count": 368
+      "count": 370
     },
     {
       "file": "src/pages/apps/chat/ChatEndpointDetail.tsx",
-      "count": 300
+      "count": 304
     },
     {
       "file": "src/pages/InviteUxLab.tsx",
-      "count": 282
+      "count": 294
     }
   ]
 }

@@ -683,7 +683,16 @@ export function collectDynStrings(ast) {
     if (!node || typeof node.type !== "string") return;
 
     if (node.type === "StringLiteral") {
-      if (!isExcludedDynContext(parent) && looksLikeUiCopyText(node.value)) {
+      // A single capitalized word is only harvested when it is an object
+      // property VALUE (`request_confirmation: "Confirmations"`): label maps
+      // keyed by an id are how kind/status names reach `{LABELS[kind]}`,
+      // which is __tv-wrapped at runtime. Elsewhere a lone word is far more
+      // often an identifier than UI copy.
+      const isObjectValue = parent?.type === "ObjectProperty" && parent.value === node;
+      if (
+        !isExcludedDynContext(parent) &&
+        (looksLikeUiCopyText(node.value) || (isObjectValue && qualifiesAsShortLabel(node.value)))
+      ) {
         results.push({
           text: node.value,
           kind: "dyn",

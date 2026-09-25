@@ -261,6 +261,22 @@ describe("babel-plugin-i18n-wrap: short single-word labels", () => {
     expect(result.code).toContain('key: "Unread"');
   });
 
+  it("harvests a single-word object-property value (id-keyed label maps), but not a lone word elsewhere", () => {
+    const fixture = `
+export const KIND_LABELS = { request_confirmation: "Confirmations", suggest_tasks: "Suggested tasks" };
+export const method = "Bearer";
+export function f() { return "Standalone"; }
+`;
+    const result = transformSource(fixture, "/fake/src/labels.ts", { mode: "collect", scriptType: "ts" });
+    const dyn = result.matches.filter((m) => m.kind === "dyn").map((m) => m.text);
+    expect(dyn).toContain("Confirmations");
+    expect(dyn).toContain("Suggested tasks");
+    expect(dyn).not.toContain("Standalone");
+    // "Bearer" is a variable initializer, not an object property value.
+    expect(dyn).not.toContain("Bearer");
+    expect(result.changed).toBe(false);
+  });
+
   it("harvests the single-word literal branches of a ternary / || in JSX child and attribute position", () => {
     const result = transformSource(FIXTURE_BRANCH_LITERALS, "/fake/src/ConnectButton.tsx", { mode: "collect" });
     const dyn = result.matches.filter((m) => m.kind === "dyn").map((m) => m.text);
