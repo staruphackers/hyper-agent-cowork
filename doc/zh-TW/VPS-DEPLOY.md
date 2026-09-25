@@ -250,7 +250,7 @@ docker compose start
 還原到一台新機器：
 
 ```bash
-docker volume create hac-data
+docker volume create hyper-agent-cowork_hac-data
 docker run --rm -v hyper-agent-cowork_hac-data:/data -v "$PWD":/backup alpine \
   sh -c "cd /data && tar xzf /backup/hac-backup-YYYY-MM-DD.tgz"
 docker compose up -d
