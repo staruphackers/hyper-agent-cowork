@@ -237,10 +237,12 @@ docker image prune -f          # 清掉舊映像
 
 資料庫是容器內嵌的 PostgreSQL，**停機備份最保險**：
 
+> Compose 會把 volume 命名成「專案名_volume 名」，所以實際名稱是 `hyper-agent-cowork_hac-data`，先用 `docker volume ls | grep hac-data` 確認。名字寫錯 Docker 不會報錯，只會默默建一個空的 volume 備份出去。
+
 ```bash
 cd ~/hyper-agent-cowork
 docker compose stop
-docker run --rm -v hac-data:/data -v "$PWD":/backup alpine \
+docker run --rm -v hyper-agent-cowork_hac-data:/data -v "$PWD":/backup alpine \
   tar czf "/backup/hac-backup-$(date +%F).tgz" -C /data .
 docker compose start
 ```
@@ -249,7 +251,7 @@ docker compose start
 
 ```bash
 docker volume create hac-data
-docker run --rm -v hac-data:/data -v "$PWD":/backup alpine \
+docker run --rm -v hyper-agent-cowork_hac-data:/data -v "$PWD":/backup alpine \
   sh -c "cd /data && tar xzf /backup/hac-backup-YYYY-MM-DD.tgz"
 docker compose up -d
 ```
