@@ -55,5 +55,5 @@ export const SETUP_LOGIN_HINTS: Record<string, string> = {
   hermes_local:
     "Use a provider API key, or the existing Hermes provider configuration on the selected environment's host.",
   pi_local:
-    "Pi runs on provider API keys (OPENAI_API_KEY, ANTHROPIC_API_KEY, OPENCODE_API_KEY, …). Claude Code and Codex subscription logins do not apply to Pi; for a ChatGPT or Claude subscription use the Codex or Claude Code adapter instead.",
+    "Pi runs on provider API keys such as the OpenAI, Anthropic and OpenCode keys. Claude Code and Codex subscription logins do not apply to Pi. For a ChatGPT or Claude subscription use the Codex or Claude Code adapter instead.",
 };

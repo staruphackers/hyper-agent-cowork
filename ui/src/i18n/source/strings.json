@@ -35864,6 +35864,11 @@
     "kind": "obj",
     "first": "src/adapters/adapter-display-registry.ts:122"
   },
+  "Pi runs on provider API keys such as the OpenAI, Anthropic and OpenCode keys. Claude Code and Codex subscription logins do not apply to Pi. For a ChatGPT or Claude subscription use the Codex or Claude Code adapter instead.": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/lib/agent-setup-fields.ts:58"
+  },
   "Pick": {
     "count": 1,
     "kind": "dyn",

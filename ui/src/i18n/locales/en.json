@@ -7172,6 +7172,7 @@
   "Photon project secret": "Photon project secret",
   "phx_...": "phx_...",
   "Pi harness": "Pi harness",
+  "Pi runs on provider API keys such as the OpenAI, Anthropic and OpenCode keys. Claude Code and Codex subscription logins do not apply to Pi. For a ChatGPT or Claude subscription use the Codex or Claude Code adapter instead.": "Pi runs on provider API keys such as the OpenAI, Anthropic and OpenCode keys. Claude Code and Codex subscription logins do not apply to Pi. For a ChatGPT or Claude subscription use the Codex or Claude Code adapter instead.",
   "Pick": "Pick",
   "Pick a destination folder.": "Pick a destination folder.",
   "Pick a profile": "Pick a profile",
