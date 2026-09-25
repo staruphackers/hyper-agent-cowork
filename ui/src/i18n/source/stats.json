@@ -1,27 +1,27 @@
 {
-  "generatedAt": "2026-09-21T08:15:44.342Z",
-  "filesScanned": 1048,
+  "generatedAt": "2026-09-25T01:46:19.763Z",
+  "filesScanned": 1072,
   "filesWithParseErrors": 0,
   "parseErrors": [],
-  "sharedFilesScanned": 72,
+  "sharedFilesScanned": 79,
   "sharedFilesWithParseErrors": 0,
   "sharedParseErrors": [],
-  "totalUniqueStrings": 10936,
-  "totalOccurrences": 19218,
+  "totalUniqueStrings": 11328,
+  "totalOccurrences": 19731,
   "byKind": {
-    "jsx": 6644,
-    "attr": 2418,
-    "obj": 1305,
-    "expr": 12651,
+    "jsx": 6912,
+    "attr": 2446,
+    "obj": 1316,
+    "expr": 12917,
     "manual": 5,
-    "dyn": 8329,
-    "shared": 517
+    "dyn": 8502,
+    "shared": 550
   },
   "byTopLevelDir": {
-    "pages": 16284,
-    "components": 13018,
+    "pages": 16795,
+    "components": 13071,
+    "features": 682,
     "lib": 563,
-    "features": 500,
     "adapters": 492,
     "fixtures": 362,
     "plugins": 38,
@@ -48,7 +48,7 @@
     },
     {
       "file": "src/pages/DesignGuide.tsx",
-      "count": 708
+      "count": 704
     },
     {
       "file": "src/pages/Pipelines.tsx",
@@ -59,12 +59,12 @@
       "count": 507
     },
     {
-      "file": "src/pages/AgentDetail.production.tsx",
-      "count": 470
+      "file": "src/pages/apps/chat/ChatEndpointSetup.tsx",
+      "count": 477
     },
     {
-      "file": "src/pages/apps/chat/ChatEndpointSetup.tsx",
-      "count": 464
+      "file": "src/pages/AgentDetail.production.tsx",
+      "count": 470
     },
     {
       "file": "src/pages/PipelineSettings.tsx",
@@ -72,7 +72,7 @@
     },
     {
       "file": "src/features/connections/ConnectionSetupFlow.tsx",
-      "count": 443
+      "count": 450
     },
     {
       "file": "src/components/issue-properties/IssueProperties.tsx",
@@ -99,16 +99,16 @@
       "count": 364
     },
     {
+      "file": "src/pages/IssueDetail.tsx",
+      "count": 364
+    },
+    {
       "file": "src/pages/TeamCatalog.tsx",
       "count": 364
     },
     {
-      "file": "src/pages/IssueDetail.tsx",
-      "count": 362
-    },
-    {
       "file": "src/pages/apps/chat/ChatEndpointDetail.tsx",
-      "count": 284
+      "count": 295
     },
     {
       "file": "src/pages/InviteUxLab.tsx",
