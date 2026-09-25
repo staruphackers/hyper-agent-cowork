@@ -150,6 +150,12 @@ function Setup({
       ? { provider: "openrouter", method: "api_key", mode: "responsible_user" }
       : undefined,
   );
+  // OpenCode ships with an OpenRouter connection by default. The provider
+  // API key mode drops that binding so the agent runs on an OpenCode,
+  // Anthropic, OpenAI, Google, xAI or Groq key stored as an organization
+  // secret, the same path Pi already uses.
+  const [opencodeSignIn, setOpencodeSignIn] = useState<"openrouter" | "api_key">("openrouter");
+  const opencodeApiKeyMode = brandType === "opencode_local" && opencodeSignIn === "api_key";
   const [connection, setConnection] = useState<ProviderConnection | null>(null);
   const aiBinding = runtimeAiBinding ?? connection?.aiConnection;
   const [repository, setRepository] = useState("");
@@ -811,7 +817,36 @@ function Setup({
                     <fieldset disabled={busy} className="space-y-8">
                       <section className="space-y-5">
                         <h3 className="text-sm font-semibold">Runtime</h3>
-                        {aiProviderForAdapter(brandType) && (
+                        {brandType === "opencode_local" && (
+                          <Field
+                            label="Sign-in method"
+                            hint="OpenRouter connection uses the account picker below. Provider API key runs this agent on an OpenCode, Anthropic, OpenAI, Google, xAI or Groq key stored as an organization secret."
+                          >
+                            <select
+                              aria-label="Sign-in method"
+                              className={controlClass}
+                              value={opencodeSignIn}
+                              onChange={(event) => {
+                                const next = event.target.value === "api_key" ? "api_key" : "openrouter";
+                                setOpencodeSignIn(next);
+                                setRuntimeAiBinding(
+                                  next === "api_key"
+                                    ? undefined
+                                    : { provider: "openrouter", method: "api_key", mode: "responsible_user" },
+                                );
+                                setProvider(next === "api_key" ? "opencode" : "openrouter");
+                                setModel("");
+                                setApiKey("");
+                                setProviderBinding(null);
+                                resetTest();
+                              }}
+                            >
+                              <option value="openrouter">OpenRouter connection</option>
+                              <option value="api_key">Provider API key</option>
+                            </select>
+                          </Field>
+                        )}
+                        {aiProviderForAdapter(brandType) && !opencodeApiKeyMode && (
                           connection && !aiBinding ? (
                             <div className="space-y-3">
                               <p className="text-sm text-muted-foreground">

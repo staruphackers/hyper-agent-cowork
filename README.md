@@ -18,7 +18,7 @@
 Hyper Agent Cowork 是開源專案 [Paperclip](https://github.com/paperclipai/paperclip)（官網：<https://paperclip.ing>）的**台灣繁體中文發行版**。
 
 - **介面全面繁中化**：採用「建置期字串包裝＋繁中字典」的做法——在 build 時把介面字串包成翻譯呼叫、再對照繁中字典顯示。上游的介面原始碼幾乎不動（只改了建置設定與語言切換入口的數行），因此可以持續同步上游的新版本。
-- **功能與上游一致**：除了介面語言，本平台的行為、資料結構與 API 都跟上游 Paperclip 相同。
+- **功能與上游一致**：除了介面語言，本平台的行為、資料結構與 API 都跟上游 Paperclip 相同。唯一的功能擴充：新增 OpenCode 代理人時可選「供應商 API 金鑰」，直接用 OpenCode／Anthropic／OpenAI／Google／xAI／Groq 的金鑰，不必先接 OpenRouter。
 - **本專案非 Paperclip 官方出品**，與 Paperclip 團隊沒有隸屬或背書關係。Paperclip 的名稱、商標、官方社群與文件皆屬上游專案所有；本 README 中凡提到「上游」，指的就是 Paperclip 官方。
 
 <br/>
@@ -346,6 +346,10 @@ docker exec -it -u node hyper-agent-cowork bash -lc "export CODEX_HOME=<畫面�
 依終端機顯示的網址與代碼完成裝置登入即可。Claude 的綁定方式相同：以 `docker exec -it -u node hyper-agent-cowork bash -lc "<畫面給的指令>"` 執行。
 
 > ⚠️ **不要使用 Docker Desktop 的「Exec」分頁執行登入指令。** 該分頁預設以 root 身分進入容器，產生的憑證檔權限屬於 root，平台實際執行 agent 的 `node` 使用者會讀不到，導致權限錯誤。請一律用上方的 `docker exec -u node` 指令。
+
+### OpenCode 代理人用自己的 OpenCode 金鑰
+
+上游的 OpenCode 轉接器只接 OpenRouter 連線。本發行版在「新增代理人 → OpenCode」的設定畫面多了**登入方式**：選「供應商 API 金鑰」後，OpenRouter 區塊會消失，改成「API 金鑰供應商」下拉（OpenCode、Anthropic、OpenAI、Google、xAI、Groq）與金鑰欄位。金鑰會存成組織密鑰，不會寫進代理人設定；模型請填 `opencode/<模型 id>` 這種「供應商/模型」格式，按「執行測試」確認能回話後再完成設定。
 
 ### 用 GitHub 原始碼安裝（不用 Docker）
 

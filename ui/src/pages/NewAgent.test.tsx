@@ -127,6 +127,22 @@ async function fill(label: string, value: string) {
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
 }
+async function choose(label: string, value: string) {
+  // Same selector shape as fill(): the i18n wrap transform also runs over
+  // test files and rewrites text-like template literals.
+  const select = container.querySelector(
+    `[aria-label="${label}"]`,
+  ) as HTMLSelectElement;
+  expect(select instanceof HTMLSelectElement, `Missing select ${label}`).toBe(true);
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(
+      HTMLSelectElement.prototype,
+      "value",
+    )!.set!.call(select, value);
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await settle();
+}
 async function render(adapter = "pi_local", runnerProvider = "codex") {
   state.params = new URLSearchParams({
     name: "Atlas",
@@ -531,6 +547,41 @@ describe("New agent setup", () => {
     expect(managedApi.create).toHaveBeenCalledTimes(1);
     expect(secrets.create).not.toHaveBeenCalled();
     expect(JSON.stringify(api.testEnvironment.mock.calls)).not.toContain("example-test-secret");
+    expect(JSON.stringify(api.hire.mock.calls)).not.toContain("example-test-secret");
+  });
+  it("hires OpenCode on a provider API key when the OpenRouter connection is switched off", async () => {
+    await render("opencode_local");
+    expect(container.textContent).toContain("Connect another account");
+    expect(container.querySelector('[aria-label="API key provider"]')).toBeNull();
+    await choose("Sign-in method", "api_key");
+    expect(container.textContent).not.toContain("Connect another account");
+    // Switching back restores the OpenRouter connection picker and hides the key fields.
+    await choose("Sign-in method", "openrouter");
+    expect(container.textContent).toContain("Connect another account");
+    expect(container.querySelector('[aria-label="API key provider"]')).toBeNull();
+    await choose("Sign-in method", "api_key");
+    const providerSelect = container.querySelector('[aria-label="API key provider"]') as HTMLSelectElement;
+    expect(providerSelect.value).toBe("opencode");
+    await fill("Model", "opencode/example-model");
+    await fill("OPENCODE_API_KEY", "example-test-secret");
+    await click("Run test");
+    const tested = api.testEnvironment.mock.calls[0][2];
+    expect(tested.aiConnection).toBeUndefined();
+    expect(tested.testCredentials).toEqual({ OPENCODE_API_KEY: "example-test-secret" });
+    expect(tested.adapterConfig).toEqual(expect.objectContaining({ model: "opencode/example-model" }));
+    await click("Finish setup");
+    const hire = api.hire.mock.calls[0][1];
+    expect(hire.adapterType).toBe("opencode_local");
+    expect(hire.runtimeConfig.aiConnection).toBeUndefined();
+    expect(hire.adapterConfig.env.OPENCODE_API_KEY).toEqual({
+      type: "secret_ref",
+      secretId: "org-secret-1",
+      version: "latest",
+    });
+    expect(secrets.create).toHaveBeenCalledWith(
+      "company-1", expect.objectContaining({ key: expect.stringContaining("OPENCODE_API_KEY"), value: "example-test-secret" }),
+    );
+    expect(managedApi.create).not.toHaveBeenCalled();
     expect(JSON.stringify(api.hire.mock.calls)).not.toContain("example-test-secret");
   });
   it.each(["codex", "claude", "opencode"])(
