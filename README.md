@@ -442,7 +442,7 @@ pnpm dev
 
 ### 翻譯覆蓋範圍
 
-- 介面字串約 **10,600 條**已翻成台灣繁體中文，技術詞（agent、heartbeat、workspace、routine 等）視語境保留英文。
+- 介面字串約 **11,000 條**已翻成台灣繁體中文，技術詞（agent、heartbeat、workspace、routine 等）視語境保留英文。
 - 少數情況仍會顯示英文：
   - 部分相對時間（例如 "3h ago"）；
   - 帶有人名或其他動態內容插值的句子；
