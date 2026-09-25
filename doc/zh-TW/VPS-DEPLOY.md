@@ -51,7 +51,8 @@ PAPERCLIP_PUBLIC_URL=https://cowork.example.com
 
 # ── 部署模式：authenticated = 需要登入 ──
 PAPERCLIP_DEPLOYMENT_MODE=authenticated
-# 第一次啟動先用 private（可以在瀏覽器認領第一個管理員），設定完再改 public
+# 用 private：可在瀏覽器認領第一個管理員；認領後照第 5.1 節上鎖。
+# 不要改成 public：public 會強制要求外部 PostgreSQL（DATABASE_URL），內嵌資料庫的部署會拒絕啟動
 PAPERCLIP_DEPLOYMENT_EXPOSURE=private
 
 # ── 前面有反向代理（Caddy／Nginx／Tailscale Serve）時，信任 1 層代理 ──
@@ -182,15 +183,21 @@ curl -s http://127.0.0.1:3100/api/health
 > 「在瀏覽器認領」只在 `PAPERCLIP_DEPLOYMENT_EXPOSURE=private` 時開放，這也是為什麼第一次啟動要用 private。
 > 在你完成認領之前，任何能打開這個網址的人都能搶先註冊並認領，所以**先啟動、馬上認領**，不要放著過夜。
 
-### 5.1 認領完成後改成正式設定（方案 B 必做）
+### 5.1 認領完成後上鎖（方案 B 必做，方案 A 建議做）
+
+認領完成後，任何拿到網址的人仍然可以自行註冊帳號，所以要關閉自由註冊，並開啟登入頻率限制：
 
 ```bash
-sed -i 's/^PAPERCLIP_DEPLOYMENT_EXPOSURE=.*/PAPERCLIP_DEPLOYMENT_EXPOSURE=public/' .env
-echo 'PAPERCLIP_AUTH_DISABLE_SIGN_UP=true' >> .env     # 關閉自由註冊，之後用邀請加人
-docker compose up -d                                   # 會用新環境變數重建容器
+cd ~/hyper-agent-cowork
+sed -i '/^PAPERCLIP_DEPLOYMENT_EXPOSURE=/d;/^PAPERCLIP_AUTH_DISABLE_SIGN_UP=/d;/^PAPERCLIP_AUTH_RATE_LIMIT_ENABLED=/d' .env
+printf 'PAPERCLIP_DEPLOYMENT_EXPOSURE=private\nPAPERCLIP_AUTH_DISABLE_SIGN_UP=true\nPAPERCLIP_AUTH_RATE_LIMIT_ENABLED=true\n' >> .env
+docker compose up -d        # 會用新環境變數重建容器
+sleep 20; curl -s http://127.0.0.1:3100/api/health | grep -o '"deploymentExposure":"[a-z]*"\|"bootstrapStatus":"[a-z_]*"'
 ```
 
-`public` 模式會開啟登入頻率限制與較嚴格的部署檢查；方案 A（Tailscale）維持 `private` 即可。
+預期看到 `"deploymentExposure":"private"` 與 `"bootstrapStatus":"ready"`。之後要加人，走平台的邀請功能。
+
+> **不要把 `PAPERCLIP_DEPLOYMENT_EXPOSURE` 改成 `public`。** `public` 是上游給雲端託管用的嚴格模式，啟動時會強制要求 `DATABASE_URL` 指向外部 PostgreSQL；本指南的部署用的是容器內嵌資料庫，改成 `public` 容器會直接拒絕啟動（log 出現 `authenticated public deployments require DATABASE_URL`）。`private` 在 `authenticated` 模式下一樣強制登入，差別只在預設不開登入頻率限制（上面已手動開啟）與部署檢查較寬鬆。真的要用 `public`，需要先自架 PostgreSQL、設定 `DATABASE_URL` 並搬移資料，這超出本指南範圍。
 
 ## 6. 讓 agent 用你的 Claude／Codex 訂閱（不用 API key）
 
@@ -243,7 +250,9 @@ docker compose up -d
 | --- | --- |
 | 打開網址出現 `Missing Host header` 或 hostname 不在允許清單 | `PAPERCLIP_PUBLIC_URL` 和實際網址不一致。改正後 `docker compose up -d`；若需要多個網址，加 `PAPERCLIP_ALLOWED_HOSTNAMES=a.example.com,b.example.com` |
 | 登入後又跳回登入頁、或 OAuth 回呼失敗 | 網址少了 `https://`、或 Caddy 前面又有一層 Cloudflare Proxy 卻沒設 `TRUST_PROXY`。同一台主機只有 Caddy 時 `TRUST_PROXY=1` 即可 |
-| 認領按鈕不見了 | `PAPERCLIP_DEPLOYMENT_EXPOSURE` 已經是 `public`。先改回 `private` 認領，再改回 `public` |
+| 認領按鈕不見了 | `PAPERCLIP_DEPLOYMENT_EXPOSURE` 不是 `private`。改回 `private` 後 `docker compose up -d` |
+| 容器一直重啟、log 出現 `authenticated public deployments require DATABASE_URL` | `.env` 被改成 `PAPERCLIP_DEPLOYMENT_EXPOSURE=public`，但沒有外部 PostgreSQL。改回 `private` 後 `docker compose up -d` |
+| Hostinger Docker Manager 顯示「YAML 文件無法處理」、專案圖示只是一個字母 | 面板的編輯器讀不懂用 CLI 建立的 compose（Traefik 標籤含反引號、變數展開後留下的空白行），Docker 本身沒問題，容器狀態以 `docker compose ps` 為準。不要在面板按「部署／更新」，一律用 SSH 管理。字母圖示是面板對非範本專案的預設佔位圖 |
 | 容器一直重啟、log 出現 `EACCES /paperclip` | volume 權限問題。entrypoint 會自動 `chown`；若你改用 bind mount，請確認目錄可由 UID 1000 寫入 |
 | agent 一直「權限錯誤」 | 訂閱登入是用 root 做的（第 6 節），請以 `-u node` 重做 |
 | agent 跑到一半被殺 | RAM 不足。加記憶體或先加 swap：`sudo fallocate -l 4G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile` |
@@ -253,8 +262,8 @@ docker compose up -d
 
 - [ ] `.env` 權限 600，沒有進任何 git repo
 - [ ] 3100 只綁 `127.0.0.1`（或只在 Tailscale 內）
-- [ ] 第一個管理員已認領，且已設定 `PAPERCLIP_AUTH_DISABLE_SIGN_UP=true`（方案 B）
-- [ ] `PAPERCLIP_DEPLOYMENT_EXPOSURE=public`（方案 B）／`private`（方案 A）
+- [ ] 第一個管理員已認領，且已設定 `PAPERCLIP_AUTH_DISABLE_SIGN_UP=true` 與 `PAPERCLIP_AUTH_RATE_LIMIT_ENABLED=true`（第 5.1 節）
+- [ ] `PAPERCLIP_DEPLOYMENT_EXPOSURE=private`（沒有外部 PostgreSQL 就不要用 `public`）
 - [ ] 防火牆只開 22、80、443
 - [ ] 備份 cron 已設定並實際還原測試過一次
 - [ ] 映像固定到版本 tag，升級走第 7 節流程
