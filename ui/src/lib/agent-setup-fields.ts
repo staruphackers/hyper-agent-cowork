@@ -54,4 +54,6 @@ export const SETUP_LOGIN_HINTS: Record<string, string> = {
     "Grok Build uses its CLI sign-in. Run grok login on the selected environment's host, then test the connection here.",
   hermes_local:
     "Use a provider API key, or the existing Hermes provider configuration on the selected environment's host.",
+  pi_local:
+    "Pi runs on provider API keys (OPENAI_API_KEY, ANTHROPIC_API_KEY, OPENCODE_API_KEY, …). Claude Code and Codex subscription logins do not apply to Pi; for a ChatGPT or Claude subscription use the Codex or Claude Code adapter instead.",
 };

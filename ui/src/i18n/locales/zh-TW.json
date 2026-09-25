@@ -6720,6 +6720,7 @@
   "Photon line setup": "Photon 號碼設定",
   "Photon project secret": "Photon 專案密鑰",
   "Pi harness": "Pi 執行環境",
+  "Pi runs on provider API keys (OPENAI_API_KEY, ANTHROPIC_API_KEY, OPENCODE_API_KEY, …). Claude Code and Codex subscription logins do not apply to Pi; for a ChatGPT or Claude subscription use the Codex or Claude Code adapter instead.": "Pi 只吃供應商 API 金鑰（OPENAI_API_KEY、ANTHROPIC_API_KEY、OPENCODE_API_KEY 等）。Claude Code 與 Codex 的訂閱登入對 Pi 無效；要用 ChatGPT 或 Claude 訂閱，請改用 Codex 或 Claude Code 轉接器。",
   "Pick": "選擇",
   "Pick a destination folder.": "選擇一個目標資料夾。",
   "Pick a profile": "選擇設定檔",
