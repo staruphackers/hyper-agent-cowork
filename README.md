@@ -347,9 +347,9 @@ docker exec -it -u node hyper-agent-cowork bash -lc "export CODEX_HOME=<畫面�
 
 > ⚠️ **不要使用 Docker Desktop 的「Exec」分頁執行登入指令。** 該分頁預設以 root 身分進入容器，產生的憑證檔權限屬於 root，平台實際執行 agent 的 `node` 使用者會讀不到，導致權限錯誤。請一律用上方的 `docker exec -u node` 指令。
 
-### OpenCode 代理人用自己的 OpenCode 金鑰
+### OpenCode 代理人用自己的 OpenCode 金鑰（含 Zen／Go 方案偵測）
 
-上游的 OpenCode 轉接器只接 OpenRouter 連線。本發行版在「新增代理人 → OpenCode」的設定畫面多了**登入方式**：選「供應商 API 金鑰」後，OpenRouter 區塊會消失，改成「API 金鑰供應商」下拉（OpenCode、Anthropic、OpenAI、Google、xAI、Groq）與金鑰欄位。金鑰會存成組織密鑰，不會寫進代理人設定；模型請填 `opencode/<模型 id>` 這種「供應商/模型」格式，按「執行測試」確認能回話後再完成設定。
+上游的 OpenCode 轉接器只接 OpenRouter 連線。本發行版在「新增代理人 → OpenCode」的設定畫面多了**登入方式**：選「供應商 API 金鑰」後，OpenRouter 區塊會消失，改成「API 金鑰供應商」下拉（OpenCode Go、OpenCode Zen、Anthropic、OpenAI、Google、xAI、Groq）與金鑰欄位。貼上 OpenCode 金鑰後按「檢查方案」，平台會詢問 OpenCode 這把金鑰開通了 Zen（儲值計費）還是 Go（月費方案），模型下拉依方案分組、標示免費模型、隱藏不能用的模型。金鑰會存成組織密鑰，不會寫進代理人設定。細節見 [doc/zh-TW/OPENCODE-PLANS.md](doc/zh-TW/OPENCODE-PLANS.md)。
 
 ### 用 GitHub 原始碼安裝（不用 Docker）
 

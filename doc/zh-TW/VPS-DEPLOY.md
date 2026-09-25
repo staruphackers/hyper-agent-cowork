@@ -212,15 +212,17 @@ Claude 的做法相同：`docker exec -it -u node hyper-agent-cowork bash -lc "<
 
 ### 6.1 OpenCode 代理人改用自己的 OpenCode／Anthropic／OpenAI 金鑰
 
-上游的 OpenCode 轉接器只接 OpenRouter 連線，本發行版（`v2026.925.0-zhtw.2` 起）在新增代理人精靈多了「登入方式」：
+上游的 OpenCode 轉接器只接 OpenRouter 連線，本發行版（`v2026.925.0-zhtw.2` 起）在新增代理人精靈多了「登入方式」，`zhtw.3` 起再加上 Zen／Go 方案偵測：
 
 1. 新增代理人 → 轉接器選 **OpenCode** → 填名稱進入設定畫面。
 2. **登入方式** 選「供應商 API 金鑰」，OpenRouter 的連線區塊會消失。
-3. **API 金鑰供應商** 選 OpenCode（或 Anthropic、OpenAI、Google、xAI、Groq），把金鑰貼進對應欄位（OpenCode 是 `OPENCODE_API_KEY`）。金鑰會存成組織密鑰，不會寫進代理人設定，之後在「密鑰」頁面可以輪換。
-4. 模型填 `opencode/<模型 id>`，清單抓不到時可以直接輸入。可用的 id 以 OpenCode 官網的模型清單為準，或在容器裡查：`docker exec -u node hyper-agent-cowork opencode models | grep '^opencode/'`。
-5. 按「執行測試」確認金鑰與模型能回話，再按「完成設定」。
+3. **API 金鑰供應商** 選 OpenCode Go 或 OpenCode Zen（同一把金鑰；也可以選 Anthropic、OpenAI、Google、xAI、Groq），把金鑰貼進對應欄位（OpenCode 是 `OPENCODE_API_KEY`）。金鑰會存成組織密鑰，不會寫進代理人設定，之後在「密鑰」頁面可以輪換。
+4. 按「檢查方案」，平台會告訴你這把金鑰開通了 Zen 還是 Go、各有哪些模型，模型下拉會依方案分組並隱藏不能用的模型。細節見 `doc/zh-TW/OPENCODE-PLANS.md`。
+5. 從清單選模型（或直接輸入 `opencode-go/<id>`、`opencode/<id>`），按「執行測試」確認能回話，再按「完成設定」。
 
-這條路是按 token 計費，記得在代理人設定裡填每月預算上限。
+備援做法：不想在介面貼金鑰，也可以在容器裡登入一次 `docker exec -it -u node hyper-agent-cowork opencode auth login`，選 OpenCode Go 或 OpenCode Zen；之後模型清單就會完整。
+
+這條路是按方案額度或 token 計費，記得在代理人設定裡填每月預算上限。
 
 ## 7. 升級版本
 

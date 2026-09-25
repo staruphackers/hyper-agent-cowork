@@ -22,6 +22,15 @@ import type {
 import { AGENT_DEFAULT_MAX_CONCURRENT_RUNS, supportedEnvironmentDriversForAdapter, isValidBrowserCode, ADAPTER_AUTH_MISSING_CHECK_CODE } from "@paperclipai/shared";
 import type { AdapterModel } from "../api/agents";
 import { agentsApi } from "../api/agents";
+import { OpenCodePlansPanel } from "./opencode/OpenCodePlansPanel";
+import {
+  filterOpenCodeModels,
+  isOpenCodeFreeModel,
+  mergeOpenCodeModels,
+  openCodeModelCoverage,
+  openCodePlanForModel,
+} from "@/lib/opencode-plans";
+import type { OpenCodePlansResult } from "@paperclipai/shared";
 import { ApiError } from "../api/client";
 import { environmentsApi } from "../api/environments";
 import { instanceSettingsApi } from "../api/instanceSettings";
@@ -912,6 +921,33 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
   const [refreshModelsError, setRefreshModelsError] = useState<string | null>(null);
   const [refreshingModels, setRefreshingModels] = useState(false);
   const models = fetchedModels ?? externalModels ?? [];
+  // OpenCode plan detection for a saved agent: the server resolves the stored
+  // OPENCODE_API_KEY binding, so nothing secret travels through the browser.
+  const [openCodePlans, setOpenCodePlans] = useState<OpenCodePlansResult | null>(null);
+  const [openCodePlansError, setOpenCodePlansError] = useState<string | null>(null);
+  const [detectingOpenCodePlans, setDetectingOpenCodePlans] = useState(false);
+  const [showUncoveredOpenCodeModels, setShowUncoveredOpenCodeModels] = useState(false);
+  const savedOpenCodeKeyBinding =
+    !isCreate &&
+    adapterType === "opencode_local" &&
+    Boolean(((config.env ?? EMPTY_ENV) as Record<string, EnvBinding>).OPENCODE_API_KEY);
+  const openCodeModelList = useMemo(() => {
+    if (adapterType !== "opencode_local" || !openCodePlans) return null;
+    return filterOpenCodeModels(mergeOpenCodeModels(models, openCodePlans), openCodePlans, showUncoveredOpenCodeModels);
+  }, [adapterType, models, openCodePlans, showUncoveredOpenCodeModels]);
+  async function detectOpenCodePlans() {
+    if (isCreate || !selectedCompanyId) return;
+    setDetectingOpenCodePlans(true);
+    setOpenCodePlansError(null);
+    try {
+      setOpenCodePlans(await agentsApi.probeOpenCodePlans(selectedCompanyId, { agentId: props.agent.id }));
+    } catch (cause) {
+      setOpenCodePlans(null);
+      setOpenCodePlansError(cause instanceof Error ? cause.message : "Could not check OpenCode plans.");
+    } finally {
+      setDetectingOpenCodePlans(false);
+    }
+  }
   const adapterCommandField = "command";
   const {
     data: detectedModelData,
@@ -1717,7 +1753,29 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
           {renderAdapterFields("adapter")}
           {isLocal && (<>
               <ModelDropdown
-                models={models}
+                models={openCodeModelList ? openCodeModelList.visible : models}
+                groupLabel={
+                  adapterType === "opencode_local"
+                    ? (groupProvider) =>
+                        groupProvider === "opencode-go" ? (
+                          <>OpenCode Go · subscription</>
+                        ) : groupProvider === "opencode" ? (
+                          <>OpenCode Zen · pay-as-you-go</>
+                        ) : (
+                          groupProvider
+                        )
+                    : undefined
+                }
+                entryBadge={
+                  adapterType === "opencode_local"
+                    ? (modelId) =>
+                        openCodePlanForModel(modelId) && isOpenCodeFreeModel(modelId) ? (
+                          <span className="ml-2 shrink-0 rounded border border-border px-1.5 text-(length:--text-nano) text-muted-foreground">
+                            Free
+                          </span>
+                        ) : null
+                    : undefined
+                }
                 value={currentModelId}
                 onChange={(v) => {
                   const supportedEfforts = setupEfforts(adapterType, v);
@@ -1774,6 +1832,24 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
                 && currentDefaultEnvironment.driver !== "local" && (
                 <p className="text-xs text-muted-foreground">
                   Live OpenCode model discovery only runs for Local environments. Using the curated list and manual entry for {currentDefaultEnvironment.name}.
+                </p>
+              )}
+              {savedOpenCodeKeyBinding && (
+                <OpenCodePlansPanel
+                  result={openCodePlans}
+                  error={openCodePlansError}
+                  detecting={detectingOpenCodePlans}
+                  canDetect={Boolean(selectedCompanyId)}
+                  onDetect={() => void detectOpenCodePlans()}
+                  hiddenCount={openCodeModelList?.hiddenCount ?? 0}
+                  showUncovered={showUncoveredOpenCodeModels}
+                  onToggleUncovered={setShowUncoveredOpenCodeModels}
+                  detectHint={<>Uses this agent's saved OpenCode key to label and filter the model list by plan.</>}
+                />
+              )}
+              {openCodePlans && currentModelId && openCodeModelCoverage(String(currentModelId), openCodePlans) === "uncovered" && (
+                <p role="alert" className="text-xs text-destructive">
+                  This key cannot use the selected model on its current OpenCode plans. Pick a covered model, add credits, or subscribe.
                 </p>
               )}
 
@@ -3707,6 +3783,8 @@ export function ModelDropdown({
   detectModelLabel,
   emptyDetectHint,
   defaultLabel,
+  groupLabel,
+  entryBadge,
 }: {
   models: AdapterModel[];
   value: string;
@@ -3725,6 +3803,10 @@ export function ModelDropdown({
   detectModelLabel?: string;
   emptyDetectHint?: string;
   defaultLabel?: string;
+  /** Friendly heading for a provider group; falls back to the raw provider id. */
+  groupLabel?: (provider: string) => ReactNode;
+  /** Small marker rendered after a model entry (for example a free-tier tag). */
+  entryBadge?: (modelId: string) => ReactNode;
 }) {
   const [modelSearch, setModelSearch] = useState("");
   const [detectingModel, setDetectingModel] = useState(false);
@@ -3968,8 +4050,8 @@ export function ModelDropdown({
             {groupedModels.map((group) => (
               <div key={group.provider} className="mb-1 last:mb-0">
                 {groupByProvider && (
-                  <div className="px-2 py-1 text-(length:--text-nano) uppercase tracking-wide text-muted-foreground">
-                    {group.provider} ({group.entries.length})
+                  <div className={cn("px-2 py-1 text-(length:--text-nano) tracking-wide text-muted-foreground", !groupLabel && "uppercase")}>
+                    {groupLabel?.(group.provider) ?? group.provider} ({group.entries.length})
                   </div>
                 )}
                 {group.entries.map((m) => (
@@ -3988,6 +4070,7 @@ export function ModelDropdown({
                     <span className="block w-full text-left truncate" title={m.id}>
                       {groupByProvider ? extractModelName(m.id) : m.label}
                     </span>
+                    {entryBadge?.(m.id)}
                   </button>
                 ))}
               </div>

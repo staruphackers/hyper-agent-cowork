@@ -1,5 +1,7 @@
 import { resolveAgentAppearance, agentAvatarUrl } from "@paperclipai/shared";
 import { listOpenRouterModels } from "../services/openrouter-models.js";
+import { probeOpenCodePlans } from "../services/opencode-plans.js";
+import { probeOpenCodePlansSchema, type ProbeOpenCodePlans } from "@paperclipai/shared";
 import { prepareManagedAiRuntime, assertManagedAiProjectAuth, stripAiAuthBindings } from "../services/ai-connection-runtime.js";
 import { ADAPTER_AUTH_MISSING_CHECK_CODE, AI_CONNECTION_CAPABILITIES, aiConnectionBindingSchema, type AiConnectionBinding } from "@paperclipai/shared";
 import { toolConnections } from "@paperclipai/db";
@@ -3259,6 +3261,70 @@ export function agentRoutes(
     const detected = await detectAdapterModel(type);
     res.json(detected);
   });
+
+  // OpenCode sells Zen (pay-as-you-go) and Go (subscription) behind one API
+  // key, and its CLI lists both catalogs for any key. This probe asks the
+  // gateway which plans the key is entitled to so the setup UI can label and
+  // filter models. The key comes from exactly one of: a one-shot value typed
+  // in the wizard, an organization secret selected there, or a saved agent's
+  // stored binding. The probe never persists or logs the key.
+  const openCodePlanProbeLimiter = createInviteRateLimiter({ maxRequests: 12, windowMs: 60_000 });
+  router.post(
+    "/companies/:companyId/adapters/:type/opencode-plans",
+    validate(probeOpenCodePlansSchema),
+    async (req, res) => {
+      const companyId = req.params.companyId as string;
+      const type = assertKnownAdapterType(req.params.type as string);
+      if (type !== "opencode_local") {
+        throw unprocessable("OpenCode plan detection only applies to the opencode_local adapter");
+      }
+      const body = req.body as ProbeOpenCodePlans;
+      const sources = [body.apiKey, body.secretId, body.agentId].filter(Boolean).length;
+      if (sources !== 1) throw unprocessable("Provide exactly one of apiKey, secretId or agentId");
+      const secretContext = buildActorSecretContext(req, { consumerType: "system", consumerId: "opencode_plan_probe" });
+      const keyFromEnv = (config: Record<string, unknown>) => {
+        const env = parseObject(config.env);
+        const value = env.OPENCODE_API_KEY;
+        return typeof value === "string" && value.trim() ? value.trim() : undefined;
+      };
+      let apiKey: string | undefined;
+      if (body.agentId) {
+        const agent = await getAccessibleResource(req, res, svc.getById(body.agentId), "Agent not found");
+        if (!agent) return;
+        if (agent.companyId !== companyId) throw notFound("Agent not found");
+        await assertCanUpdateAgent(req, agent);
+        const { config } = await secretsSvc.resolveAdapterConfigForRuntime(
+          companyId,
+          agent.adapterConfig as Record<string, unknown>,
+          secretContext,
+          { adapterType: type, userSecretMediation: "owner_scoped" },
+        );
+        apiKey = keyFromEnv(config);
+      } else {
+        await assertCanCreateAgentsForCompany(req, companyId);
+        if (body.secretId) {
+          const { config } = await secretsSvc.resolveAdapterConfigForRuntime(
+            companyId,
+            { env: { OPENCODE_API_KEY: { type: "secret_ref", secretId: body.secretId, version: "latest" } } },
+            secretContext,
+            { adapterType: type, userSecretMediation: "owner_scoped" },
+          );
+          apiKey = keyFromEnv(config);
+        } else {
+          apiKey = body.apiKey?.trim();
+        }
+      }
+      if (!apiKey) throw unprocessable("No OpenCode API key is available to check");
+      const actor = getActorInfo(req);
+      const limit = openCodePlanProbeLimiter.consume(`${companyId}:${actor?.actorId ?? req.ip ?? "unknown"}`);
+      if (!limit.allowed) {
+        res.setHeader("Retry-After", String(limit.retryAfterSeconds));
+        res.status(429).json({ error: "Too many OpenCode plan checks. Try again in a minute." });
+        return;
+      }
+      res.json(await probeOpenCodePlans(apiKey));
+    },
+  );
 
   // The environment drivers the adapter Test route accepts. A local, SSH, or
   // sandbox environment can host a probe; a plugin environment cannot.

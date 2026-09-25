@@ -8,6 +8,7 @@ import type {
   AgentInstructionsFileDetail,
   AgentSkillSnapshot,
   AdapterEnvironmentTestResult,
+  OpenCodePlansResult,
   AdapterAuthSignalResponse,
   AdapterAuthSessionResponse,
   AdapterAuthSessionOwnerResponse,
@@ -214,6 +215,14 @@ export const agentsApi = {
       `/companies/${encodeURIComponent(companyId)}/adapters/${encodeURIComponent(type)}/models${query}`,
     );
   },
+  probeOpenCodePlans: (
+    companyId: string,
+    data: { apiKey?: string; secretId?: string; agentId?: string },
+  ) =>
+    api.post<OpenCodePlansResult>(
+      `/companies/${encodeURIComponent(companyId)}/adapters/opencode_local/opencode-plans`,
+      data,
+    ),
   detectModel: (companyId: string, type: string) =>
     api.get<DetectedAdapterModel | null>(
       `/companies/${encodeURIComponent(companyId)}/adapters/${encodeURIComponent(type)}/detect-model`,

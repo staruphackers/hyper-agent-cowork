@@ -318,6 +318,23 @@ export interface AdapterEnvironmentCheck {
   hint?: string | null;
 }
 
+/** Which OpenCode billing plan a model id belongs to, derived from its provider prefix. */
+export type OpenCodePlanId = "zen" | "go";
+/** Outcome of probing one OpenCode plan endpoint with an API key. */
+export type OpenCodePlanStatus = "active" | "inactive" | "unknown";
+export interface OpenCodePlanProbe {
+  status: OpenCodePlanStatus;
+  /** Bare model ids (without the provider prefix) the plan reported for this key. */
+  models: string[];
+  httpStatus?: number;
+  message?: string;
+}
+export interface OpenCodePlansResult {
+  zen: OpenCodePlanProbe;
+  go: OpenCodePlanProbe;
+  checkedAt: string;
+}
+
 export interface AdapterEnvironmentTestResult {
   adapterType: string;
   status: AdapterEnvironmentTestStatus;

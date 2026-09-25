@@ -280,6 +280,18 @@ export const testAdapterEnvironmentSchema = z.object({
 
 export type TestAdapterEnvironment = z.infer<typeof testAdapterEnvironmentSchema>;
 
+/** Exactly one source for the OpenCode key; the route enforces the exclusivity. */
+export const probeOpenCodePlansSchema = z.object({
+  /** One-shot key typed in the setup wizard. Never persisted by the probe. */
+  apiKey: z.string().min(1).max(16384).optional(),
+  /** Organization secret holding OPENCODE_API_KEY, selected in the wizard. */
+  secretId: z.string().guid().optional(),
+  /** Saved agent whose stored OPENCODE_API_KEY binding is resolved server-side. */
+  agentId: z.string().guid().optional(),
+});
+
+export type ProbeOpenCodePlans = z.infer<typeof probeOpenCodePlansSchema>;
+
 export const updateAgentPermissionsSchema = z.object({
   canCreateAgents: z.boolean(),
   canCreateSkills: z.boolean().optional(),

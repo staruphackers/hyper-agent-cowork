@@ -1,25 +1,25 @@
 {
-  "generatedAt": "2026-09-25T09:11:25.493Z",
-  "filesScanned": 1072,
+  "generatedAt": "2026-09-25T10:11:08.798Z",
+  "filesScanned": 1074,
   "filesWithParseErrors": 0,
   "parseErrors": [],
   "sharedFilesScanned": 79,
   "sharedFilesWithParseErrors": 0,
   "sharedParseErrors": [],
-  "totalUniqueStrings": 11506,
-  "totalOccurrences": 21854,
+  "totalUniqueStrings": 11529,
+  "totalOccurrences": 21887,
   "byKind": {
-    "jsx": 6914,
-    "attr": 2449,
+    "jsx": 6933,
+    "attr": 2451,
     "obj": 1975,
-    "expr": 12918,
+    "expr": 12941,
     "manual": 5,
-    "dyn": 9961,
+    "dyn": 9973,
     "shared": 550
   },
   "byTopLevelDir": {
     "pages": 17837,
-    "components": 13919,
+    "components": 13975,
     "features": 704,
     "lib": 698,
     "adapters": 515,
@@ -88,7 +88,7 @@
     },
     {
       "file": "src/components/AgentConfigForm.tsx",
-      "count": 409
+      "count": 418
     },
     {
       "file": "src/components/IssueChatThread.tsx",

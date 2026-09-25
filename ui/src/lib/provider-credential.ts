@@ -8,6 +8,8 @@ export const PROVIDER_ENV_KEYS: Record<string, string> = {
   xai: "XAI_API_KEY",
   groq: "GROQ_API_KEY",
   opencode: "OPENCODE_API_KEY",
+  // OpenCode Go shares the Zen key; the provider prefix picks the billing plan.
+  "opencode-go": "OPENCODE_API_KEY",
 };
 
 /** New organization credentials get a distinct key; never rotate another agent's secret. */

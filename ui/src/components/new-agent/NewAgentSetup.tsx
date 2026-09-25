@@ -12,7 +12,7 @@ import {
 import { testAgentSetup } from "@/lib/test-agent-setup";
 import { useCloudInstance } from "@/hooks/useCloudInstance";
 import { isNewAgentAdapterAllowed } from "@/lib/new-agent-adapters";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, Settings2 } from "lucide-react";
@@ -50,6 +50,15 @@ import {
 import { defaultCreateValues } from "../agent-config-defaults";
 import { ModelDropdown } from "../AgentConfigForm";
 import { Field } from "../agent-config-primitives";
+import { OpenCodePlansPanel } from "../opencode/OpenCodePlansPanel";
+import {
+  filterOpenCodeModels,
+  isOpenCodeFreeModel,
+  mergeOpenCodeModels,
+  openCodeModelCoverage,
+  openCodePlanForModel,
+} from "@/lib/opencode-plans";
+import type { OpenCodePlansResult } from "@paperclipai/shared";
 import { SecretPicker } from "../environment-variables-editor/SecretPicker";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -156,6 +165,10 @@ function Setup({
   // secret, the same path Pi already uses.
   const [opencodeSignIn, setOpencodeSignIn] = useState<"openrouter" | "api_key">("openrouter");
   const opencodeApiKeyMode = brandType === "opencode_local" && opencodeSignIn === "api_key";
+  const [openCodePlans, setOpenCodePlans] = useState<OpenCodePlansResult | null>(null);
+  const [openCodePlansError, setOpenCodePlansError] = useState<string | null>(null);
+  const [detectingOpenCodePlans, setDetectingOpenCodePlans] = useState(false);
+  const [showUncoveredOpenCodeModels, setShowUncoveredOpenCodeModels] = useState(false);
   const [connection, setConnection] = useState<ProviderConnection | null>(null);
   const aiBinding = runtimeAiBinding ?? connection?.aiConnection;
   const [repository, setRepository] = useState("");
@@ -300,6 +313,44 @@ function Setup({
   const usingKimiApi =
     adapterType === "kimi_local" && Boolean(apiKey.trim() || selectedBinding);
   const cloud = Boolean(useCloudInstance());
+  const openCodeSecretId =
+    selectedBinding && typeof selectedBinding === "object" && selectedBinding.type === "secret_ref"
+      ? selectedBinding.secretId
+      : undefined;
+  const openCodeSavedPersonalSecret =
+    Boolean(selectedBinding && typeof selectedBinding === "object" && selectedBinding.type === "user_secret_ref") &&
+    !apiKey.trim();
+  const canDetectOpenCodePlans = opencodeApiKeyMode && (Boolean(apiKey.trim()) || Boolean(openCodeSecretId));
+  // A new key or secret invalidates the last probe.
+  useEffect(() => {
+    setOpenCodePlans(null);
+    setOpenCodePlansError(null);
+  }, [apiKey, providerBinding, opencodeSignIn]);
+  async function detectOpenCodePlans() {
+    const key = apiKey.trim();
+    if (!key && !openCodeSecretId) return;
+    setDetectingOpenCodePlans(true);
+    setOpenCodePlansError(null);
+    try {
+      const result = await agentsApi.probeOpenCodePlans(
+        companyId,
+        key ? { apiKey: key } : { secretId: openCodeSecretId },
+      );
+      setOpenCodePlans(result);
+    } catch (cause) {
+      setOpenCodePlans(null);
+      setOpenCodePlansError(cause instanceof Error ? cause.message : "Could not check OpenCode plans.");
+    } finally {
+      setDetectingOpenCodePlans(false);
+    }
+  }
+  const openCodeModelList = useMemo(() => {
+    if (!opencodeApiKeyMode) return null;
+    const merged = mergeOpenCodeModels(models.data ?? [], openCodePlans);
+    return filterOpenCodeModels(merged, openCodePlans, showUncoveredOpenCodeModels);
+  }, [opencodeApiKeyMode, models.data, openCodePlans, showUncoveredOpenCodeModels]);
+  const selectedOpenCodeModelUncovered =
+    opencodeApiKeyMode && Boolean(openCodePlans) && Boolean(model) && openCodeModelCoverage(model, openCodePlans) === "uncovered";
   const available =
     isNewAgentAdapterAllowed(adapterType, {
       cloud,
@@ -867,7 +918,29 @@ function Setup({
                           <div className="grid items-start gap-5 sm:grid-cols-2">
                             {showModel && !usingKimiApi && (
                               <ModelDropdown
-                                models={models.data ?? []}
+                                models={openCodeModelList ? openCodeModelList.visible : (models.data ?? [])}
+                                groupLabel={
+                                  brandType === "opencode_local"
+                                    ? (groupProvider) =>
+                                        groupProvider === "opencode-go" ? (
+                                          <>OpenCode Go · subscription</>
+                                        ) : groupProvider === "opencode" ? (
+                                          <>OpenCode Zen · pay-as-you-go</>
+                                        ) : (
+                                          groupProvider
+                                        )
+                                    : undefined
+                                }
+                                entryBadge={
+                                  brandType === "opencode_local"
+                                    ? (modelId) =>
+                                        openCodePlanForModel(modelId) && isOpenCodeFreeModel(modelId) ? (
+                                          <span className="ml-2 shrink-0 rounded border border-border px-1.5 text-(length:--text-nano) text-muted-foreground">
+                                            Free
+                                          </span>
+                                        ) : null
+                                    : undefined
+                                }
                                 value={model}
                                 onChange={(value) => {
                                   setModel(value);
@@ -885,8 +958,12 @@ function Setup({
                                     nextProvider !== provider
                                   ) {
                                     setProvider(nextProvider);
-                                    setApiKey("");
-                                    setProviderBinding(null);
+                                    // OpenCode Zen and Go share one key: keep it
+                                    // when only the billing plan changes.
+                                    if (PROVIDER_ENV_KEYS[nextProvider] !== PROVIDER_ENV_KEYS[provider]) {
+                                      setApiKey("");
+                                      setProviderBinding(null);
+                                    }
                                   }
                                   resetTest();
                                 }}
@@ -919,6 +996,11 @@ function Setup({
                               </Field>
                             )}
                           </div>
+                        )}
+                        {selectedOpenCodeModelUncovered && (
+                          <p role="alert" className="text-sm text-destructive">
+                            This key cannot use the selected model on its current OpenCode plans. Pick a covered model, add credits, or subscribe.
+                          </p>
                         )}
                         {SETUP_LOGIN_HINTS[adapterType] && (
                           <p className="text-sm text-muted-foreground">
@@ -959,7 +1041,8 @@ function Setup({
                                                 google: "Google",
                                                 xai: "xAI",
                                                 groq: "Groq",
-                                                opencode: "OpenCode",
+                                                opencode: "OpenCode Zen",
+                                                "opencode-go": "OpenCode Go",
                                               }[key] ?? key)}
                                     </option>
                                   ))}
@@ -1044,6 +1127,25 @@ function Setup({
                               you finish setup.
                               {multiProvider && ` Use a ${provider}/model ID.`}
                             </p>
+                            {opencodeApiKeyMode && (
+                              <div className="sm:col-span-2">
+                                <OpenCodePlansPanel
+                                  result={openCodePlans}
+                                  error={openCodePlansError}
+                                  detecting={detectingOpenCodePlans}
+                                  canDetect={canDetectOpenCodePlans}
+                                  onDetect={() => void detectOpenCodePlans()}
+                                  hiddenCount={openCodeModelList?.hiddenCount ?? 0}
+                                  showUncovered={showUncoveredOpenCodeModels}
+                                  onToggleUncovered={setShowUncoveredOpenCodeModels}
+                                  detectHint={
+                                    openCodeSavedPersonalSecret ? (
+                                      <>Paste the key to check plans. A saved personal secret cannot be read back here.</>
+                                    ) : undefined
+                                  }
+                                />
+                              </div>
+                            )}
                           </div>
                         )}
                         {adapterType === "hermes_gateway" && (

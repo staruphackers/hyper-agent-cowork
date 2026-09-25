@@ -41,6 +41,7 @@ import {
   resetAgentSessionSchema,
   agentSkillSyncSchema,
   testAdapterEnvironmentSchema,
+  probeOpenCodePlansSchema,
   // Issue
   createIssueSchema,
   updateIssueSchema,
@@ -3696,6 +3697,25 @@ registry.registerPath({
   summary: "Detect active model for an adapter",
   request: { params: z.object({ companyId: z.string(), type: z.string() }) },
   responses: { 200: r.ok(), 401: r.unauthorized },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/companies/{companyId}/adapters/{type}/opencode-plans",
+  tags: ["adapters"],
+  summary: "Detect which OpenCode plans (Zen, Go) an API key is entitled to",
+  request: {
+    params: z.object({ companyId: z.string(), type: z.string() }),
+    body: jsonBody(probeOpenCodePlansSchema),
+  },
+  responses: {
+    200: r.ok(),
+    400: r.badRequest,
+    401: r.unauthorized,
+    404: r.notFound,
+    422: r.unprocessable,
+    429: r.tooManyRequests,
+  },
 });
 
 registry.registerPath({

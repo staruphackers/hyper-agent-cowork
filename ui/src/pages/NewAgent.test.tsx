@@ -14,6 +14,7 @@ const api = vi.hoisted(() => ({
   list: vi.fn(),
   hire: vi.fn(),
   testEnvironment: vi.fn(),
+  probeOpenCodePlans: vi.fn(),
   getAdapterAuthSignal: vi.fn(),
   getClaudeOAuthTokenStatus: vi.fn(),
 }));
@@ -583,6 +584,36 @@ describe("New agent setup", () => {
     );
     expect(managedApi.create).not.toHaveBeenCalled();
     expect(JSON.stringify(api.hire.mock.calls)).not.toContain("example-test-secret");
+  });
+  it("checks OpenCode plans for the typed key and hides models the key cannot use", async () => {
+    api.adapterModels.mockResolvedValue([
+      { id: "opencode/claude-sonnet-5", label: "opencode/claude-sonnet-5" },
+      { id: "opencode/big-pickle", label: "opencode/big-pickle" },
+    ]);
+    api.probeOpenCodePlans.mockResolvedValue({
+      zen: { status: "active", models: ["big-pickle"], httpStatus: 200 },
+      go: { status: "active", models: ["glm-5.2", "kimi-k3"], httpStatus: 200 },
+      checkedAt: "2026-09-25T10:00:00Z",
+    });
+    await render("opencode_local");
+    await choose("Sign-in method", "api_key");
+    const checkButton = [...container.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Check plans")!;
+    expect(checkButton.disabled).toBe(true);
+    await fill("OPENCODE_API_KEY", "example-test-secret");
+    await click("Check plans");
+    expect(api.probeOpenCodePlans).toHaveBeenCalledWith("company-1", { apiKey: "example-test-secret" });
+    expect(container.textContent).toContain("OpenCode Go · subscription");
+    expect(container.textContent).toContain("Free models only");
+    expect(container.textContent).toContain("1 hidden");
+    // A model outside the detected plans gets a warning; a covered one does not.
+    await fill("Model", "opencode/claude-sonnet-5");
+    expect(container.textContent).toContain("cannot use the selected model");
+    await fill("Model", "opencode-go/glm-5.2");
+    expect(container.textContent).not.toContain("cannot use the selected model");
+    // Typing a Go model id switches the key provider to OpenCode Go and keeps the shared key.
+    expect((container.querySelector('[aria-label="API key provider"]') as HTMLSelectElement).value).toBe("opencode-go");
+    expect((container.querySelector('[aria-label="OPENCODE_API_KEY"]') as HTMLInputElement).value).toBe("example-test-secret");
+    expect(container.textContent).toContain("OpenCode Go · subscription");
   });
   it.each(["codex", "claude", "opencode"])(
     "uses the correct native %s runner",
