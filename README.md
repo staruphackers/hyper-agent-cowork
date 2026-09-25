@@ -309,6 +309,8 @@ agent 依排程醒來、檢查工作、採取行動。委派沿著組織圖上�
 
 ### 用 Docker 啟動（建議）
 
+> 要部署到自己的 VPS（含 Tailscale／Caddy HTTPS、第一位管理員認領、備份與升級），請直接看 [`doc/zh-TW/VPS-DEPLOY.md`](doc/zh-TW/VPS-DEPLOY.md)。
+
 先產生一組登入驗證用的密鑰：
 
 ```bash
