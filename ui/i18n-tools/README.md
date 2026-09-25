@@ -54,6 +54,14 @@ ui/i18n-tools/babel-plugin-i18n-wrap.mjs
 2. `node ui/i18n-tools/check.mjs` —— 看「未翻」的數字漲了多少，決定要不要挑幾條加進
    `ui/src/i18n/locales/zh-TW.json`（keyless：key 就是英文原文，一字不改；value 是繁體中文）。
 
+3. `check.mjs` 若列出「Stale」key（字典裡有、但原始碼已經沒有的字串，例如上游拿掉某個功能），
+   直接從 `zh-TW.json` 刪掉；`extract.mjs` 重寫 `en.json` 時會保留舊 key，所以同一批 key 也要從
+   `en.json` 移除，否則 identity catalog 會慢慢累積孤兒項目。
+4. 驗證：`cd ui && npx vitest run src/i18n`（wrap plugin、繁中渲染、locale 驗證三支測試）與
+   `pnpm --filter @paperclipai/ui build`（確認 plugin 能處理上游新加的每一個 TSX）。要跑
+   `pnpm --filter @paperclipai/ui typecheck` 前，先 `pnpm --filter @paperclipai/plugin-sdk build`，
+   因為 `@paperclipai/plugin-sdk/ui` 的型別宣告在 `dist/` 裡。
+
 **不用做**：不用碰任何 `.tsx`／`.ts` 原始碼、不用重新跑 wrap（wrap 是 build 時自動發生的）。
 
 ## 機制細節
