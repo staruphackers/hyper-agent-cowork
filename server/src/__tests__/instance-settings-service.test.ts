@@ -38,6 +38,7 @@ describe("instance settings service", () => {
       enableManagedSandboxOnly: false,
       enableIsolatedWorkspaces: true,
       enableIsolatedWorkspacesByDefault: false,
+      enableRuntimeProfiles: true,
       enableStreamlinedLeftNavigation: true,
       enableStreamlinedUi: true,
       enableApps: true,
