@@ -627,7 +627,7 @@
   " Debugging": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2197"
+    "first": "src/components/AgentConfigForm.tsx:2198"
   },
   " decided": {
     "count": 2,
@@ -1802,7 +1802,7 @@
   " Run Policy": {
     "count": 4,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2033"
+    "first": "src/components/AgentConfigForm.tsx:2034"
   },
   " running": {
     "count": 2,
@@ -3142,7 +3142,7 @@
   "/path/to/project": {
     "count": 1,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1764"
+    "first": "src/components/AgentConfigForm.tsx:1765"
   },
   "/path/to/worktree or provider ref": {
     "count": 1,
@@ -3282,7 +3282,7 @@
   "0 0 24 24": {
     "count": 5,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3935"
+    "first": "src/components/AgentConfigForm.tsx:3936"
   },
   "0 0 716 716": {
     "count": 2,
@@ -3437,12 +3437,12 @@
   "1. Authorization URL": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3587"
+    "first": "src/components/AgentConfigForm.tsx:3588"
   },
   "1. Code": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2804"
+    "first": "src/components/AgentConfigForm.tsx:2805"
   },
   "1. Download your agent’s avatar": {
     "count": 1,
@@ -3517,12 +3517,12 @@
   "2. Authentication URL": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2813"
+    "first": "src/components/AgentConfigForm.tsx:2814"
   },
   "2. Browser code": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3610"
+    "first": "src/components/AgentConfigForm.tsx:3611"
   },
   "2. Upload it in Slack": {
     "count": 1,
@@ -4305,9 +4305,9 @@
     "first": "src/pages/apps/AppsReview.tsx:36"
   },
   "Activate": {
-    "count": 5,
-    "kind": "dyn",
-    "first": "src/pages/Secrets.tsx:1560"
+    "count": 7,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:256"
   },
   "Activate ": {
     "count": 1,
@@ -4318,6 +4318,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/CompanyImport.tsx:1749"
+  },
+  "Activate runtime profile": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:336"
   },
   "activated": {
     "count": 1,
@@ -4350,9 +4355,9 @@
     "first": "src/pages/CompanyImport.tsx:1570"
   },
   "Active": {
-    "count": 18,
-    "kind": "obj",
-    "first": "src/lib/issue-filters.ts:84"
+    "count": 19,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:241"
   },
   "Active / recent": {
     "count": 1,
@@ -4399,6 +4404,11 @@
     "kind": "jsx",
     "first": "src/pages/IssueChatUxLab.tsx:239"
   },
+  "Active runs": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:350"
+  },
   "Active runs first, followed by the most recent completed runs.": {
     "count": 1,
     "kind": "jsx",
@@ -4408,6 +4418,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/CompanyEnvironments.tsx:1909"
+  },
+  "Active runs will be cancelled before the switch.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:365"
   },
   "Active statuses — open tasks, whether or not an agent is running.": {
     "count": 1,
@@ -4487,7 +4502,7 @@
   "Adapter": {
     "count": 9,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1631"
+    "first": "src/components/AgentConfigForm.tsx:1632"
   },
   "Adapter credential supplied during agent setup.": {
     "count": 2,
@@ -4497,7 +4512,7 @@
   "Adapter default": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:1738"
+    "first": "src/pages/AgentDetail.tsx:1742"
   },
   "Adapter environment test failed": {
     "count": 1,
@@ -4542,7 +4557,7 @@
   "Adapter type": {
     "count": 6,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1649"
+    "first": "src/components/AgentConfigForm.tsx:1650"
   },
   "adapter: ": {
     "count": 2,
@@ -4567,7 +4582,7 @@
   "Add a \"Smoke Lab\" tab under Apps → Developer and an \"Integration smoke\" card on the dashboard for exercising every integration path against deterministic local fixtures (fake OAuth provider + loopback MCP servers). Private (non-public) deployments only.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:659"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:673"
   },
   "Add a comment...": {
     "count": 2,
@@ -5097,7 +5112,7 @@
   "Adds a Conference Room — one chat where you and your whole team work together — plus the live activity feed and the redesigned onboarding. Also restyles task threads as chat bubbles. Turn off anytime to restore the classic UI.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:357"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:358"
   },
   "Adds context cost to every run of every agent — a deliberate choice. New agents you add later are installed automatically.": {
     "count": 1,
@@ -5147,7 +5162,7 @@
   "Advanced": {
     "count": 20,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1938"
+    "first": "src/components/AgentConfigForm.tsx:1939"
   },
   "Advanced access, scoped assignment, and explicit grant controls are provided by installed organization settings extensions.": {
     "count": 1,
@@ -5202,7 +5217,7 @@
   "Advanced Run Policy": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2049"
+    "first": "src/components/AgentConfigForm.tsx:2050"
   },
   "Advanced runtime JSON": {
     "count": 2,
@@ -5367,7 +5382,7 @@
   "Agent bound to the signed-in account.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2854"
+    "first": "src/components/AgentConfigForm.tsx:2855"
   },
   "Agent bubble": {
     "count": 1,
@@ -5392,7 +5407,7 @@
   "Agent Chat": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:297"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:298"
   },
   "Agent Chat is disabled in Experimental settings.": {
     "count": 1,
@@ -5447,7 +5462,7 @@
   "Agent identity": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:2099"
+    "first": "src/pages/AgentDetail.tsx:2103"
   },
   "Agent inheritance now follows the updated instance default.": {
     "count": 1,
@@ -6042,7 +6057,7 @@
   "Allow agents to pin beta releases of the Paperclip core skill. Disabling this returns every agent to the default live skill without removing saved pins.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:310"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:311"
   },
   "Allow direct messages": {
     "count": 2,
@@ -6092,7 +6107,7 @@
   "Allow new Codex agents to select the experimental Rust Paperclip Runner, including authenticated runner ingress when a sandbox requires it. Onboarding continues to use legacy adapters. Turning this off hides the choice without affecting existing native runs.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:449"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:450"
   },
   "Allow once": {
     "count": 4,
@@ -6602,7 +6617,7 @@
   "Anthropic": {
     "count": 4,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2419"
+    "first": "src/components/AgentConfigForm.tsx:2420"
   },
   "Anthropic OAuth": {
     "count": 1,
@@ -7987,7 +8002,7 @@
   "Authenticated. The environment has credentials now.": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2306"
+    "first": "src/components/AgentConfigForm.tsx:2307"
   },
   "Authentication": {
     "count": 2,
@@ -8162,7 +8177,7 @@
   "Auto-Restart Dev Server When Idle": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:549"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:563"
   },
   "Auto-Restart On": {
     "count": 1,
@@ -8707,7 +8722,7 @@
   "Beta skills": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:309"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:310"
   },
   "bg-blue-*": {
     "count": 1,
@@ -8797,7 +8812,7 @@
   "Binding this agent to the signed-in account...": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2848"
+    "first": "src/components/AgentConfigForm.tsx:2849"
   },
   "BindingsTable (reused in the audit row drilldown)": {
     "count": 2,
@@ -9097,12 +9112,12 @@
   "Bootstrap prompt (legacy)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1911"
+    "first": "src/components/AgentConfigForm.tsx:1912"
   },
   "Bootstrap prompt is legacy and will be removed in a future release. Consider moving this content into the agent's prompt template or instructions file instead.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1930"
+    "first": "src/components/AgentConfigForm.tsx:1931"
   },
   "Bootstrap status": {
     "count": 2,
@@ -9342,7 +9357,7 @@
   "Browser code": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:3615"
+    "first": "src/components/AgentConfigForm.tsx:3616"
   },
   "Browser security blocks apps from reading full local paths via a file picker. Copy the absolute path and paste it into the input.": {
     "count": 1,
@@ -9522,7 +9537,7 @@
   "Built-in Agents": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:320"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:321"
   },
   "Built-in routines": {
     "count": 4,
@@ -9705,7 +9720,7 @@
     "first": "src/components/FileViewerSheet.tsx:165"
   },
   "Cancel": {
-    "count": 154,
+    "count": 157,
     "kind": "dyn",
     "first": "src/adapters/paperclip-runner/index.ts:450"
   },
@@ -9748,6 +9763,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/apps/app-detail/TestPanel.tsx:1151"
+  },
+  "Cancel runs and activate": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:382"
   },
   "Cancel sign-in": {
     "count": 1,
@@ -9912,7 +9932,7 @@
   "Capture raw provider traces": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2213"
+    "first": "src/components/AgentConfigForm.tsx:2214"
   },
   "Capture setup pitfalls and screenshots.": {
     "count": 1,
@@ -10249,6 +10269,11 @@
     "kind": "jsx",
     "first": "src/components/ProjectRepositories.tsx:37"
   },
+  "Changes saved in the settings below are stored in the active profile:": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:217"
+  },
   "Channel delivery cancelled": {
     "count": 2,
     "kind": "obj",
@@ -10312,7 +10337,7 @@
   "Chat connectors": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:343"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:344"
   },
   "chat history": {
     "count": 2,
@@ -10598,6 +10623,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/components/task-chat/tool-taxonomy.ts:191"
+  },
+  "Checking": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:359"
   },
   "Checking a remote app creates a draft connection, stores any header replacements as Paperclip secrets, and runs health/catalog discovery before activation.": {
     "count": 1,
@@ -11197,7 +11227,7 @@
   "Classic Task Interface": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:693"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:707"
   },
   "Claude": {
     "count": 4,
@@ -11782,7 +11812,7 @@
   "Codex may reject `minimal` thinking when search is enabled.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1890"
+    "first": "src/components/AgentConfigForm.tsx:1891"
   },
   "Codex options": {
     "count": 1,
@@ -11932,7 +11962,7 @@
   "Coming soon": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3769"
+    "first": "src/components/AgentConfigForm.tsx:3770"
   },
   "Comma-separated assessment categories.": {
     "count": 1,
@@ -12202,7 +12232,7 @@
   "Completing the login…": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3647"
+    "first": "src/components/AgentConfigForm.tsx:3648"
   },
   "Complex value — edit in YAML.": {
     "count": 2,
@@ -12267,12 +12297,12 @@
   "Conference Room Chat": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:356"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:357"
   },
   "config": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:4032"
+    "first": "src/components/AgentConfigForm.tsx:4033"
   },
   "Config": {
     "count": 1,
@@ -12292,7 +12322,7 @@
   "Configuration": {
     "count": 17,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1905"
+    "first": "src/components/AgentConfigForm.tsx:1906"
   },
   "Configuration incomplete": {
     "count": 1,
@@ -12473,6 +12503,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/TeamCatalog.tsx:1409"
+  },
+  "Confirm again to cancel them and switch.": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:156"
   },
   "Confirm identity": {
     "count": 1,
@@ -12662,7 +12697,7 @@
   "Connect agents to Slack, GitHub, Discord, Microsoft Teams, and Telegram conversations.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:344"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:345"
   },
   "Connect Airtable's provider-hosted MCP server.": {
     "count": 1,
@@ -12887,7 +12922,7 @@
   "Connect Mem0, Zep, Supermemory, Cognee, and Honcho for long-term memory and context.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:437"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:438"
   },
   "Connect Miro's provider-hosted MCP server.": {
     "count": 1,
@@ -13512,12 +13547,12 @@
   "Continuation attempts": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2161"
+    "first": "src/components/AgentConfigForm.tsx:2162"
   },
   "Continuation delay (sec)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2172"
+    "first": "src/components/AgentConfigForm.tsx:2173"
   },
   "Continuation exhausted": {
     "count": 1,
@@ -13552,7 +13587,7 @@
   "Continue after max-turn stop": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2154"
+    "first": "src/components/AgentConfigForm.tsx:2155"
   },
   "Continue at ": {
     "count": 1,
@@ -13702,7 +13737,7 @@
   "Cooldown (sec)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2128"
+    "first": "src/components/AgentConfigForm.tsx:2129"
   },
   "Copied": {
     "count": 24,
@@ -13817,7 +13852,7 @@
   "Copy code": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2809"
+    "first": "src/components/AgentConfigForm.tsx:2810"
   },
   "Copy command": {
     "count": 2,
@@ -14012,7 +14047,7 @@
   "Copy the code, then open the authentication page.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2784"
+    "first": "src/components/AgentConfigForm.tsx:2785"
   },
   "Copy the invite URL manually from the field below.": {
     "count": 1,
@@ -14057,7 +14092,7 @@
   "Copy URL": {
     "count": 5,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2819"
+    "first": "src/components/AgentConfigForm.tsx:2820"
   },
   "Copy value": {
     "count": 1,
@@ -14129,6 +14164,11 @@
     "kind": "obj",
     "first": "src/pages/Pipelines.tsx:2494"
   },
+  "Could not activate runtime profile": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:159"
+  },
   "Could not add entry": {
     "count": 2,
     "kind": "obj",
@@ -14152,17 +14192,17 @@
   "Could not bind this agent to the signed-in account.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2860"
+    "first": "src/components/AgentConfigForm.tsx:2861"
   },
   "Could not cancel the login.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2498"
+    "first": "src/components/AgentConfigForm.tsx:2499"
   },
   "Could not check for an active login.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2629"
+    "first": "src/components/AgentConfigForm.tsx:2630"
   },
   "Could not check local sign-in.": {
     "count": 1,
@@ -14273,6 +14313,11 @@
     "count": 4,
     "kind": "obj",
     "first": "src/pages/tools/profiles/ProfileDetail.tsx:132"
+  },
+  "Could not delete runtime profile": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:139"
   },
   "Could not duplicate": {
     "count": 4,
@@ -14398,6 +14443,11 @@
     "count": 2,
     "kind": "jsx",
     "first": "src/components/CaseRevisionRail.tsx:196"
+  },
+  "Could not load runtime profiles.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:228"
   },
   "Could not load saved access. Retry before changing this connection.": {
     "count": 1,
@@ -14604,6 +14654,11 @@
     "kind": "obj",
     "first": "src/pages/tools/profiles/ProfileWizard.tsx:208"
   },
+  "Could not save runtime profile": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:114"
+  },
   "Could not save settings.": {
     "count": 1,
     "kind": "dyn",
@@ -14627,7 +14682,7 @@
   "Could not start the login.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2481"
+    "first": "src/components/AgentConfigForm.tsx:2482"
   },
   "Could not store the API key.": {
     "count": 1,
@@ -14642,7 +14697,7 @@
   "Could not submit the browser code.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3225"
+    "first": "src/components/AgentConfigForm.tsx:3226"
   },
   "Could not test the agent.": {
     "count": 1,
@@ -14658,6 +14713,11 @@
     "count": 4,
     "kind": "obj",
     "first": "src/pages/tools/ProfilesTab.tsx:749"
+  },
+  "Could not update runtime profile": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:127"
   },
   "Could not update seeding": {
     "count": 2,
@@ -15962,7 +16022,7 @@
   "current": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3989"
+    "first": "src/components/AgentConfigForm.tsx:3990"
   },
   "Current": {
     "count": 7,
@@ -16407,7 +16467,7 @@
   "Default": {
     "count": 21,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3915"
+    "first": "src/components/AgentConfigForm.tsx:3916"
   },
   "default ": {
     "count": 1,
@@ -16577,7 +16637,7 @@
   "Default: ": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1614"
+    "first": "src/components/AgentConfigForm.tsx:1615"
   },
   "Defaults to 0, which closes the ACP process after each run while retaining persistent session state.": {
     "count": 6,
@@ -16660,7 +16720,7 @@
     "first": "src/adapters/paperclip-runner/index.ts:692"
   },
   "Delete": {
-    "count": 14,
+    "count": 15,
     "kind": "dyn",
     "first": "src/components/IssueAttachmentsSection.tsx:391"
   },
@@ -16735,9 +16795,9 @@
     "first": "src/pages/Companies.tsx:255"
   },
   "Delete profile": {
-    "count": 2,
-    "kind": "obj",
-    "first": "src/pages/tools/profiles/ProfileActionDialog.tsx:49"
+    "count": 3,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:406"
   },
   "Delete rows from spreadsheet": {
     "count": 1,
@@ -16748,6 +16808,11 @@
     "count": 2,
     "kind": "attr",
     "first": "src/pages/SkillStudio.tsx:2787"
+  },
+  "Delete runtime profile": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:393"
   },
   "Delete secret": {
     "count": 1,
@@ -17152,22 +17217,22 @@
   "Detect external URLs in issues and show resolved status for pull requests, tickets, and other referenced work objects.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:391"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:392"
   },
   "Detect from config": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3955"
+    "first": "src/components/AgentConfigForm.tsx:3956"
   },
   "Detect model": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1837"
+    "first": "src/components/AgentConfigForm.tsx:1838"
   },
   "detected": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:4008"
+    "first": "src/components/AgentConfigForm.tsx:4009"
   },
   "Detected from `": {
     "count": 1,
@@ -17182,7 +17247,7 @@
   "Detecting...": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3955"
+    "first": "src/components/AgentConfigForm.tsx:3956"
   },
   "Deterministic local fixture for measuring the current direct-render issue chat path with hundreds of merged thread rows, markdown-heavy assistant bodies, linked runs, documents, sub-issues, and sidebar context.": {
     "count": 1,
@@ -17267,7 +17332,7 @@
   "Direct reports": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/AgentDetail.tsx:1761"
+    "first": "src/pages/AgentDetail.tsx:1765"
   },
   "Directed to ": {
     "count": 1,
@@ -17350,7 +17415,7 @@
     "first": "src/components/BuiltInBundlePanel.tsx:390"
   },
   "Disabled": {
-    "count": 9,
+    "count": 10,
     "kind": "dyn",
     "first": "src/components/BudgetPolicyCard.tsx:68"
   },
@@ -18042,7 +18107,7 @@
   "Durable work products (blog posts, tweet storms…) that tasks create and iterate on. Adds the Cases tab and the agent case API.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:332"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:333"
   },
   "Duration": {
     "count": 1,
@@ -18067,7 +18132,7 @@
   "e.g. --verbose, --foo=bar": {
     "count": 1,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2003"
+    "first": "src/components/AgentConfigForm.tsx:2004"
   },
   "e.g. Chief of staff": {
     "count": 1,
@@ -18103,6 +18168,11 @@
     "count": 1,
     "kind": "attr",
     "first": "src/components/OnboardingWizard.tsx:2609"
+  },
+  "e.g. primary, economy, fallback": {
+    "count": 1,
+    "kind": "attr",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:297"
   },
   "e.g. Production GitHub": {
     "count": 1,
@@ -18213,6 +18283,11 @@
     "count": 6,
     "kind": "dyn",
     "first": "src/components/task-chat/motion-tokens.ts:27"
+  },
+  "Economy": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:30"
   },
   "Edit": {
     "count": 20,
@@ -18672,7 +18747,7 @@
   "Enable Environments": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:379"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:380"
   },
   "Enable Environments in instance experimental settings to manage shared execution targets.": {
     "count": 1,
@@ -18682,7 +18757,7 @@
   "Enable External Objects": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:390"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:391"
   },
   "Enable for agents": {
     "count": 2,
@@ -18697,7 +18772,7 @@
   "Enable Isolated Workspaces": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:401"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:402"
   },
   "Enable memory connectors in Settings → Experimental to set up this connection.": {
     "count": 1,
@@ -18727,7 +18802,7 @@
   "Enable the experimental shared status-card board and its gated API. Existing card data is kept when this is disabled.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:475"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:476"
   },
   "Enable the weekly schedule?": {
     "count": 2,
@@ -18772,7 +18847,7 @@
   "Enabled by simple organization-wide task assignment defaults.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:2077"
+    "first": "src/pages/AgentDetail.tsx:2081"
   },
   "Enabled on this agent": {
     "count": 2,
@@ -18792,7 +18867,7 @@
   "Enabled via explicit organization permission grant.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:2075"
+    "first": "src/pages/AgentDetail.tsx:2079"
   },
   "enables native file receipt and consent-based sending in personal chats; channel and group-chat files need a separate Microsoft Graph connection and are not ingested here.": {
     "count": 1,
@@ -18802,7 +18877,7 @@
   "Enabling Status Cards also enables Summaries.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:476"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:477"
   },
   "End this browser session.": {
     "count": 1,
@@ -19070,7 +19145,7 @@
     "first": "src/pages/CompanyEnvironments.tsx:2104"
   },
   "Environment override": {
-    "count": 2,
+    "count": 4,
     "kind": "attr",
     "first": "src/components/AgentConfigForm.tsx:1600"
   },
@@ -19527,7 +19602,7 @@
   "Execution is suppressed — effectively off.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:630"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:644"
   },
   "Execution or project workspace used for the task.": {
     "count": 1,
@@ -19752,22 +19827,22 @@
   "Experimental": {
     "count": 12,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3780"
+    "first": "src/components/AgentConfigForm.tsx:3781"
   },
   "Experimental features": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:288"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:289"
   },
   "Experimental features may break at any time.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:271"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:272"
   },
   "Experimental File Viewer": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:412"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:413"
   },
   "Experimental Rust runner with a Codex provider": {
     "count": 2,
@@ -20037,7 +20112,7 @@
   "Extra args (comma-separated)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1990"
+    "first": "src/components/AgentConfigForm.tsx:1991"
   },
   "Extra CLI arguments for local adapters, comma-separated.": {
     "count": 1,
@@ -20327,7 +20402,7 @@
   "Failed to load adapter models.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1845"
+    "first": "src/components/AgentConfigForm.tsx:1846"
   },
   "Failed to load app state": {
     "count": 1,
@@ -20879,6 +20954,11 @@
     "kind": "jsx",
     "first": "src/pages/tools/SmokeLabTab.tsx:317"
   },
+  "Fallback": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:31"
+  },
   "Fallback if the ACP agent asks for input outside an interactive session.": {
     "count": 6,
     "kind": "attr",
@@ -21422,7 +21502,7 @@
   "First task: propose with a plan document": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:423"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:424"
   },
   "First-class system notice treatment": {
     "count": 1,
@@ -21817,7 +21897,7 @@
   "Free": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1791"
+    "first": "src/components/AgentConfigForm.tsx:1792"
   },
   "Free models only. Add credits or subscribe to unlock the rest.": {
     "count": 1,
@@ -22297,7 +22377,7 @@
   "GitHub identity history": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:3535"
+    "first": "src/pages/AgentDetail.tsx:3539"
   },
   "GitHub installation access is unavailable": {
     "count": 1,
@@ -22477,7 +22557,7 @@
   "Goals Sidebar Link": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:707"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:721"
   },
   "Google": {
     "count": 2,
@@ -22719,10 +22799,15 @@
     "kind": "jsx",
     "first": "src/pages/Costs.production.tsx:846"
   },
+  "Harness": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:344"
+  },
   "Harness / Runtime": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:1767"
+    "first": "src/pages/AgentDetail.tsx:1771"
   },
   "Has access — tick to load its tools into this agent's context.": {
     "count": 1,
@@ -22837,7 +22922,7 @@
   "Heartbeat on interval": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2038"
+    "first": "src/components/AgentConfigForm.tsx:2039"
   },
   "Heartbeat pending...": {
     "count": 1,
@@ -23042,7 +23127,7 @@
   "Hide the local environment and run all agents in the platform-managed environment.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:563"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:577"
   },
   "Hide the username segment in home-directory paths and similar operator-visible log output. Standalone username mentions outside of paths are not yet masked in the live transcript view. This is off by default.": {
     "count": 1,
@@ -23087,7 +23172,7 @@
   "Hint: ": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3703"
+    "first": "src/components/AgentConfigForm.tsx:3704"
   },
   "Hire Agent": {
     "count": 1,
@@ -23952,7 +24037,7 @@
   "In `pnpm dev:once`, wait for all queued and running local agent runs to finish, then restart the server automatically when backend changes or migrations make the current boot stale.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:550"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:564"
   },
   "In Azure, create an Azure Bot. Choose Single Tenant, use that Application ID, set its messaging endpoint to the Paperclip URL below, and add the Microsoft Teams channel.": {
     "count": 1,
@@ -24617,17 +24702,17 @@
   "Instruct agents to write user interactions (plan confirmations, questions, suggested tasks, checkbox prompts) in ASD-STE100 Simplified Technical English, with brief context on what information the decision needs and what happens for each choice.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:462"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:463"
   },
   "Instruction file editor": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/AgentDetail.tsx:3011"
+    "first": "src/pages/AgentDetail.tsx:3015"
   },
   "Instruction file view": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/AgentDetail.tsx:2911"
+    "first": "src/pages/AgentDetail.tsx:2915"
   },
   "Instructions": {
     "count": 9,
@@ -24692,7 +24777,7 @@
   "Internal tools for developing, testing, and debugging Paperclip.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:543"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:557"
   },
   "Interpretation outcomes": {
     "count": 1,
@@ -24727,7 +24812,7 @@
   "Interrupt grace period (sec)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2102"
+    "first": "src/components/AgentConfigForm.tsx:2103"
   },
   "Interrupt requested": {
     "count": 4,
@@ -25594,6 +25679,11 @@
     "kind": "jsx",
     "first": "src/pages/SystemNoticeUxLab.tsx:396"
   },
+  "Keep several execution setups for this agent and switch between them. Each profile keeps its own task sessions.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:207"
+  },
   "Keep tasks": {
     "count": 1,
     "kind": "dyn",
@@ -26207,7 +26297,7 @@
   "Legacy": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:686"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:700"
   },
   "Legacy `services` arrays still work, but `commands` supports both services and jobs.": {
     "count": 2,
@@ -26253,6 +26343,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/fixtures/issueChatUxFixtures.ts:283"
+  },
+  "Let one agent keep several execution setups (harness, model, AI connection, environment) and switch between them from its settings page. Each profile keeps its own task sessions, so switching back resumes earlier conversations.": {
+    "count": 2,
+    "kind": "attr",
+    "first": "src/pages/InstanceExperimentalSettings.tsx:539"
   },
   "Let Paperclip check": {
     "count": 2,
@@ -26302,7 +26397,7 @@
   "Lets this agent install, import, create, and scan organization skills without creating agents.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:2152"
+    "first": "src/pages/AgentDetail.tsx:2156"
   },
   "Level": {
     "count": 1,
@@ -26622,7 +26717,7 @@
   "Live OpenCode model discovery only runs for Local environments. Using the curated list and manual entry for ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1851"
+    "first": "src/components/AgentConfigForm.tsx:1852"
   },
   "Live quotas": {
     "count": 2,
@@ -27462,17 +27557,17 @@
   "Login cancelled": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2314"
+    "first": "src/components/AgentConfigForm.tsx:2315"
   },
   "Login failed": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2315"
+    "first": "src/components/AgentConfigForm.tsx:2316"
   },
   "Login timed out": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2312"
+    "first": "src/components/AgentConfigForm.tsx:2313"
   },
   "Login to Claude Code": {
     "count": 2,
@@ -27672,32 +27767,32 @@
   "M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3952"
+    "first": "src/components/AgentConfigForm.tsx:3953"
   },
   "M21 12a9 9 0 0 1-15.28 6.36L3 16": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3970"
+    "first": "src/components/AgentConfigForm.tsx:3971"
   },
   "M21 3v5h-5": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3969"
+    "first": "src/components/AgentConfigForm.tsx:3970"
   },
   "M3 12a9 9 0 0 1 15.28-6.36L21 8": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3968"
+    "first": "src/components/AgentConfigForm.tsx:3969"
   },
   "M3 3v5h5": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3953"
+    "first": "src/components/AgentConfigForm.tsx:3954"
   },
   "M8 16H3v5": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3971"
+    "first": "src/components/AgentConfigForm.tsx:3972"
   },
   "M9 18c-4.51 2-5-2-7-2": {
     "count": 1,
@@ -27757,7 +27852,7 @@
   "Manage": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:1792"
+    "first": "src/pages/AgentDetail.tsx:1796"
   },
   "Manage access": {
     "count": 1,
@@ -27867,7 +27962,7 @@
   "Managed Environment Only": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:562"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:576"
   },
   "Managed remote Cursor agent": {
     "count": 2,
@@ -28082,7 +28177,7 @@
   "Max concurrent runs": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2140"
+    "first": "src/components/AgentConfigForm.tsx:2141"
   },
   "Max duration": {
     "count": 2,
@@ -28257,7 +28352,7 @@
   "Memory connectors": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:436"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:437"
   },
   "Memory lookup failed": {
     "count": 1,
@@ -28545,7 +28640,7 @@
     "first": "src/pages/AgentDetail.production.tsx:2668"
   },
   "Model": {
-    "count": 9,
+    "count": 10,
     "kind": "dyn",
     "first": "src/adapters/paperclip-runner/index.ts:692"
   },
@@ -30207,7 +30302,7 @@
   "No capability summary has been added.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:1785"
+    "first": "src/pages/AgentDetail.tsx:1789"
   },
   "No cases match these filters.": {
     "count": 2,
@@ -30552,7 +30647,7 @@
   "No GitHub operation recorded": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:3549"
+    "first": "src/pages/AgentDetail.tsx:3553"
   },
   "No goals yet.": {
     "count": 2,
@@ -30787,12 +30882,12 @@
   "No model detected. Select or enter one manually.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:1838"
+    "first": "src/components/AgentConfigForm.tsx:1839"
   },
   "No models found.": {
     "count": 5,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:4101"
+    "first": "src/components/AgentConfigForm.tsx:4102"
   },
   "No monthly cap configured": {
     "count": 2,
@@ -31004,6 +31099,11 @@
     "kind": "dyn",
     "first": "src/components/RunnerInspector.tsx:221"
   },
+  "No profile captured yet. Save the current runtime first, then add more profiles for other harnesses or models.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:222"
+  },
   "No project": {
     "count": 33,
     "kind": "attr",
@@ -31137,7 +31237,7 @@
   "No responsible person": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:3541"
+    "first": "src/pages/AgentDetail.tsx:3545"
   },
   "No responsible selected": {
     "count": 1,
@@ -31392,7 +31492,7 @@
   "No session": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:1773"
+    "first": "src/pages/AgentDetail.tsx:1777"
   },
   "No sheets are connected yet.": {
     "count": 1,
@@ -31417,7 +31517,7 @@
   "No skills enabled.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:1800"
+    "first": "src/pages/AgentDetail.tsx:1804"
   },
   "No skills found": {
     "count": 1,
@@ -32579,6 +32679,11 @@
     "kind": "dyn",
     "first": "src/lib/workspace-access-state.ts:193"
   },
+  "Only the name and tier change; the saved runtime stays as it is.": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:286"
+  },
   "Only the people you choose.": {
     "count": 2,
     "kind": "obj",
@@ -33132,17 +33237,17 @@
   "Open the authentication page": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2825"
+    "first": "src/components/AgentConfigForm.tsx:2826"
   },
   "Open the authorization page": {
     "count": 4,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:3599"
+    "first": "src/components/AgentConfigForm.tsx:3600"
   },
   "Open the authorization page, then enter the browser code it shows.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3582"
+    "first": "src/components/AgentConfigForm.tsx:3583"
   },
   "Open the bot's private chat.": {
     "count": 1,
@@ -33277,7 +33382,7 @@
   "OpenCode Go · subscription": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1779"
+    "first": "src/components/AgentConfigForm.tsx:1780"
   },
   "OpenCode models are still loading. Please wait and try again.": {
     "count": 1,
@@ -33312,7 +33417,7 @@
   "OpenCode Zen · pay-as-you-go": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1781"
+    "first": "src/components/AgentConfigForm.tsx:1782"
   },
   "Opened": {
     "count": 1,
@@ -33427,7 +33532,7 @@
   "Opt into features that are still being evaluated before they become default behavior.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:259"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:260"
   },
   "Option": {
     "count": 1,
@@ -33502,7 +33607,7 @@
   "Optional initial setup prompt for the first run": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1921"
+    "first": "src/components/AgentConfigForm.tsx:1922"
   },
   "Optional JSON merged into remote adapter request payloads before Paperclip adds its standard wake and workspace fields.": {
     "count": 1,
@@ -33597,7 +33702,7 @@
   "Optional product features that are still being evaluated.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:291"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:292"
   },
   "Optional project or database name": {
     "count": 1,
@@ -34642,7 +34747,7 @@
   "Paperclip Developer Mode": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:540"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:554"
   },
   "Paperclip does not copy Vercel’s setup forms. Finish connector setup there, then paste its UID below.": {
     "count": 1,
@@ -36467,7 +36572,7 @@
   "Preparing...": {
     "count": 4,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2778"
+    "first": "src/components/AgentConfigForm.tsx:2779"
   },
   "Preparing…": {
     "count": 1,
@@ -36625,7 +36730,7 @@
     "first": "src/pages/apps/gateways/panels/TokensPanel.tsx:376"
   },
   "Primary": {
-    "count": 3,
+    "count": 4,
     "kind": "dyn",
     "first": "src/components/NewIssueDialog.tsx:1937"
   },
@@ -36785,7 +36890,7 @@
     "first": "src/components/RunnerInspector.tsx:625"
   },
   "Profile": {
-    "count": 8,
+    "count": 9,
     "kind": "attr",
     "first": "src/components/CompanySettingsSidebar.production.tsx:107"
   },
@@ -36828,6 +36933,11 @@
     "count": 4,
     "kind": "obj",
     "first": "src/pages/tools/profiles/ProfileDetail.tsx:119"
+  },
+  "Profile name": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:292"
   },
   "Profile not found": {
     "count": 2,
@@ -38002,7 +38112,7 @@
   "Raw tracing is on for future runs. Paperclip keeps at most 64 MiB per run and automatically deletes it after 24 hours.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2223"
+    "first": "src/components/AgentConfigForm.tsx:2224"
   },
   "Raw tracing on": {
     "count": 1,
@@ -38032,7 +38142,7 @@
   "Re-detect from config": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3955"
+    "first": "src/components/AgentConfigForm.tsx:3956"
   },
   "Re-install latest": {
     "count": 1,
@@ -39227,7 +39337,7 @@
   "Refresh models": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3973"
+    "first": "src/components/AgentConfigForm.tsx:3974"
   },
   "Refresh now": {
     "count": 1,
@@ -39297,7 +39407,7 @@
   "Refreshing...": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3973"
+    "first": "src/components/AgentConfigForm.tsx:3974"
   },
   "Refreshing…": {
     "count": 2,
@@ -39885,7 +39995,7 @@
     "first": "src/components/issue-properties/IssueProperties.tsx:1239"
   },
   "Rename": {
-    "count": 4,
+    "count": 5,
     "kind": "jsx",
     "first": "src/components/SidebarRecentTasks.tsx:286"
   },
@@ -39908,6 +40018,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/CompanyImport.tsx:1985"
+  },
+  "Rename runtime profile": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:283"
   },
   "Rename task": {
     "count": 1,
@@ -41022,7 +41137,7 @@
   "Restore the Goals item in the main sidebar while the goals surface is being evaluated.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:708"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:722"
   },
   "Restore this revision": {
     "count": 4,
@@ -41042,7 +41157,7 @@
   "Restores the previous task detail page: the page-level header with inline description editing, the plain comment thread, and the fixed Properties sidebar. Chat-only features — streaming activity folding, inline plan and question cards, the three-mode composer — are unavailable in the classic view.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:694"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:708"
   },
   "Restoring the isolated database clone for this workspace. This runs once before the first start.": {
     "count": 2,
@@ -41093,6 +41208,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/InviteUxLab.tsx:883"
+  },
+  "Resumable sessions": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:352"
   },
   "Resume": {
     "count": 6,
@@ -41377,7 +41497,7 @@
   "Retry was skipped.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/api/agents.ts:297"
+    "first": "src/api/agents.ts:339"
   },
   "Retry, or re-export the package without large attachments to shrink it.": {
     "count": 1,
@@ -42407,7 +42527,7 @@
   "Run heartbeat every": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2045"
+    "first": "src/components/AgentConfigForm.tsx:2046"
   },
   "Run ID": {
     "count": 2,
@@ -42552,7 +42672,7 @@
   "Run tasks in this worktree": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:593"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:607"
   },
   "Run template": {
     "count": 1,
@@ -42737,7 +42857,7 @@
   "Running tasks created after": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:616"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:630"
   },
   "Running tests": {
     "count": 2,
@@ -42949,6 +43069,36 @@
     "kind": "dyn",
     "first": "src/components/TaskChatThread.tsx:2361"
   },
+  "Runtime profile activated": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:149"
+  },
+  "Runtime profile deleted": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:136"
+  },
+  "Runtime profile saved": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:111"
+  },
+  "Runtime profile updated": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:124"
+  },
+  "Runtime profiles": {
+    "count": 3,
+    "kind": "attr",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:201"
+  },
+  "Runtime Profiles": {
+    "count": 2,
+    "kind": "attr",
+    "first": "src/pages/InstanceExperimentalSettings.tsx:538"
+  },
   "Runtime provision": {
     "count": 1,
     "kind": "dyn",
@@ -43095,7 +43245,7 @@
     "first": "src/pages/apps/chat/GitHubChatSetup.tsx:823"
   },
   "Save changes": {
-    "count": 13,
+    "count": 14,
     "kind": "dyn",
     "first": "src/components/ProjectRepositories.tsx:39"
   },
@@ -43113,6 +43263,16 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/PluginSettings.tsx:1114"
+  },
+  "Save current as profile": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:211"
+  },
+  "Save current runtime as a profile": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:283"
   },
   "Save details": {
     "count": 1,
@@ -43180,9 +43340,9 @@
     "first": "src/pages/InstanceAccess.tsx:235"
   },
   "Save profile": {
-    "count": 2,
+    "count": 3,
     "kind": "dyn",
-    "first": "src/pages/ProfileSettings.tsx:268"
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:325"
   },
   "Save queued message": {
     "count": 2,
@@ -43367,7 +43527,7 @@
   "Saving changes…": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:1508"
+    "first": "src/pages/AgentDetail.tsx:1512"
   },
   "Saving creates rev ": {
     "count": 1,
@@ -43832,12 +43992,12 @@
   "Search models...": {
     "count": 3,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3924"
+    "first": "src/components/AgentConfigForm.tsx:3925"
   },
   "Search models... (type to create)": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3924"
+    "first": "src/components/AgentConfigForm.tsx:3925"
   },
   "Search operations, fields, and events": {
     "count": 2,
@@ -44767,12 +44927,12 @@
   "Select model": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3915"
+    "first": "src/components/AgentConfigForm.tsx:3916"
   },
   "Select model (required)": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3915"
+    "first": "src/components/AgentConfigForm.tsx:3916"
   },
   "Select organization": {
     "count": 2,
@@ -45192,7 +45352,7 @@
   "Server Info Debug View": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:645"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:659"
   },
   "server-redacted by default": {
     "count": 1,
@@ -45278,6 +45438,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/features/connections/remote-mcp/providers.ts:47"
+  },
+  "Sessions parked": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:354"
   },
   "Set": {
     "count": 1,
@@ -45802,12 +45967,12 @@
   "Show a \"Server\" section in the account drawer with the current server restart time and running commit.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:646"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:660"
   },
   "Show accepted-plan decomposition history on task detail pages. Intended for debugging and validating subtask creation behavior while the presentation is still being refined.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:670"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:684"
   },
   "Show advanced checkout settings": {
     "count": 1,
@@ -45837,12 +46002,12 @@
   "Show environment management in company settings and allow project and agent environment assignment controls.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:380"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:381"
   },
   "Show execution workspace controls in project configuration and allow isolated workspace behavior for new and existing task runs.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:402"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:403"
   },
   "Show fewer files": {
     "count": 1,
@@ -45882,7 +46047,7 @@
   "Show internal Paperclip maintainer tools and observability links, including Honeycomb trace queries on run pages.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:576"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:590"
   },
   "Show keyboard shortcuts": {
     "count": 2,
@@ -45922,7 +46087,7 @@
   "Show Paperclip-managed built-in agent surfaces, including built-in roster badges, the Built-in agents tab, and built-in agent setup controls.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:321"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:322"
   },
   "Show private key": {
     "count": 1,
@@ -45982,12 +46147,12 @@
   "Show Summarizer-generated status slots on project and workspace pages, with on-demand refresh and revision history. Existing summary data is kept when this is disabled.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:505"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:506"
   },
   "Show task detail controls for browsing and previewing workspace files relative to a task.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:413"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:414"
   },
   "Show the active Paperclip task status": {
     "count": 2,
@@ -45997,7 +46162,7 @@
   "Show the Decisions item in the main sidebar — the attention home that surfaces the tasks awaiting your input — while the surface is still being evaluated.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:369"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:370"
   },
   "Show Today, Yesterday, and Earlier rules on newest-first task lists.": {
     "count": 1,
@@ -46122,7 +46287,7 @@
   "Sign in": {
     "count": 7,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:2760"
+    "first": "src/components/AgentConfigForm.tsx:2761"
   },
   "Sign In": {
     "count": 2,
@@ -46197,12 +46362,12 @@
   "Sign in to replace": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:3531"
+    "first": "src/components/AgentConfigForm.tsx:3532"
   },
   "Sign in to the environment": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2425"
+    "first": "src/components/AgentConfigForm.tsx:2426"
   },
   "Sign in with Airtable": {
     "count": 1,
@@ -46522,7 +46687,7 @@
   "Simplified English Interactions": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:461"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:462"
   },
   "Single Tenant": {
     "count": 1,
@@ -47002,7 +47167,7 @@
   "Smoke Lab": {
     "count": 6,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:658"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:672"
   },
   "Smoke Lab is turned off": {
     "count": 1,
@@ -47288,6 +47453,11 @@
     "count": 4,
     "kind": "obj",
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:306"
+  },
+  "Specialist": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:32"
   },
   "Specify path manually": {
     "count": 1,
@@ -47762,12 +47932,12 @@
   "Status Cards": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:474"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:475"
   },
   "Status Cards requires Summaries. Disabling Summaries also disables Status Cards.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:506"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:507"
   },
   "Status System": {
     "count": 2,
@@ -48087,7 +48257,7 @@
   "Stores exact provider traffic for every future run until disabled. Traces may contain sensitive prompts and tool arguments, are administrator-only, and expire after 24 hours.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2214"
+    "first": "src/components/AgentConfigForm.tsx:2215"
   },
   "Stranded Task": {
     "count": 1,
@@ -48127,7 +48297,7 @@
   "Streamlined UI": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:492"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:493"
   },
   "Strict host key checking": {
     "count": 2,
@@ -48267,7 +48437,7 @@
   "Submit": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3636"
+    "first": "src/components/AgentConfigForm.tsx:3637"
   },
   "Submit agent details": {
     "count": 2,
@@ -48507,7 +48677,7 @@
   "Summaries": {
     "count": 1,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:504"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:505"
   },
   "Summaries are generated by Paperclip's built-in Summarizer agent. Configure its adapter and model before requesting this summary.": {
     "count": 1,
@@ -48672,7 +48842,7 @@
   "Switching takes effect immediately. No task data is affected.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:695"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:709"
   },
   "Symbols Nerd Font Mono": {
     "count": 1,
@@ -48767,7 +48937,7 @@
   "Talk to each agent in one ongoing conversation. Clarify goals and create tasks for execution.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:298"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:299"
   },
   "Tap Start in Telegram to discover your account; the welcome does not start an agent run. Link the account privately in Access, then return and send the test message.": {
     "count": 1,
@@ -48957,7 +49127,7 @@
   "Task Plan Decomposition": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:669"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:683"
   },
   "Task reached a terminal state.": {
     "count": 2,
@@ -49564,6 +49734,16 @@
     "kind": "dyn",
     "first": "src/components/agent-config-primitives.tsx:26"
   },
+  "The agent will run on this profile's harness, model, AI connection and environment. Sessions of the current profile stay parked; sessions saved under the target profile become resumable again.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:337"
+  },
+  "The agent's current harness, model, AI connection and default environment are captured. You can switch back to this setup later.": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:287"
+  },
   "The answers could not be submitted.": {
     "count": 1,
     "kind": "dyn",
@@ -49947,12 +50127,12 @@
   "The login did not finish. Start it again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2722"
+    "first": "src/components/AgentConfigForm.tsx:2723"
   },
   "The login did not finish. Start the login again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2892"
+    "first": "src/components/AgentConfigForm.tsx:2893"
   },
   "The login did not return a saved connection. Try again.": {
     "count": 1,
@@ -49962,17 +50142,17 @@
   "The login timed out. Start it again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2719"
+    "first": "src/components/AgentConfigForm.tsx:2720"
   },
   "The login timed out. Start the login again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2909"
+    "first": "src/components/AgentConfigForm.tsx:2910"
   },
   "The login was cancelled.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AgentConfigForm.tsx:2721"
+    "first": "src/components/AgentConfigForm.tsx:2722"
   },
   "The long-form run page with the `Nice | Raw` toggle and the most inspectable transcript view.": {
     "count": 2,
@@ -50267,7 +50447,7 @@
   "The saved Claude login is bound to this agent now.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3549"
+    "first": "src/components/AgentConfigForm.tsx:3550"
   },
   "The saved connection no longer exists or is not available to this organization.": {
     "count": 1,
@@ -50288,6 +50468,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/SkillStudio.tsx:2362"
+  },
+  "The saved runtime and every task session parked under this profile are removed. The agent's current runtime is not affected.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:394"
   },
   "The scheduled retry did not run — a retry or a decision is needed": {
     "count": 1,
@@ -50388,6 +50573,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/IssueDetail.tsx:5088"
+  },
+  "The tier is a label for cost and routing intent. It does not change behavior yet.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:315"
   },
   "The time follows this zone, including daylight saving changes.": {
     "count": 1,
@@ -50522,12 +50712,12 @@
   "These features are going to be removed.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:689"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:703"
   },
   "These features are opt-in and come with no compatibility guarantees. They may change, break, or be removed without notice. Avoid relying on them for critical or production workflows.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:272"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:273"
   },
   "These fields come from ": {
     "count": 1,
@@ -50562,7 +50752,7 @@
   "Thinking effort": {
     "count": 8,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:4128"
+    "first": "src/components/AgentConfigForm.tsx:4129"
   },
   "Thinking through the plan...": {
     "count": 1,
@@ -50704,10 +50894,15 @@
     "kind": "jsx",
     "first": "src/components/ai-connections/AiConnectionManagement.tsx:15"
   },
+  "This agent still has active runs": {
+    "count": 2,
+    "kind": "obj",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:156"
+  },
   "This agent still has active runs. Switching the harness cancels them and resets every task session. Cancel the runs and switch now?": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:2015"
+    "first": "src/pages/AgentDetail.tsx:2019"
   },
   "This agent uses this GitHub account for everyone’s work, instead of the person giving instructions.": {
     "count": 2,
@@ -50847,7 +51042,7 @@
   "This connection is not encrypted. The login code travels in clear text on this network. Continue only on a network you trust.": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3452"
+    "first": "src/components/AgentConfigForm.tsx:3453"
   },
   "This connector is unavailable on this instance.": {
     "count": 1,
@@ -51067,7 +51262,7 @@
   "This instruction file is empty.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/AgentDetail.tsx:2973"
+    "first": "src/pages/AgentDetail.tsx:2977"
   },
   "This invite has already been used.": {
     "count": 1,
@@ -51117,7 +51312,7 @@
   "This is an isolated git-worktree preview instance. Turn this on to let the scheduler execute runs here. Only tasks created after enabling will run automatically — copied/pre-existing tasks stay parked. Toggling off and on resets the cutoff.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:596"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:610"
   },
   "This is exactly the tool set Paperclip will accept for": {
     "count": 1,
@@ -51227,7 +51422,7 @@
   "This key cannot use the selected model on its current OpenCode plans. Pick a covered model, add credits, or subscribe.": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1869"
+    "first": "src/components/AgentConfigForm.tsx:1870"
   },
   "This link could not be confirmed. It may have expired or been revoked.": {
     "count": 1,
@@ -51652,12 +51847,12 @@
   "This setting is missing its activation cutoff, so no tasks run automatically.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:634"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:648"
   },
   "This setting was armed in a different instance and copied here, so no tasks run automatically.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:633"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:647"
   },
   "This setup can’t be resumed": {
     "count": 1,
@@ -52084,6 +52279,11 @@
     "kind": "shared",
     "first": "../packages/shared/src/app-definitions/ticktick.json:0"
   },
+  "Tier": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/agents/RuntimeProfilesPanel.tsx:302"
+  },
   "tier ": {
     "count": 1,
     "kind": "jsx",
@@ -52142,7 +52342,7 @@
   "Timeout (sec)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2088"
+    "first": "src/components/AgentConfigForm.tsx:2089"
   },
   "Timeout (seconds)": {
     "count": 2,
@@ -52297,57 +52497,57 @@
   "Toggle agent chat experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:305"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:306"
   },
   "Toggle beta skills experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:316"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:317"
   },
   "Toggle built-in agents experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:327"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:328"
   },
   "Toggle cases experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:339"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:340"
   },
   "Toggle chat connectors experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:351"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:352"
   },
   "Toggle classic task interface experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:703"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:717"
   },
   "Toggle conference room chat experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:363"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:364"
   },
   "Toggle decisions experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:375"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:376"
   },
   "Toggle environments experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:386"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:387"
   },
   "Toggle experimental file viewer setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:419"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:420"
   },
   "Toggle external objects experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:397"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:398"
   },
   "Toggle failed": {
     "count": 2,
@@ -52357,7 +52557,7 @@
   "Toggle first task plan proposal experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:432"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:433"
   },
   "Toggle gateway": {
     "count": 2,
@@ -52367,27 +52567,27 @@
   "Toggle goals sidebar link experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:716"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:730"
   },
   "Toggle guarded dev-server auto-restart": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:558"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:572"
   },
   "Toggle isolated workspaces by default experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:532"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:533"
   },
   "Toggle isolated workspaces experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:408"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:409"
   },
   "Toggle it off and back on to arm execution for tasks created here.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:634"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:648"
   },
   "Toggle keyboard shortcuts": {
     "count": 2,
@@ -52397,12 +52597,12 @@
   "Toggle managed environment only experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:571"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:585"
   },
   "Toggle memory connectors experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:444"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:445"
   },
   "Toggle organization membership for this user. New access defaults to an active operator membership.": {
     "count": 1,
@@ -52417,22 +52617,27 @@
   "Toggle Paperclip developer mode experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:584"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:598"
   },
   "Toggle Paperclip Runner experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:457"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:458"
   },
   "Toggle Properties Panel": {
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/DesignGuide.tsx:1968"
   },
+  "Toggle runtime profiles experimental setting": {
+    "count": 1,
+    "kind": "dyn",
+    "first": "src/pages/InstanceExperimentalSettings.tsx:547"
+  },
   "Toggle server info debug view experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:654"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:668"
   },
   "Toggle side panel": {
     "count": 1,
@@ -52452,32 +52657,32 @@
   "Toggle simplified english interactions experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:470"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:471"
   },
   "Toggle smoke lab experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:665"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:679"
   },
   "Toggle status cards experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:488"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:489"
   },
   "Toggle Streamlined UI experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:500"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:501"
   },
   "Toggle summaries experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:518"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:519"
   },
   "Toggle task plan decomposition panel experimental setting": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:678"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:692"
   },
   "Toggle the app appearance.": {
     "count": 1,
@@ -52497,7 +52702,7 @@
   "Toggle worktree run execution setting": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:609"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:623"
   },
   "Token": {
     "count": 1,
@@ -52862,7 +53067,7 @@
   "Treat a project that has no execution workspace policy of its own as if it selected isolated workspaces, so its tasks get a per-task worktree instead of sharing the project checkout. A project that carries its own policy keeps it.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:524"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:525"
   },
   "Treat the token like a password. Anyone holding it can call the tools this gateway allows. Revoke it if it leaks.": {
     "count": 1,
@@ -53142,7 +53347,7 @@
   "Turning Cases off hides the tab and blocks the case API; existing case data is kept.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:333"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:334"
   },
   "Turning it off stops new automatic adds only — decisions already here stay, and you can still add or remove decisions by hand.": {
     "count": 1,
@@ -53152,22 +53357,22 @@
   "Turning this off hides chat setup, channels, and connected-task controls. Existing chat connections keep running. GitHub and other tool connectors stay available.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:345"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:346"
   },
   "Turning this off hides setup for these connectors. Existing connections keep running.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:438"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:439"
   },
   "Turning this off preserves conversations and lets active runs finish, but prevents new messages.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:299"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:300"
   },
   "Turning this off restores the legacy shell and navigation. Task and page data are unchanged.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:494"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:495"
   },
   "Two-column key/value block with mono values. Lives inside ": {
     "count": 1,
@@ -53675,7 +53880,7 @@
     "first": "src/pages/Agents.production.tsx:150"
   },
   "Unknown error": {
-    "count": 11,
+    "count": 15,
     "kind": "dyn",
     "first": "src/components/ExecutionWorkspaceCloseDialog.tsx:72"
   },
@@ -54477,7 +54682,7 @@
   "Use Isolated Workspaces By Default": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:523"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:524"
   },
   "Use lowercase letters, numbers and hyphens.": {
     "count": 1,
@@ -54487,7 +54692,7 @@
   "Use manual model": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:4064"
+    "first": "src/components/AgentConfigForm.tsx:4065"
   },
   "Use Paperclip instead": {
     "count": 1,
@@ -54507,7 +54712,7 @@
   "Use saved login": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3519"
+    "first": "src/components/AgentConfigForm.tsx:3520"
   },
   "Use saved subscription": {
     "count": 1,
@@ -54582,7 +54787,7 @@
   "Use the simplified main sidebar, shared Tasks and Inbox presentation, focused task detail layout, and contextual navigation across Agents, Routines, Skills, and Settings.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:493"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:494"
   },
   "Use the smaller implementation path?": {
     "count": 1,
@@ -54842,7 +55047,7 @@
   "Uses this agent's saved OpenCode key to label and filter the model list by plan.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:1865"
+    "first": "src/components/AgentConfigForm.tsx:1866"
   },
   "Using saved key": {
     "count": 1,
@@ -55727,7 +55932,7 @@
   "Wake on demand": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:2119"
+    "first": "src/components/AgentConfigForm.tsx:2120"
   },
   "Want to set more than one containment boundary?": {
     "count": 1,
@@ -56287,7 +56492,7 @@
   "When the user's first request is a single task, the chief of staff writes a short plan document and a checkbox card instead of a one-card confirmation. Applies to organizations created after the toggle is flipped.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/InstanceExperimentalSettings.tsx:424"
+    "first": "src/pages/InstanceExperimentalSettings.tsx:425"
   },
   "When to decide": {
     "count": 3,
@@ -56702,7 +56907,7 @@
   "Working directory (deprecated)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:1748"
+    "first": "src/components/AgentConfigForm.tsx:1749"
   },
   "Working on a response...": {
     "count": 1,
@@ -57322,7 +57527,7 @@
   "You have a saved Claude login. Use it to bind this agent, or log in again to replace the stored token.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AgentConfigForm.tsx:3540"
+    "first": "src/components/AgentConfigForm.tsx:3541"
   },
   "You have edited this skill after installing. Updates from the catalog will overwrite your changes.": {
     "count": 2,
@@ -57337,7 +57542,7 @@
   "You have unsaved changes.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/AgentDetail.tsx:1508"
+    "first": "src/pages/AgentDetail.tsx:1512"
   },
   "You haven't edited this, so Paperclip will replace it with the newer shipped version. Nothing you customized is affected, and your adapter credentials and settings are not touched.": {
     "count": 1,

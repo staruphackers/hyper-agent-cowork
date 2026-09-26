@@ -208,6 +208,7 @@ export function InstanceExperimentalSettings() {
   const enableIsolatedWorkspaces = experimentalQuery.data?.enableIsolatedWorkspaces === true;
   const enableIsolatedWorkspacesByDefault =
     experimentalQuery.data?.enableIsolatedWorkspacesByDefault === true;
+  const enableRuntimeProfiles = experimentalQuery.data?.enableRuntimeProfiles !== false;
   // Streamlined left navigation is now the standard sidebar (PAP-12472); the
   // experimental opt-out was retired, so it no longer surfaces a toggle here.
   const enableStreamlinedUi = experimentalQuery.data?.enableStreamlinedUi !== false;
@@ -532,6 +533,19 @@ export function InstanceExperimentalSettings() {
             ariaLabel="Toggle isolated workspaces by default experimental setting"
           />
         )}
+
+        <ExperimentalToggleCard
+          title="Runtime Profiles"
+          description="Let one agent keep several execution setups (harness, model, AI connection, environment) and switch between them from its settings page. Each profile keeps its own task sessions, so switching back resumes earlier conversations."
+          checked={enableRuntimeProfiles}
+          onCheckedChange={(checked) =>
+            toggleMutation.mutate({ enableRuntimeProfiles: checked })
+          }
+          disabled={toggleMutation.isPending}
+          settingKey="enableRuntimeProfiles"
+          managed={managedKeys.enableRuntimeProfiles}
+          ariaLabel="Toggle runtime profiles experimental setting"
+        />
       </section>
 
       {showDeveloperSection ? (

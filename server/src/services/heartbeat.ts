@@ -34,6 +34,7 @@ import {
 } from "./adapter-execution-control.js";
 import { executionFailureRetryCount } from "./execution-recovery-attempt.js";
 import { availableRunSlots, readInstanceMaxConcurrentRuns } from "./instance-run-cap.js";
+import { runtimeProfileKeyFor } from "./agent-runtime-profiles.js";
 import { buildHeartbeatRunStatusLiveEventPayload } from "./heartbeat-run-status-payload.js";
 export { buildHeartbeatRunStatusLiveEventPayload } from "./heartbeat-run-status-payload.js";
 import { buildExecutionContinuation } from "./execution-continuation.js";
@@ -11038,6 +11039,9 @@ export function heartbeatService(
     agentId: string,
     adapterType: string,
     taskKey: string,
+    // Sessions are namespaced by the agent's active runtime profile ("" when
+    // the agent has none), so switching profiles parks and restores them.
+    runtimeProfileKey: string,
   ) {
     return db
       .select()
@@ -11047,6 +11051,7 @@ export function heartbeatService(
           eq(agentTaskSessions.companyId, companyId),
           eq(agentTaskSessions.agentId, agentId),
           eq(agentTaskSessions.adapterType, adapterType),
+          eq(agentTaskSessions.runtimeProfileKey, runtimeProfileKey),
           eq(agentTaskSessions.taskKey, taskKey),
         ),
       )
@@ -12100,6 +12105,7 @@ export function heartbeatService(
         agent.id,
         agent.adapterType,
         taskKey,
+        runtimeProfileKeyFor(agent),
       );
       const parsedParams = normalizeSessionParams(
         codec.deserialize(existingTaskSession?.sessionParamsJson ?? null),
@@ -12149,6 +12155,7 @@ export function heartbeatService(
       input.agent.id,
       input.agent.adapterType,
       input.taskKey,
+      runtimeProfileKeyFor(input.agent),
     );
     const taskSessionParams = normalizeResumeParamsForAdapter(
       input.agent.adapterType,
@@ -12192,6 +12199,7 @@ export function heartbeatService(
           agent.id,
           agent.adapterType,
           resumeTaskKey,
+          runtimeProfileKeyFor(agent),
         )
       : null;
     const sessionCodec = getAdapterSessionCodec(agent.adapterType);
@@ -12545,6 +12553,7 @@ export function heartbeatService(
     companyId: string;
     agentId: string;
     adapterType: string;
+    runtimeProfileKey: string;
     taskKey: string;
     sessionParamsJson: Record<string, unknown> | null;
     sessionDisplayId: string | null;
@@ -12557,7 +12566,7 @@ export function heartbeatService(
         const [run] = input.lastRunId ? await tx.select().from(heartbeatRuns).where(eq(heartbeatRuns.id, input.lastRunId)) : [];
         if (run?.status === "cancelled" || run?.contextSnapshot?.conversationSessionGeneration !== issue.conversationSessionGeneration) return null;
       }
-    const existing = await tx.select().from(agentTaskSessions).where(and(eq(agentTaskSessions.companyId, input.companyId), eq(agentTaskSessions.agentId, input.agentId), eq(agentTaskSessions.adapterType, input.adapterType), eq(agentTaskSessions.taskKey, input.taskKey))).then((rows) => rows[0] ?? null);
+    const existing = await tx.select().from(agentTaskSessions).where(and(eq(agentTaskSessions.companyId, input.companyId), eq(agentTaskSessions.agentId, input.agentId), eq(agentTaskSessions.adapterType, input.adapterType), eq(agentTaskSessions.runtimeProfileKey, input.runtimeProfileKey), eq(agentTaskSessions.taskKey, input.taskKey))).then((rows) => rows[0] ?? null);
     if (existing) {
       return tx
         .update(agentTaskSessions)
@@ -12579,6 +12588,7 @@ export function heartbeatService(
         companyId: input.companyId,
         agentId: input.agentId,
         adapterType: input.adapterType,
+        runtimeProfileKey: input.runtimeProfileKey,
         taskKey: input.taskKey,
         sessionParamsJson: input.sessionParamsJson,
         sessionDisplayId: input.sessionDisplayId,
@@ -12596,6 +12606,8 @@ export function heartbeatService(
     opts?: {
       taskKey?: string | null;
       adapterType?: string | null;
+      /** Limit the reset to one runtime profile namespace; omit to clear every namespace. */
+      runtimeProfileKey?: string | null;
       expectedRunId?: string;
       includeIssueAliases?: boolean;
     },
@@ -12604,6 +12616,9 @@ export function heartbeatService(
       eq(agentTaskSessions.companyId, companyId),
       eq(agentTaskSessions.agentId, agentId),
     ];
+    if (typeof opts?.runtimeProfileKey === "string") {
+      conditions.push(eq(agentTaskSessions.runtimeProfileKey, opts.runtimeProfileKey));
+    }
     if (opts?.taskKey) {
       const exactTaskKey = eq(agentTaskSessions.taskKey, opts.taskKey);
       if (opts.includeIssueAliases) {
@@ -20574,6 +20589,7 @@ export function heartbeatService(
             agent.id,
             agent.adapterType,
             taskKey,
+            runtimeProfileKeyFor(agent),
           )
         : null;
       if (isConversation(issueContext)) {
@@ -24092,6 +24108,7 @@ export function heartbeatService(
                         companyId: agent.companyId,
                         agentId: agent.id,
                         adapterType: agent.adapterType,
+                        runtimeProfileKey: runtimeProfileKeyFor(agent),
                         taskKey,
                         sessionParamsJson: params,
                         sessionDisplayId: displayId,
@@ -25214,7 +25231,9 @@ export function heartbeatService(
           // session under the old harness.
           const agentNow = await getAgent(agent.id);
           const adapterSwitchedDuringRun =
-            Boolean(agentNow) && agentNow!.adapterType !== agent.adapterType;
+            Boolean(agentNow) &&
+            (agentNow!.adapterType !== agent.adapterType ||
+              runtimeProfileKeyFor(agentNow!) !== runtimeProfileKeyFor(agent));
           if (adapterSwitchedDuringRun) {
             logger.info(
               {
@@ -25247,6 +25266,7 @@ export function heartbeatService(
               await clearTaskSessions(agent.companyId, agent.id, {
                 taskKey,
                 adapterType: agent.adapterType,
+                runtimeProfileKey: runtimeProfileKeyFor(agent),
                 expectedRunId: finalizedRun.id,
               });
             } else {
@@ -25254,6 +25274,7 @@ export function heartbeatService(
                 companyId: agent.companyId,
                 agentId: agent.id,
                 adapterType: agent.adapterType,
+                runtimeProfileKey: runtimeProfileKeyFor(agent),
                 taskKey,
                 sessionParamsJson:
                   attachPaperclipSessionMetadataToSessionParams(
@@ -25583,6 +25604,7 @@ export function heartbeatService(
               companyId: agent.companyId,
               agentId: agent.id,
               adapterType: agent.adapterType,
+              runtimeProfileKey: runtimeProfileKeyFor(agent),
               taskKey,
               sessionParamsJson:
                 goalCheckpointSession.current?.params ??
@@ -29335,6 +29357,7 @@ export function heartbeatService(
           ? {
               taskKey,
               adapterType: agent.adapterType,
+              runtimeProfileKey: runtimeProfileKeyFor(agent),
               includeIssueAliases: true,
             }
           : undefined,

@@ -59,6 +59,10 @@ export const AGENT_ROLES = [
 ] as const;
 export type AgentRole = (typeof AGENT_ROLES)[number];
 
+/** Runtime profile tiers: a label for routing and cost intent, not a behavior switch in Phase 1. */
+export const AGENT_RUNTIME_PROFILE_TIERS = ["primary", "economy", "fallback", "specialist"] as const;
+export const AGENT_RUNTIME_PROFILE_MAX_PER_AGENT = 8;
+
 export const AGENT_ROLE_LABELS: Record<AgentRole, string> = {
   ceo: "CEO",
   cto: "CTO",

@@ -42,6 +42,9 @@ import {
   agentSkillSyncSchema,
   testAdapterEnvironmentSchema,
   probeOpenCodePlansSchema,
+  createAgentRuntimeProfileSchema,
+  updateAgentRuntimeProfileSchema,
+  activateAgentRuntimeProfileSchema,
   // Issue
   createIssueSchema,
   updateIssueSchema,
@@ -3540,6 +3543,73 @@ registry.registerPath({
   summary: "List agent task sessions",
   request: { params: z.object({ id: z.string() }) },
   responses: { 200: r.ok(), 401: r.unauthorized },
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/api/agents/{id}/runtime-profiles",
+  tags: ["agents"],
+  summary: "List agent runtime profiles",
+  description:
+    "Named snapshots of the agent's execution settings (harness, model, AI connection, default environment) plus the id of the one that mirrors the agent's current runtime.",
+  request: { params: z.object({ id: z.string() }) },
+  responses: { 200: r.ok(), 401: r.unauthorized, 404: r.notFound },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/agents/{id}/runtime-profiles",
+  tags: ["agents"],
+  summary: "Save the agent's current runtime as a profile",
+  request: {
+    params: z.object({ id: z.string() }),
+    body: jsonBody(createAgentRuntimeProfileSchema),
+  },
+  responses: { 201: r.ok(), 400: r.badRequest, 401: r.unauthorized, 404: r.notFound, 409: r.conflict, 422: r.unprocessable },
+});
+
+registry.registerPath({
+  method: "patch",
+  path: "/api/agents/{id}/runtime-profiles/{profileId}",
+  tags: ["agents"],
+  summary: "Rename, re-tier, enable or reorder a runtime profile",
+  request: {
+    params: z.object({ id: z.string(), profileId: z.string() }),
+    body: jsonBody(updateAgentRuntimeProfileSchema),
+  },
+  responses: { 200: r.ok(), 400: r.badRequest, 401: r.unauthorized, 404: r.notFound, 409: r.conflict },
+});
+
+registry.registerPath({
+  method: "delete",
+  path: "/api/agents/{id}/runtime-profiles/{profileId}",
+  tags: ["agents"],
+  summary: "Delete an inactive runtime profile",
+  request: { params: z.object({ id: z.string(), profileId: z.string() }) },
+  responses: { 204: r.ok(), 401: r.unauthorized, 404: r.notFound, 409: r.conflict },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/agents/{id}/runtime-profiles/{profileId}/preflight",
+  tags: ["agents"],
+  summary: "Describe what activating a runtime profile would affect",
+  request: { params: z.object({ id: z.string(), profileId: z.string() }) },
+  responses: { 200: r.ok(), 401: r.unauthorized, 404: r.notFound },
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/api/agents/{id}/runtime-profiles/{profileId}/activate",
+  tags: ["agents"],
+  summary: "Activate a runtime profile",
+  description:
+    "Applies the profile through the same validation as PATCH /api/agents/{id}. Returns 409 agent_runs_active while runs are active unless cancelActiveRuns is true.",
+  request: {
+    params: z.object({ id: z.string(), profileId: z.string() }),
+    body: jsonBody(activateAgentRuntimeProfileSchema),
+  },
+  responses: { 200: r.ok(), 400: r.badRequest, 401: r.unauthorized, 404: r.notFound, 409: r.conflict, 422: r.unprocessable },
 });
 
 registry.registerPath({

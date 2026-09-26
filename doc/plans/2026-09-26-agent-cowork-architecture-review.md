@@ -248,6 +248,10 @@ handoff (issue document, append-only revisions)
 
 未納入 Phase 0：SW-7（上游刻意行為）、RB-6（撤回）。
 
+### 5.10 Phase 1 出貨狀態（2026-09-26 更新）
+
+Kimi 核准後於 `zhtw.8` 實作 Runtime Profiles，設計與里程碑見 `doc/plans/2026-09-26-runtime-profiles-phase1.md`。同時核准 Phase 2 的 fallback 允許跨 provider（每次都必須留言與記錄）。
+
 ## 6. 升級路線圖
 
 工時是「一位開發者＋AI 輔助」的粗估，含測試與文件；不含等待上游合併。雲端成本：全部階段都不需要新的 SaaS 或 VPS 升級；唯一可能的新支出是 Handoff v2 的 LLM 摘要（可關、可設上限）。

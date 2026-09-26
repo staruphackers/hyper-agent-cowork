@@ -30,6 +30,10 @@ export const agents = pgTable(
     adapterConfig: jsonb("adapter_config").$type<Record<string, unknown>>().notNull().default({}),
     runtimeConfig: jsonb("runtime_config").$type<Record<string, unknown>>().notNull().default({}),
     defaultEnvironmentId: uuid("default_environment_id").references(() => environments.id, { onDelete: "set null" }),
+    // Points at the agent_runtime_profiles row that mirrors the columns above.
+    // No foreign key: the profiles table references agents, and the service
+    // refuses to delete the active profile, so a dangling id cannot appear.
+    activeRuntimeProfileId: uuid("active_runtime_profile_id"),
     budgetMonthlyCents: integer("budget_monthly_cents").notNull().default(0),
     spentMonthlyCents: integer("spent_monthly_cents").notNull().default(0),
     pauseReason: text("pause_reason"),

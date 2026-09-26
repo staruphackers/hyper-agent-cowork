@@ -217,3 +217,5 @@ export {
   type RemoteAgentProfileInput,
   type RemoteAgentService,
 } from "./remote-agent-profiles.js";
+
+export { agentRuntimeProfileService, runtimeProfileKeyFor } from "./agent-runtime-profiles.js";

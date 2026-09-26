@@ -91,6 +91,8 @@ export interface Agent {
   adapterConfig: Record<string, unknown>;
   runtimeConfig: AgentRuntimeConfig;
   defaultEnvironmentId?: string | null;
+  /** Runtime profile that mirrors adapterType/adapterConfig/aiConnection/defaultEnvironmentId, if any. */
+  activeRuntimeProfileId?: string | null;
   budgetMonthlyCents: number;
   spentMonthlyCents: number;
   pauseReason: PauseReason | null;
@@ -102,6 +104,48 @@ export interface Agent {
   orgChainHealth?: AgentOrgChainHealth;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export type AgentRuntimeProfileTier = "primary" | "economy" | "fallback" | "specialist";
+
+/**
+ * A named snapshot of an agent's execution settings. The active profile always
+ * equals the agent's own runtime columns; inactive profiles are re-applied
+ * through the ordinary agent update path when activated.
+ */
+export interface AgentRuntimeProfile {
+  id: string;
+  companyId: string;
+  agentId: string;
+  name: string;
+  tier: AgentRuntimeProfileTier;
+  adapterType: AgentAdapterType;
+  adapterConfig: Record<string, unknown>;
+  runtimeConfig: AgentRuntimeConfig;
+  defaultEnvironmentId: string | null;
+  enabled: boolean;
+  sortOrder: number;
+  lastActivatedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AgentRuntimeProfileList {
+  activeRuntimeProfileId: string | null;
+  profiles: AgentRuntimeProfile[];
+}
+
+/** What activating a profile would affect, for the confirmation dialog. */
+export interface AgentRuntimeProfilePreflight {
+  profileId: string;
+  isActive: boolean;
+  activeRunCount: number;
+  /** Task sessions saved under the target profile that would become resumable again. */
+  targetSessionCount: number;
+  /** Task sessions saved under the currently active profile that stay parked. */
+  currentSessionCount: number;
+  harnessChanges: boolean;
+  modelChanges: boolean;
 }
 
 export interface AgentDetail extends Agent {

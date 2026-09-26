@@ -3,11 +3,11 @@ import { createHash } from "node:crypto";
 import { accessSync, chmodSync, constants, mkdirSync, readFileSync } from "node:fs";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import type { AdapterExecutionResult } from "@paperclipai/adapter-utils";
 import type { Db } from "@paperclipai/db";
-import { agentSessionGoalActions, agentTaskSessions } from "@paperclipai/db";
+import { agents, agentSessionGoalActions, agentTaskSessions } from "@paperclipai/db";
 
 import { resolvePaperclipInstanceRoot } from "../../home-paths.js";
 import { failRunnerGoalAction } from "../runner-goals.js";
@@ -63,6 +63,12 @@ async function readNativeGoalControl(input: {
         eq(agentSessionGoalActions.requestId, input.requestId),
         eq(agentTaskSessions.agentId, input.agentId),
         eq(agentTaskSessions.taskKey, input.issueId),
+        // Only the active runtime profile's session namespace is live; parked
+        // profiles keep their own rows for the same task.
+        eq(
+          agentTaskSessions.runtimeProfileKey,
+          sql`coalesce((select ${agents.activeRuntimeProfileId}::text from ${agents} where ${agents.id} = ${input.agentId}), '')`,
+        ),
       ),
     )
     .limit(1);

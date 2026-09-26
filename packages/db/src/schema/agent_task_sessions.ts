@@ -20,6 +20,10 @@ export const agentTaskSessions = pgTable(
     companyId: uuid("company_id").notNull().references(() => companies.id),
     agentId: uuid("agent_id").notNull().references(() => agents.id),
     adapterType: text("adapter_type").notNull(),
+    // Active runtime profile id at the time the session was saved, or "" for
+    // an agent without runtime profiles. Namespaces sessions so switching
+    // profiles keeps each profile's conversations resumable.
+    runtimeProfileKey: text("runtime_profile_key").notNull().default(""),
     taskKey: text("task_key").notNull(),
     sessionParamsJson: jsonb("session_params_json").$type<Record<string, unknown>>(),
     sessionDisplayId: text("session_display_id"),
@@ -37,10 +41,11 @@ export const agentTaskSessions = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => ({
-    companyAgentTaskUniqueIdx: uniqueIndex("agent_task_sessions_company_agent_adapter_task_uniq").on(
+    companyAgentTaskUniqueIdx: uniqueIndex("agent_task_sessions_company_agent_adapter_profile_task_uniq").on(
       table.companyId,
       table.agentId,
       table.adapterType,
+      table.runtimeProfileKey,
       table.taskKey,
     ),
     companyAgentUpdatedIdx: index("agent_task_sessions_company_agent_updated_idx").on(

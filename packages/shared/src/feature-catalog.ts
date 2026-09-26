@@ -85,6 +85,14 @@ export const INSTANCE_FEATURE_CATALOG: Record<InstanceFeatureKey, FeatureCatalog
     cloudDefault: false,
     selfHostedDefault: false,
   },
+  enableRuntimeProfiles: {
+    title: "Runtime Profiles",
+    description:
+      "Let one agent keep several execution setups (harness, model, AI connection, environment) and switch between them from its settings page. Each profile keeps its own task sessions, so switching back resumes earlier conversations.",
+    tier: "managed",
+    cloudDefault: false,
+    selfHostedDefault: true,
+  },
   enableStreamlinedLeftNavigation: {
     title: "Streamlined Left Navigation",
     description: "Use the streamlined main sidebar navigation layout.",

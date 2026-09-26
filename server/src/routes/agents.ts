@@ -19,7 +19,7 @@ import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import type { Db } from "@paperclipai/db";
 import type { ChatChannelService } from "../services/chat-channels.js";
-import { activityLog, agents as agentsTable, chatConversations, companies, heartbeatRuns, issues as issuesTable, projects as projectsTable } from "@paperclipai/db";
+import { activityLog, agents as agentsTable, chatConversations, companies, heartbeatRuns, agentRuntimeProfiles, issues as issuesTable, projects as projectsTable } from "@paperclipai/db";
 import { and, desc, eq, inArray, not, sql } from "drizzle-orm";
 import { sha256Digest } from "../services/feedback-redaction.js";
 import {
@@ -45,6 +45,12 @@ import {
   updateAgentInstructionsPathSchema,
   wakeAgentSchema,
   updateAgentSchema,
+  createAgentRuntimeProfileSchema,
+  updateAgentRuntimeProfileSchema,
+  activateAgentRuntimeProfileSchema,
+  type CreateAgentRuntimeProfile,
+  type UpdateAgentRuntimeProfile,
+  type ActivateAgentRuntimeProfile,
   supportedEnvironmentDriversForAdapter,
   LOW_TRUST_REVIEW_PRESET,
   startAdapterAuthSessionRequestSchema,
@@ -68,6 +74,7 @@ import { inheritNativeRunnerAdapterConfig } from "../services/native-runtime/nat
 import { agentInstructionsBundleMode } from "../services/agent-instructions.js";
 import {
   agentService,
+  agentRuntimeProfileService,
   agentInstructionsService,
   accessService,
   approvalService,
@@ -530,6 +537,10 @@ export function agentRoutes(
 
   const router = Router();
   const svc = agentService(db);
+  // Created lazily so route modules that stub the services barrel without
+  // this service keep constructing the router; only profile routes need it.
+  let runtimeProfilesSvcCache: ReturnType<typeof agentRuntimeProfileService> | null = null;
+  const runtimeProfiles = () => (runtimeProfilesSvcCache ??= agentRuntimeProfileService(db));
   const access = accessService(db);
   const approvalsSvc = approvalService(db);
   const budgets = budgetService(db);
@@ -5283,7 +5294,13 @@ export function agentRoutes(
     res.json(result.bundle);
   });
 
-  router.patch("/agents/:id", validate(updateAgentSchema), async (req, res) => {
+  // The agent patch handler is also the single validation path for runtime
+  // profile activation, which synthesizes a patch and calls it directly.
+  const patchAgentHandler = async (
+    req: Request,
+    res: Response,
+    options?: { cancelActiveRuns?: boolean },
+  ) => {
     const id = req.params.id as string;
     const existing = await getAccessibleResource(req, res, svc.getById(id), "Agent not found");
     if (!existing) return;
@@ -5330,19 +5347,24 @@ export function agentRoutes(
       // still starting. Refuse it while runs are active unless the caller
       // explicitly asked to cancel them, so the board sees the impact before
       // in-flight work is lost.
-      const activeRuns = await db
-        .select({ id: heartbeatRuns.id, status: heartbeatRuns.status })
-        .from(heartbeatRuns)
-        .where(
-          and(
-            eq(heartbeatRuns.agentId, existing.id),
-            inArray(heartbeatRuns.status, ["queued", "running", "scheduled_retry"]),
-          ),
-        );
+      const ACTIVE_RUN_STATUSES = new Set(["queued", "running", "scheduled_retry"]);
+      const activeRuns = (
+        await db
+          .select({ id: heartbeatRuns.id, status: heartbeatRuns.status })
+          .from(heartbeatRuns)
+          .where(
+            and(
+              eq(heartbeatRuns.agentId, existing.id),
+              inArray(heartbeatRuns.status, [...ACTIVE_RUN_STATUSES]),
+            ),
+          )
+      ).filter((run) => typeof run.status === "string" && ACTIVE_RUN_STATUSES.has(run.status));
       if (activeRuns.length > 0) {
         await assertCanUpdateAgent(req, existing);
         const cancelRequested =
-          req.query.cancelActiveRuns === "true" || req.query.cancelActiveRuns === "1";
+          options?.cancelActiveRuns === true ||
+          req.query.cancelActiveRuns === "true" ||
+          req.query.cancelActiveRuns === "1";
         if (!cancelRequested) {
           throw conflict(
             `This agent has ${activeRuns.length} active run${activeRuns.length === 1 ? "" : "s"}. Wait for them to finish, or cancel them, before switching the harness.`,
@@ -5468,7 +5490,17 @@ export function agentRoutes(
     // fail with "Select an AI connection compatible…". Drop it instead and let
     // the new harness authenticate through env keys or its own CLI login.
     let droppedStaleAiBinding = false;
-    if (existing.runtimeConfig.aiConnection && requestedAdapterType !== existing.adapterType) {
+    // `runtimeConfig.aiConnection: null` is an explicit request to clear the
+    // stored binding (runtime profile activation uses it for a profile that
+    // runs on provider keys instead of a connection).
+    if (requestedRuntimeConfig && requestedRuntimeConfig.aiConnection === null) {
+      await assertCanUpdateAgent(req, existing);
+      const nextRuntime = { ...requestedRuntimeConfig };
+      delete nextRuntime.aiConnection;
+      requestedRuntimeConfig = nextRuntime;
+      droppedStaleAiBinding = true;
+    }
+    if (!droppedStaleAiBinding && existing.runtimeConfig.aiConnection && requestedAdapterType !== existing.adapterType) {
       const switchConfig = (patchData.adapterConfig ?? existing.adapterConfig) as Record<string, unknown>;
       if (!adapterSupportsAiConnections(requestedAdapterType, switchConfig.provider, switchConfig.acpxAgent)) {
         await assertCanUpdateAgent(req, existing);
@@ -5551,7 +5583,164 @@ export function agentRoutes(
     });
 
     res.json(redactAgentRowForResponse(agent));
+  };
+  router.patch("/agents/:id", validate(updateAgentSchema), (req, res) => patchAgentHandler(req, res));
+
+  // Runtime profiles: named snapshots of an agent's execution settings. The
+  // agent row stays the source of truth for the active runtime; activation
+  // re-applies a snapshot through patchAgentHandler so every validation,
+  // the active-run guard and the config revision apply unchanged.
+  function redactRuntimeProfileForResponse(profile: typeof agentRuntimeProfiles.$inferSelect) {
+    return {
+      ...profile,
+      adapterConfig: redactAgentAdapterConfig(profile.adapterConfig ?? {}),
+    };
+  }
+
+  router.get("/agents/:id/runtime-profiles", async (req, res) => {
+    const id = req.params.id as string;
+    const agent = await getAccessibleResource(req, res, svc.getById(id), "Agent not found");
+    if (!agent) return;
+    await assertCanReadAgent(req, agent);
+    const profiles = await runtimeProfiles().list(agent.id);
+    res.json({
+      activeRuntimeProfileId: agent.activeRuntimeProfileId ?? null,
+      profiles: profiles.map(redactRuntimeProfileForResponse),
+    });
   });
+
+  router.post("/agents/:id/runtime-profiles", validate(createAgentRuntimeProfileSchema), async (req, res) => {
+    const id = req.params.id as string;
+    const agent = await getAccessibleResource(req, res, svc.getById(id), "Agent not found");
+    if (!agent) return;
+    await assertCanUpdateAgent(req, agent);
+    const input = req.body as CreateAgentRuntimeProfile;
+    const { profile, activated } = await runtimeProfiles().createFromCurrent(agent, {
+      name: input.name,
+      tier: input.tier,
+    });
+    const actor = getActorInfo(req);
+    await logActivity(db, {
+      companyId: agent.companyId,
+      actorType: actor.actorType,
+      actorId: actor.actorId,
+      agentId: actor.agentId,
+      runId: actor.runId,
+      agentApiKeyId: actor.agentApiKeyId,
+      action: "agent.runtime_profile_created",
+      entityType: "agent",
+      entityId: agent.id,
+      details: { profileId: profile.id, name: profile.name, tier: profile.tier, adapterType: profile.adapterType, activated },
+    });
+    res.status(201).json(redactRuntimeProfileForResponse(profile));
+  });
+
+  router.patch("/agents/:id/runtime-profiles/:profileId", validate(updateAgentRuntimeProfileSchema), async (req, res) => {
+    const id = req.params.id as string;
+    const profileId = req.params.profileId as string;
+    const agent = await getAccessibleResource(req, res, svc.getById(id), "Agent not found");
+    if (!agent) return;
+    await assertCanUpdateAgent(req, agent);
+    const profile = await runtimeProfiles().update(agent.id, profileId, req.body as UpdateAgentRuntimeProfile);
+    const actor = getActorInfo(req);
+    await logActivity(db, {
+      companyId: agent.companyId,
+      actorType: actor.actorType,
+      actorId: actor.actorId,
+      agentId: actor.agentId,
+      runId: actor.runId,
+      agentApiKeyId: actor.agentApiKeyId,
+      action: "agent.runtime_profile_updated",
+      entityType: "agent",
+      entityId: agent.id,
+      details: { profileId: profile.id, changes: Object.keys(req.body as Record<string, unknown>) },
+    });
+    res.json(redactRuntimeProfileForResponse(profile));
+  });
+
+  router.delete("/agents/:id/runtime-profiles/:profileId", async (req, res) => {
+    const id = req.params.id as string;
+    const profileId = req.params.profileId as string;
+    const agent = await getAccessibleResource(req, res, svc.getById(id), "Agent not found");
+    if (!agent) return;
+    await assertCanUpdateAgent(req, agent);
+    const profile = await runtimeProfiles().getById(agent.id, profileId);
+    if (!profile) {
+      res.status(404).json({ error: "Runtime profile not found" });
+      return;
+    }
+    await runtimeProfiles().remove(agent.id, profileId);
+    const actor = getActorInfo(req);
+    await logActivity(db, {
+      companyId: agent.companyId,
+      actorType: actor.actorType,
+      actorId: actor.actorId,
+      agentId: actor.agentId,
+      runId: actor.runId,
+      agentApiKeyId: actor.agentApiKeyId,
+      action: "agent.runtime_profile_deleted",
+      entityType: "agent",
+      entityId: agent.id,
+      details: { profileId: profile.id, name: profile.name },
+    });
+    res.status(204).end();
+  });
+
+  router.post("/agents/:id/runtime-profiles/:profileId/preflight", async (req, res) => {
+    const id = req.params.id as string;
+    const profileId = req.params.profileId as string;
+    const agent = await getAccessibleResource(req, res, svc.getById(id), "Agent not found");
+    if (!agent) return;
+    await assertCanReadAgent(req, agent);
+    res.json(await runtimeProfiles().preflight(agent, profileId));
+  });
+
+  router.post(
+    "/agents/:id/runtime-profiles/:profileId/activate",
+    validate(activateAgentRuntimeProfileSchema),
+    async (req, res) => {
+      const id = req.params.id as string;
+      const profileId = req.params.profileId as string;
+      const agent = await getAccessibleResource(req, res, svc.getById(id), "Agent not found");
+      if (!agent) return;
+      await assertCanUpdateAgent(req, agent);
+      const profile = await runtimeProfiles().getById(agent.id, profileId);
+      if (!profile) {
+        res.status(404).json({ error: "Runtime profile not found" });
+        return;
+      }
+      if (!profile.enabled) {
+        throw conflict("This runtime profile is disabled. Enable it before activating.", {
+          code: "runtime_profile_disabled",
+        });
+      }
+      const { cancelActiveRuns } = req.body as ActivateAgentRuntimeProfile;
+      const patch = updateAgentSchema.parse(runtimeProfiles().buildActivationPatch(agent, profile));
+      req.body = patch;
+      await patchAgentHandler(req, res, { cancelActiveRuns });
+      if (res.statusCode !== 200) return;
+      const actor = getActorInfo(req);
+      await logActivity(db, {
+        companyId: agent.companyId,
+        actorType: actor.actorType,
+        actorId: actor.actorId,
+        agentId: actor.agentId,
+        runId: actor.runId,
+        agentApiKeyId: actor.agentApiKeyId,
+        action: "agent.runtime_profile_activated",
+        entityType: "agent",
+        entityId: agent.id,
+        details: {
+          profileId: profile.id,
+          name: profile.name,
+          tier: profile.tier,
+          fromAdapterType: agent.adapterType,
+          toAdapterType: profile.adapterType,
+          previousProfileId: agent.activeRuntimeProfileId ?? null,
+        },
+      });
+    },
+  );
 
   router.post("/agents/:id/pause", async (req, res) => {
     assertBoard(req);

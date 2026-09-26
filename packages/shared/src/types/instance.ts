@@ -60,6 +60,12 @@ export interface InstanceExperimentalSettings {
    * overrides a project that stores its own policy.
    */
   enableIsolatedWorkspacesByDefault: boolean;
+  /**
+   * Show the runtime profiles panel on agent settings, letting one agent keep
+   * several execution setups and switch between them. The API stays available
+   * regardless; this only controls the board UI.
+   */
+  enableRuntimeProfiles: boolean;
   enableStreamlinedLeftNavigation: boolean;
   /**
    * Use the streamlined shell, navigation, and contextual-sidebar experience.

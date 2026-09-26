@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   AGENT_ICON_NAMES,
   AGENT_ROLES,
+  AGENT_RUNTIME_PROFILE_TIERS,
   AGENT_STATUSES,
   INBOX_MINE_ISSUE_STATUS_FILTER,
 } from "../constants.js";
@@ -62,7 +63,8 @@ export const createAgentInstructionsBundleSchema = z.object({
 });
 
 export const agentRuntimeConfigSchema = z.object({
-  aiConnection: aiConnectionBindingSchema.optional(),
+  // `null` explicitly clears a stored binding (used by runtime profile activation).
+  aiConnection: aiConnectionBindingSchema.optional().nullable(),
   debug: z.object({
     providerTrace: z.literal("raw").optional(),
   }).strict().optional(),
@@ -149,9 +151,43 @@ export const updateAgentSchema = objectWithoutDefaults(
     replaceAdapterConfig: z.boolean().optional(),
     status: z.enum(AGENT_STATUSES).optional(),
     spentMonthlyCents: z.number().int().nonnegative().optional(),
+    // Set by runtime profile activation; the server checks that the profile
+    // belongs to the agent and that the patch carries the profile's runtime.
+    activeRuntimeProfileId: z.string().guid().optional().nullable(),
   });
 
 export type UpdateAgent = z.infer<typeof updateAgentSchema>;
+
+export const agentRuntimeProfileTierSchema = z.enum(AGENT_RUNTIME_PROFILE_TIERS);
+
+export const agentRuntimeProfileNameSchema = z.string().trim().min(1).max(60);
+
+export const createAgentRuntimeProfileSchema = z.object({
+  name: agentRuntimeProfileNameSchema,
+  tier: agentRuntimeProfileTierSchema.optional().default("primary"),
+  // Phase 1 only snapshots the agent's current runtime. Explicit runtime
+  // fields arrive with the profile editor in a later phase.
+  source: z.literal("current").optional().default("current"),
+}).strict();
+
+export type CreateAgentRuntimeProfile = z.infer<typeof createAgentRuntimeProfileSchema>;
+
+export const updateAgentRuntimeProfileSchema = z.object({
+  name: agentRuntimeProfileNameSchema.optional(),
+  tier: agentRuntimeProfileTierSchema.optional(),
+  enabled: z.boolean().optional(),
+  sortOrder: z.number().int().min(0).max(10_000).optional(),
+}).strict().refine((value) => Object.keys(value).length > 0, {
+  message: "Provide at least one field to update",
+});
+
+export type UpdateAgentRuntimeProfile = z.infer<typeof updateAgentRuntimeProfileSchema>;
+
+export const activateAgentRuntimeProfileSchema = z.object({
+  cancelActiveRuns: z.boolean().optional().default(false),
+}).strict();
+
+export type ActivateAgentRuntimeProfile = z.infer<typeof activateAgentRuntimeProfileSchema>;
 
 export const updateAgentInstructionsPathSchema = z.object({
   path: z.string().trim().min(1).nullable(),

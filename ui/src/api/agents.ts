@@ -9,6 +9,10 @@ import type {
   AgentSkillSnapshot,
   AdapterEnvironmentTestResult,
   OpenCodePlansResult,
+  AgentRuntimeProfile,
+  AgentRuntimeProfileList,
+  AgentRuntimeProfilePreflight,
+  AgentRuntimeProfileTier,
   AdapterAuthSignalResponse,
   AdapterAuthSessionResponse,
   AdapterAuthSessionOwnerResponse,
@@ -229,6 +233,44 @@ export const agentsApi = {
   ) =>
     api.post<OpenCodePlansResult>(
       `/companies/${encodeURIComponent(companyId)}/adapters/opencode_local/opencode-plans`,
+      data,
+    ),
+  runtimeProfiles: (id: string, companyId?: string) =>
+    api.get<AgentRuntimeProfileList>(agentPath(id, companyId, "/runtime-profiles")),
+  createRuntimeProfile: (
+    id: string,
+    data: { name: string; tier?: AgentRuntimeProfileTier },
+    companyId?: string,
+  ) =>
+    api.post<AgentRuntimeProfile>(agentPath(id, companyId, "/runtime-profiles"), {
+      ...data,
+      source: "current",
+    }),
+  updateRuntimeProfile: (
+    id: string,
+    profileId: string,
+    data: { name?: string; tier?: AgentRuntimeProfileTier; enabled?: boolean; sortOrder?: number },
+    companyId?: string,
+  ) =>
+    api.patch<AgentRuntimeProfile>(
+      agentPath(id, companyId, `/runtime-profiles/${encodeURIComponent(profileId)}`),
+      data,
+    ),
+  deleteRuntimeProfile: (id: string, profileId: string, companyId?: string) =>
+    api.delete<void>(agentPath(id, companyId, `/runtime-profiles/${encodeURIComponent(profileId)}`)),
+  preflightRuntimeProfile: (id: string, profileId: string, companyId?: string) =>
+    api.post<AgentRuntimeProfilePreflight>(
+      agentPath(id, companyId, `/runtime-profiles/${encodeURIComponent(profileId)}/preflight`),
+      {},
+    ),
+  activateRuntimeProfile: (
+    id: string,
+    profileId: string,
+    data: { cancelActiveRuns?: boolean },
+    companyId?: string,
+  ) =>
+    api.post<Agent>(
+      agentPath(id, companyId, `/runtime-profiles/${encodeURIComponent(profileId)}/activate`),
       data,
     ),
   detectModel: (companyId: string, type: string) =>

@@ -55,6 +55,16 @@ const mockAgentService = vi.hoisted(() => ({
   resolveByReference: vi.fn(),
 }));
 
+const mockRuntimeProfileService = vi.hoisted(() => ({
+  list: vi.fn(),
+  getById: vi.fn(),
+  createFromCurrent: vi.fn(),
+  update: vi.fn(),
+  remove: vi.fn(),
+  preflight: vi.fn(),
+  buildActivationPatch: vi.fn(),
+}));
+
 const mockBuiltInAgentService = vi.hoisted(() => ({
   ensureCompanyDefaultAgentGrants: vi.fn(),
 }));
@@ -145,6 +155,13 @@ function registerModuleMocks() {
     agentService: () => mockAgentService,
   }));
 
+  vi.doMock("../services/agent-runtime-profiles.js", () => ({
+    agentRuntimeProfileService: () => mockRuntimeProfileService,
+    runtimeProfileKeyFor: (agent: { activeRuntimeProfileId?: string | null }) => agent.activeRuntimeProfileId ?? "",
+    profileRuntimeConfigFrom: () => ({}),
+    composeActivationAdapterConfig: (current: Record<string, unknown>, profile: Record<string, unknown>) => ({ ...current, ...profile }),
+  }));
+
   vi.doMock("../services/access.js", () => ({
     accessService: () => mockAccessService,
   }));
@@ -204,6 +221,7 @@ function registerModuleMocks() {
 
   vi.doMock("../services/index.js", () => ({
     agentService: () => mockAgentService,
+    agentRuntimeProfileService: () => mockRuntimeProfileService,
     agentInstructionsService: () => mockAgentInstructionsService,
     accessService: () => mockAccessService,
     approvalService: () => mockApprovalService,
@@ -232,6 +250,9 @@ function createDbStub(options: { requireBoardApprovalForNewAgents?: boolean } = 
               id: companyId,
               name: "Paperclip",
               requireBoardApprovalForNewAgents: options.requireBoardApprovalForNewAgents ?? false,
+              // The same stub row answers the active-run lookup used by the
+              // harness-switch guard; `status` makes it count as a running run.
+              status: "running",
             }])),
           ),
         }),
@@ -306,6 +327,7 @@ describe.sequential("agent permission routes", () => {
     mockAgentService.updatePermissions.mockReset();
     mockAgentService.getChainOfCommand.mockReset();
     mockAgentService.resolveByReference.mockReset();
+    for (const fn of Object.values(mockRuntimeProfileService)) fn.mockReset();
     mockBuiltInAgentService.ensureCompanyDefaultAgentGrants.mockReset();
     mockAccessService.canUser.mockReset();
     mockAccessService.decide.mockReset();
@@ -820,6 +842,197 @@ describe.sequential("agent permission routes", () => {
 
       expect(res.status, JSON.stringify(res.body)).toBe(200);
       expect(mockHeartbeatService.cancelRun).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("runtime profile routes", () => {
+    const profileId = "77777777-7777-4777-8777-777777777777";
+    const secretValue = "profile-env-must-not-leak";
+    const profile = {
+      id: profileId,
+      companyId,
+      agentId,
+      name: "economy",
+      tier: "economy",
+      adapterType: "process",
+      adapterConfig: { model: "cheap-model", env: { API_KEY: { type: "plain", value: secretValue } } },
+      runtimeConfig: {},
+      defaultEnvironmentId: null,
+      enabled: true,
+      sortOrder: 1,
+      lastActivatedAt: null,
+      createdAt: new Date("2026-09-26T00:00:00.000Z"),
+      updatedAt: new Date("2026-09-26T00:00:00.000Z"),
+    };
+
+    function createBoardApp() {
+      return createApp({
+        type: "board",
+        userId: "board-user",
+        source: "local_implicit",
+        isInstanceAdmin: true,
+        companyIds: [companyId],
+      });
+    }
+
+    it("lists profiles with the active id and redacted env values", async () => {
+      mockAgentService.getById.mockResolvedValue({ ...baseAgent, activeRuntimeProfileId: profileId });
+      mockRuntimeProfileService.list.mockResolvedValue([profile]);
+
+      const res = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .get(`/api/agents/${agentId}/runtime-profiles`));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(200);
+      expect(res.body.activeRuntimeProfileId).toBe(profileId);
+      expect(res.body.profiles).toHaveLength(1);
+      expect(res.body.profiles[0].adapterConfig.env.API_KEY.value).toBe("***REDACTED***");
+      expect(JSON.stringify(res.body)).not.toContain(secretValue);
+    });
+
+    it("saves the current runtime as a profile and logs the activity", async () => {
+      mockRuntimeProfileService.createFromCurrent.mockResolvedValue({ profile, activated: true });
+
+      const res = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .post(`/api/agents/${agentId}/runtime-profiles`)
+        .send({ name: "economy", tier: "economy" }));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(201);
+      expect(mockRuntimeProfileService.createFromCurrent).toHaveBeenCalledWith(
+        expect.objectContaining({ id: agentId }),
+        { name: "economy", tier: "economy" },
+      );
+      expect(JSON.stringify(res.body)).not.toContain(secretValue);
+      expect(mockLogActivity).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ action: "agent.runtime_profile_created", entityId: agentId }),
+      );
+    });
+
+    it("rejects an unknown tier before touching the service", async () => {
+      const res = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .post(`/api/agents/${agentId}/runtime-profiles`)
+        .send({ name: "x", tier: "turbo" }));
+
+      expect(res.status).toBe(400);
+      expect(mockRuntimeProfileService.createFromCurrent).not.toHaveBeenCalled();
+    });
+
+    it("blocks members without agent admin permission from creating profiles", async () => {
+      mockAccessService.canUser.mockResolvedValue(false);
+      const app = createApp({
+        type: "board",
+        userId: "member-user",
+        source: "session",
+        isInstanceAdmin: false,
+        companyIds: [companyId],
+      });
+
+      const res = await requestApp(app, (baseUrl) => request(baseUrl)
+        .post(`/api/agents/${agentId}/runtime-profiles`)
+        .send({ name: "economy" }));
+
+      expect(res.status).toBe(403);
+      expect(mockRuntimeProfileService.createFromCurrent).not.toHaveBeenCalled();
+    });
+
+    it("renames a profile and deletes an inactive one", async () => {
+      mockRuntimeProfileService.update.mockResolvedValue({ ...profile, name: "cheap" });
+      mockRuntimeProfileService.getById.mockResolvedValue(profile);
+      mockRuntimeProfileService.remove.mockResolvedValue(undefined);
+
+      const renamed = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .patch(`/api/agents/${agentId}/runtime-profiles/${profileId}`)
+        .send({ name: "cheap" }));
+      expect(renamed.status, JSON.stringify(renamed.body)).toBe(200);
+      expect(renamed.body.name).toBe("cheap");
+
+      const removed = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .delete(`/api/agents/${agentId}/runtime-profiles/${profileId}`));
+      expect(removed.status).toBe(204);
+      expect(mockRuntimeProfileService.remove).toHaveBeenCalledWith(agentId, profileId);
+      expect(mockLogActivity).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({ action: "agent.runtime_profile_deleted" }),
+      );
+    });
+
+    it("activates a profile through the agent patch path, honoring the active-run guard", async () => {
+      mockAgentService.getById.mockResolvedValue({ ...baseAgent, adapterType: "codex_local" });
+      mockAgentService.update.mockResolvedValue({ ...baseAgent, adapterType: "process", activeRuntimeProfileId: profileId });
+      mockRuntimeProfileService.getById.mockResolvedValue(profile);
+      mockRuntimeProfileService.buildActivationPatch.mockReturnValue({
+        adapterType: "process",
+        adapterConfig: { model: "cheap-model" },
+        replaceAdapterConfig: true,
+        runtimeConfig: { aiConnection: null },
+        defaultEnvironmentId: null,
+        activeRuntimeProfileId: profileId,
+      });
+
+      // The db stub reports one active run, so a harness change is refused first.
+      const refused = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .post(`/api/agents/${agentId}/runtime-profiles/${profileId}/activate`)
+        .send({}));
+      expect(refused.status, JSON.stringify(refused.body)).toBe(409);
+      expect(refused.body.code ?? refused.body.details?.code).toBe("agent_runs_active");
+      expect(mockAgentService.update).not.toHaveBeenCalled();
+
+      const activated = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .post(`/api/agents/${agentId}/runtime-profiles/${profileId}/activate`)
+        .send({ cancelActiveRuns: true }));
+      expect(activated.status, JSON.stringify(activated.body)).toBe(200);
+      expect(mockHeartbeatService.cancelRun).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.stringContaining("harness changed"),
+        expect.objectContaining({ errorCode: "agent_adapter_switched" }),
+      );
+      expect(mockAgentService.update).toHaveBeenCalledWith(
+        agentId,
+        expect.objectContaining({
+          adapterType: "process",
+          activeRuntimeProfileId: profileId,
+          runtimeConfig: expect.not.objectContaining({ aiConnection: expect.anything() }),
+        }),
+        expect.anything(),
+      );
+      expect(mockLogActivity).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          action: "agent.runtime_profile_activated",
+          details: expect.objectContaining({ profileId, fromAdapterType: "codex_local", toAdapterType: "process" }),
+        }),
+      );
+    });
+
+    it("refuses to activate a disabled profile", async () => {
+      mockRuntimeProfileService.getById.mockResolvedValue({ ...profile, enabled: false });
+
+      const res = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .post(`/api/agents/${agentId}/runtime-profiles/${profileId}/activate`)
+        .send({}));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(409);
+      expect(res.body.code ?? res.body.details?.code).toBe("runtime_profile_disabled");
+      expect(mockAgentService.update).not.toHaveBeenCalled();
+    });
+
+    it("returns the preflight summary", async () => {
+      mockRuntimeProfileService.preflight.mockResolvedValue({
+        profileId,
+        isActive: false,
+        activeRunCount: 0,
+        targetSessionCount: 2,
+        currentSessionCount: 1,
+        harnessChanges: true,
+        modelChanges: true,
+      });
+
+      const res = await requestApp(createBoardApp(), (baseUrl) => request(baseUrl)
+        .post(`/api/agents/${agentId}/runtime-profiles/${profileId}/preflight`)
+        .send({}));
+
+      expect(res.status, JSON.stringify(res.body)).toBe(200);
+      expect(res.body).toMatchObject({ targetSessionCount: 2, harnessChanges: true });
     });
   });
 
@@ -1829,7 +2042,7 @@ describe.sequential("agent permission routes", () => {
     });
 
     const res = await requestApp(app, (baseUrl) => request(baseUrl)
-      .patch(`/api/agents/${agentId}`)
+      .patch(`/api/agents/${agentId}?cancelActiveRuns=true`)
       .send({
         adapterType: "process",
       }));

@@ -9,6 +9,7 @@ import {
   agentApiKeys,
   agentRuntimeState,
   agentTaskSessions,
+  agentRuntimeProfiles,
   agentWakeupRequests,
   activityLog,
   costEvents,
@@ -32,6 +33,7 @@ import {
   normalizePaperclipRunnerAdapterConfig,
 } from "@paperclipai/adapter-utils/server-utils";
 import { conflict, notFound, unprocessable } from "../errors.js";
+import { profileRuntimeConfigFrom } from "./agent-runtime-profiles.js";
 import {
   collectSecretRefs,
   collectUserSecretRefs,
@@ -802,10 +804,51 @@ export function agentService(db: Db) {
         || (updated.adapterType === "paperclip_runner" && ["provider", "acpxAgent", "model"].some(
           (key) => priorAdapterConfig[key] !== afterConfig[key],
         ));
-      if (changedExecution) {
-        await txDb.delete(agentTaskSessions).where(and(eq(agentTaskSessions.companyId, existing.companyId), eq(agentTaskSessions.agentId, id)));
+      // A runtime profile activation switches the session namespace instead of
+      // discarding it: the old profile's sessions stay parked under its key and
+      // the new profile's sessions become resumable again. Only an in-place
+      // execution change throws away the current namespace, which for an agent
+      // without profiles (key "") is every session, exactly as before.
+      const profileActivation =
+        Object.prototype.hasOwnProperty.call(normalizedPatch, "activeRuntimeProfileId") &&
+        updated.activeRuntimeProfileId !== existing.activeRuntimeProfileId;
+      if (changedExecution || profileActivation) {
+        if (changedExecution && !profileActivation) {
+          await txDb.delete(agentTaskSessions).where(and(
+            eq(agentTaskSessions.companyId, existing.companyId),
+            eq(agentTaskSessions.agentId, id),
+            eq(agentTaskSessions.runtimeProfileKey, existing.activeRuntimeProfileId ?? ""),
+          ));
+        }
         await txDb.update(agentRuntimeState).set({ adapterType: updated.adapterType, sessionId: null, stateJson: {}, updatedAt: new Date() })
           .where(and(eq(agentRuntimeState.companyId, existing.companyId), eq(agentRuntimeState.agentId, id)));
+      }
+      if (updated.activeRuntimeProfileId) {
+        const touchesRuntime = ["adapterType", "adapterConfig", "runtimeConfig", "defaultEnvironmentId"].some((key) =>
+          Object.prototype.hasOwnProperty.call(normalizedPatch, key),
+        );
+        if (touchesRuntime || profileActivation) {
+          const mirrored = await txDb
+            .update(agentRuntimeProfiles)
+            .set({
+              adapterType: updated.adapterType,
+              adapterConfig: afterConfig,
+              runtimeConfig: profileRuntimeConfigFrom(updated.runtimeConfig),
+              defaultEnvironmentId: updated.defaultEnvironmentId ?? null,
+              ...(profileActivation ? { lastActivatedAt: new Date() } : {}),
+              updatedAt: new Date(),
+            })
+            .where(and(
+              eq(agentRuntimeProfiles.id, updated.activeRuntimeProfileId),
+              eq(agentRuntimeProfiles.agentId, id),
+            ))
+            .returning({ id: agentRuntimeProfiles.id });
+          if (mirrored.length === 0) {
+            throw unprocessable("The runtime profile does not belong to this agent", {
+              code: "runtime_profile_not_found",
+            });
+          }
+        }
       }
 
       if (Object.prototype.hasOwnProperty.call(normalizedPatch, "adapterConfig")) {

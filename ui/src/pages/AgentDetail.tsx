@@ -24,6 +24,7 @@ import { usePanel } from "../context/PanelContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useCompany } from "../context/CompanyContext";
 import { useToastActions } from "../context/ToastContext";
+import { RuntimeProfilesPanel } from "../components/agents/RuntimeProfilesPanel";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
 import { copyTextToClipboard } from "../lib/clipboard";
@@ -1420,7 +1421,10 @@ export function AgentDetail() {
       )}
 
       {activeView === "runtime" && (
-        <div>
+        <div className="space-y-6">
+          {experimentalSettings?.enableRuntimeProfiles !== false ? (
+            <RuntimeProfilesPanel agent={agent} companyId={resolvedCompanyId ?? undefined} />
+          ) : null}
           <ConfigurationTab
             agent={agent}
             companyId={resolvedCompanyId ?? undefined}
