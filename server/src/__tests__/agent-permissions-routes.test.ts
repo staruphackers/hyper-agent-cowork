@@ -789,6 +789,22 @@ describe.sequential("agent permission routes", () => {
       expect(String(patchRes.body.error)).toContain("Re-enter secret values when switching adapter types");
       expect(mockAgentService.update).not.toHaveBeenCalled();
     }, 20_000);
+
+    it("does not cancel active runs for a switch it is going to refuse", async () => {
+      // The db stub answers every select with one row, which stands in for one
+      // active heartbeat run, so this exercises the cancelActiveRuns path.
+      const { app, displayed } = await readRedactedConfig();
+      const patchRes = await requestApp(app, (baseUrl) =>
+        request(baseUrl).patch(`/api/agents/${agentId}?cancelActiveRuns=true`).send({
+          adapterType: "codex_local",
+          adapterConfig: { headers: displayed.headers },
+        }),
+      );
+      expect(patchRes.status).toBe(422);
+      expect(String(patchRes.body.error)).toContain("Re-enter secret values when switching adapter types");
+      expect(mockHeartbeatService.cancelRun).not.toHaveBeenCalled();
+      expect(mockAgentService.update).not.toHaveBeenCalled();
+    }, 20_000);
   });
 
   it("redacts company agent list for authenticated company members without agent admin permission", async () => {

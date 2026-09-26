@@ -5371,6 +5371,15 @@ export function agentRoutes(
       ).filter((run) => typeof run.status === "string" && ACTIVE_RUN_STATUSES.has(run.status));
       if (activeRuns.length > 0) {
         await assertCanUpdateAgent(req, existing);
+        // Refuse hidden secret placeholders before any run is cancelled, so a
+        // switch that is going to be rejected never has side effects.
+        if (hasOwn(patchData, "adapterConfig")) {
+          restoreRedactedAdapterConfig(
+            asRecord(patchData.adapterConfig) ?? {},
+            asRecord(existing.adapterConfig) ?? {},
+            { sameAdapter: false, switchMessage: "Re-enter secret values when switching adapter types" },
+          );
+        }
         const cancelRequested =
           options?.cancelActiveRuns === true ||
           req.query.cancelActiveRuns === "true" ||
