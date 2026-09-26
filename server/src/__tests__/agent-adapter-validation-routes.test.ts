@@ -375,6 +375,51 @@ describe("agent routes adapter validation", () => {
     expect(res.body.adapterType).toBe("external_test");
   });
 
+  it("creates a duplicated agent without the hidden values it was copied with", async () => {
+    const { registerServerAdapter } = await import("../adapters/index.js");
+    registerServerAdapter(externalAdapter);
+    const app = await createApp();
+    const res = await requestApp(app, (baseUrl) =>
+      request(baseUrl)
+        .post("/api/companies/company-1/agents")
+        .send({
+          name: "External Agent (copy)",
+          adapterType: "external_test",
+          adapterConfig: {
+            url: "wss://gateway.example.test/ws",
+            authToken: "***REDACTED***",
+            headers: { "x-openclaw-token": "***REDACTED***", "x-trace": "kept" },
+          },
+        }),
+    );
+
+    expect(res.status, JSON.stringify(res.body)).toBe(201);
+    const createInput = mockAgentService.create.mock.calls.at(-1)?.[1] as Record<string, unknown>;
+    expect(JSON.stringify(createInput)).not.toContain("***REDACTED***");
+    expect(createInput.adapterConfig).toMatchObject({
+      url: "wss://gateway.example.test/ws",
+      headers: { "x-trace": "kept" },
+    });
+  });
+
+  it("refuses to create an agent from an edited hidden value", async () => {
+    const { registerServerAdapter } = await import("../adapters/index.js");
+    registerServerAdapter(externalAdapter);
+    const app = await createApp();
+    const res = await requestApp(app, (baseUrl) =>
+      request(baseUrl)
+        .post("/api/companies/company-1/agents")
+        .send({
+          name: "External Agent (copy)",
+          adapterType: "external_test",
+          adapterConfig: { headers: { authorization: "Bearer ***REDACTED*** extra" } },
+        }),
+    );
+
+    expect(res.status).toBe(422);
+    expect(String(res.body.error)).toContain("headers.authorization");
+  });
+
   it("does not inject CODEX_HOME or OPENAI_API_KEY when creating a keyless codex_local agent", async () => {
     const app = await createApp();
     const res = await requestApp(app, (baseUrl) =>
@@ -606,7 +651,7 @@ describe("agent routes adapter validation", () => {
         .send({
           agentId,
           adapterConfig: {
-            url: "wss://gateway-2.example.test/ws",
+            url: "wss://gateway.example.test/ws",
             authToken: "***REDACTED***",
             devicePrivateKeyPem: "***REDACTED***",
             headers: { "x-openclaw-token": "***REDACTED***" },
@@ -618,13 +663,50 @@ describe("agent routes adapter validation", () => {
     expect(mockSecretService.normalizeAdapterConfigForPersistence).toHaveBeenCalledWith(
       "company-1",
       {
-        url: "wss://gateway-2.example.test/ws",
+        url: "wss://gateway.example.test/ws",
         authToken: "stored-auth-token",
         devicePrivateKeyPem: pem,
         headers: { "x-openclaw-token": "stored-header-token" },
       },
       expect.objectContaining({ adapterType: "external_test" }),
     );
+  });
+
+  it("does not send a saved agent's hidden values to a gateway URL that was just changed", async () => {
+    const agentId = "11111111-1111-4111-8111-111111111111";
+    const pem = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIFAKEFAKEFAKE\n-----END PRIVATE KEY-----\n";
+    mockAgentService.getById.mockResolvedValue({
+      ...(await mockAgentService.getById()),
+      id: agentId,
+      adapterType: "external_test",
+      adapterConfig: {
+        url: "wss://gateway.example.test/ws",
+        authToken: "stored-auth-token",
+        devicePrivateKeyPem: pem,
+        headers: { "x-openclaw-token": "stored-header-token" },
+      },
+    });
+    const { registerServerAdapter } = await import("../adapters/index.js");
+    registerServerAdapter(externalAdapter);
+    const app = await createApp();
+    const res = await requestApp(app, (baseUrl) =>
+      request(baseUrl)
+        .post("/api/companies/company-1/adapters/external_test/test-environment")
+        .send({
+          agentId,
+          adapterConfig: {
+            url: "wss://gateway-2.example.test/ws",
+            authToken: "***REDACTED***",
+            devicePrivateKeyPem: "***REDACTED***",
+            headers: { "x-openclaw-token": "***REDACTED***" },
+          },
+        }),
+    );
+
+    expect(res.status).toBe(422);
+    expect(String(res.body.error)).toContain("authToken");
+    expect(String(res.body.error)).toContain("headers.x-openclaw-token");
+    expect(JSON.stringify(mockSecretService.normalizeAdapterConfigForPersistence.mock.calls)).not.toContain("stored-auth-token");
   });
 
   it("rejects hidden header values from a saved agent of another adapter type", async () => {

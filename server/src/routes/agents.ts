@@ -3160,6 +3160,22 @@ export function agentRoutes(
    * adapter-agnostic `env` bindings are restored, and any other hidden value
    * must be re-entered instead of being carried into a different harness.
    */
+  // Create and hire have no stored agent to restore from. A config copied
+  // from a masked read (for example the Duplicate action) keeps its visible
+  // settings, loses its hidden values (they must be entered again), and is
+  // refused when a placeholder was edited or sits inside an array.
+  function stripRedactedPlaceholdersForCreate(body: unknown): void {
+    if (!body || typeof body !== "object") return;
+    const record = body as Record<string, unknown>;
+    const adapterConfig = asRecord(record.adapterConfig);
+    if (!adapterConfig || !containsRedactedPlaceholder(adapterConfig)) return;
+    const { config, unresolvedPaths } = restoreRedactedAgentAdapterConfig(adapterConfig, {});
+    if (unresolvedPaths.length > 0) {
+      throw unprocessable(`Re-enter the hidden values at: ${unresolvedPaths.join(", ")}`);
+    }
+    record.adapterConfig = config;
+  }
+
   function restoreRedactedAdapterConfig(
     requestedConfig: Record<string, unknown>,
     existingConfig: Record<string, unknown>,
@@ -4522,6 +4538,7 @@ export function agentRoutes(
   router.post("/companies/:companyId/agent-hires", validate(createAgentHireSchema), async (req, res) => {
     const companyId = req.params.companyId as string;
     await assertCanCreateAgentsForCompany(req, companyId);
+    stripRedactedPlaceholdersForCreate(req.body);
     const sourceIssueIds = parseSourceIssueIds(req.body);
     const {
       desiredSkills: requestedDesiredSkills,
@@ -4842,6 +4859,7 @@ export function agentRoutes(
   router.post("/companies/:companyId/agents", validate(createAgentSchema), async (req, res) => {
     const companyId = req.params.companyId as string;
     await assertCanCreateAgentsForCompany(req, companyId);
+    stripRedactedPlaceholdersForCreate(req.body);
 
     const company = await db
       .select()

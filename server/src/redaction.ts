@@ -1011,9 +1011,42 @@ export interface RestoredAgentAdapterConfig {
 
 const DROP_PLACEHOLDER = Symbol("drop-redacted-placeholder");
 
+// Keys that decide where a config sends its credentials. When one of them is
+// changed in an object, the hidden values of that object (and everything
+// under it) are not restored: a stored token must never follow a new URL or
+// command the caller just typed in.
+const CREDENTIAL_DESTINATION_KEY_RE = /(url|uri|endpoint|host|hostname|command)$/i;
+
 function isEnvPlaceholder(binding: unknown): boolean {
   return binding === REDACTED_EVENT_VALUE
     || (isPlainBinding(binding) && binding.value === REDACTED_EVENT_VALUE);
+}
+
+function sameJsonValue(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((item, index) => sameJsonValue(item, b[index]));
+  }
+  if (isPlainObject(a) && isPlainObject(b)) {
+    const aKeys = Object.keys(a);
+    if (aKeys.length !== Object.keys(b).length) return false;
+    return aKeys.every((key) =>
+      Object.prototype.hasOwnProperty.call(b, key) && sameJsonValue(a[key], b[key]));
+  }
+  return false;
+}
+
+function changesCredentialDestination(
+  requested: Record<string, unknown>,
+  existing: Record<string, unknown>,
+): boolean {
+  return Object.keys(requested).some((key) =>
+    CREDENTIAL_DESTINATION_KEY_RE.test(key)
+    && !sameJsonValue(
+      requested[key],
+      Object.prototype.hasOwnProperty.call(existing, key) ? existing[key] : undefined,
+    ));
 }
 
 /**
@@ -1023,11 +1056,17 @@ function isEnvPlaceholder(binding: unknown): boolean {
  * those placeholders back to the stored values of the same agent before the
  * config is persisted or tested.
  *
- * A placeholder is restored only when the stored value at the same path would
- * itself be displayed as that exact placeholder, so a value can never move to
- * a different key. An exact placeholder with no matching stored value is
- * dropped from its object; anything else still carrying the placeholder (an
- * edited partially-redacted string, an array element) is reported in
+ * A placeholder is restored only when all of these hold, so a value can never
+ * move to a different key or follow a new destination:
+ * - the stored value at the same path would itself be displayed as that
+ *   exact placeholder, and the stored value is not itself a placeholder;
+ * - inside an array, the whole array was sent back exactly as displayed
+ *   (arrays are matched by position, so an edited, reordered or shortened
+ *   array cannot be restored safely);
+ * - no credential destination (`url`, `baseUrl`, `endpoint`, `host`,
+ *   `command`, ...) changed in the same object or any object above it.
+ * An exact placeholder with no stored value is dropped from its object.
+ * Everything else still carrying the placeholder is reported in
  * `unresolvedPaths` so the caller can ask for the value to be re-entered.
  *
  * Callers must only pass an `existingConfig` that belongs to the same agent
@@ -1041,31 +1080,43 @@ export function restoreRedactedAgentAdapterConfig(
   const displayedConfig = redactAgentAdapterConfig(existingConfig);
   const ownValue = (record: Record<string, unknown>, key: string) =>
     Object.prototype.hasOwnProperty.call(record, key) ? record[key] : undefined;
+  const isRestorable = (existing: unknown) =>
+    existing !== undefined && !containsRedactedPlaceholder(existing);
 
   const walk = (
     requested: unknown,
     existing: unknown,
     displayed: unknown,
     path: string,
-    inArray: boolean,
+    mayRestore: boolean,
   ): unknown => {
     if (typeof requested === "string") {
       if (!requested.includes(REDACTED_EVENT_VALUE)) return requested;
-      if (requested === displayed && existing !== undefined) return existing;
-      if (requested === REDACTED_EVENT_VALUE && !inArray) return DROP_PLACEHOLDER;
+      if (mayRestore && requested === displayed && isRestorable(existing)) return existing;
+      // Older reads masked booleans too. A boolean cannot be a credential, so a
+      // stale client echoing the placeholder gets the stored flag back.
+      if (requested === REDACTED_EVENT_VALUE && typeof existing === "boolean") return existing;
+      if (requested === REDACTED_EVENT_VALUE && existing === undefined) return DROP_PLACEHOLDER;
       unresolvedPaths.push(path);
       return requested;
     }
     if (Array.isArray(requested)) {
-      const existingItems = Array.isArray(existing) ? existing : [];
-      const displayedItems = Array.isArray(displayed) ? displayed : [];
-      return requested.map((item, index) =>
-        walk(item, existingItems[index], displayedItems[index], `${path}[${index}]`, true),
-      );
+      if (!containsRedactedPlaceholder(requested)) return requested;
+      if (
+        mayRestore
+        && Array.isArray(existing)
+        && sameJsonValue(requested, displayed)
+        && isRestorable(existing)
+      ) {
+        return existing;
+      }
+      unresolvedPaths.push(path);
+      return requested;
     }
     if (isPlainObject(requested)) {
       const existingRecord = isPlainObject(existing) ? existing : {};
       const displayedRecord = isPlainObject(displayed) ? displayed : {};
+      const childMayRestore = mayRestore && !changesCredentialDestination(requested, existingRecord);
       const restored: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(requested)) {
         const next = walk(
@@ -1073,7 +1124,7 @@ export function restoreRedactedAgentAdapterConfig(
           ownValue(existingRecord, key),
           ownValue(displayedRecord, key),
           path ? `${path}.${key}` : key,
-          false,
+          childMayRestore,
         );
         if (next !== DROP_PLACEHOLDER) restored[key] = next;
       }
@@ -1082,31 +1133,37 @@ export function restoreRedactedAgentAdapterConfig(
     return requested;
   };
 
-  const restored: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(requestedConfig)) {
-    if (key === "env" && isPlainObject(value) && isPlainObject(existingConfig.env)) {
+  const { env: requestedEnv, ...requestedRest } = requestedConfig;
+  const { env: _existingEnv, ...existingRest } = existingConfig;
+  const { env: _displayedEnv, ...displayedRest } = displayedConfig;
+  const restored = walk(requestedRest, existingRest, displayedRest, "", true) as Record<string, unknown>;
+
+  if (Object.prototype.hasOwnProperty.call(requestedConfig, "env")) {
+    if (!isPlainObject(requestedEnv)) {
+      restored.env = walk(requestedEnv, existingConfig.env, displayedConfig.env, "env", true);
+    } else {
       // Env values are displayed as `{ type: "plain", value: placeholder }`
       // even when stored as a bare string, so restore whole bindings by name.
-      const existingEnv = existingConfig.env;
+      const existingEnv = isPlainObject(existingConfig.env) ? existingConfig.env : {};
       const restoredEnv: Record<string, unknown> = {};
-      for (const [envKey, binding] of Object.entries(value)) {
-        if (!isEnvPlaceholder(binding)) {
-          restoredEnv[envKey] = binding;
-        } else if (Object.prototype.hasOwnProperty.call(existingEnv, envKey)) {
-          restoredEnv[envKey] = existingEnv[envKey];
+      for (const [envKey, binding] of Object.entries(requestedEnv)) {
+        const envPath = `env.${envKey}`;
+        if (isEnvPlaceholder(binding)) {
+          const stored = ownValue(existingEnv, envKey);
+          if (stored === undefined) continue;
+          if (isRestorable(stored)) {
+            restoredEnv[envKey] = stored;
+          } else {
+            unresolvedPaths.push(envPath);
+            restoredEnv[envKey] = binding;
+          }
+          continue;
         }
+        if (containsRedactedPlaceholder(binding)) unresolvedPaths.push(envPath);
+        restoredEnv[envKey] = binding;
       }
       restored.env = restoredEnv;
-      continue;
     }
-    const next = walk(
-      value,
-      ownValue(existingConfig, key),
-      ownValue(displayedConfig, key),
-      key,
-      false,
-    );
-    if (next !== DROP_PLACEHOLDER) restored[key] = next;
   }
   return { config: restored, unresolvedPaths };
 }

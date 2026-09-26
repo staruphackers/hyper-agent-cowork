@@ -735,7 +735,6 @@ describe.sequential("agent permission routes", () => {
           replaceAdapterConfig: true,
           adapterConfig: {
             ...displayed,
-            url: "wss://gateway-2.example.test/ws",
             authToken: "rotated-auth-token",
             headers: { ...displayed.headers, "x-trace": "changed" },
           },
@@ -743,11 +742,24 @@ describe.sequential("agent permission routes", () => {
       );
       expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(200);
       expect(persistedAdapterConfig()).toMatchObject({
-        url: "wss://gateway-2.example.test/ws",
         authToken: "rotated-auth-token",
         devicePrivateKeyPem: pem,
         headers: { "x-openclaw-token": "stored-header-token", "x-trace": "changed" },
       });
+    }, 20_000);
+
+    it("asks for hidden values again when the gateway URL changes", async () => {
+      const { app, displayed } = await readRedactedConfig();
+      const patchRes = await requestApp(app, (baseUrl) =>
+        request(baseUrl).patch(`/api/agents/${agentId}`).send({
+          replaceAdapterConfig: true,
+          adapterConfig: { ...displayed, url: "wss://gateway-2.example.test/ws" },
+        }),
+      );
+      expect(patchRes.status).toBe(422);
+      expect(String(patchRes.body.error)).toContain("devicePrivateKeyPem");
+      expect(String(patchRes.body.error)).toContain("headers.x-openclaw-token");
+      expect(mockAgentService.update).not.toHaveBeenCalled();
     }, 20_000);
 
     it("round-trips a boolean *Auth* flag unchanged through read and save", async () => {

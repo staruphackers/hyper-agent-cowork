@@ -67,11 +67,15 @@ describe("restoreRedactedAgentAdapterConfig", () => {
   it("never moves a stored secret to a different key", () => {
     // `url` is stored in the clear, so a placeholder there cannot map to it,
     // and `authToken`'s value must not leak into `url`.
-    const { config } = restoreRedactedAgentAdapterConfig(
+    const { config, unresolvedPaths } = restoreRedactedAgentAdapterConfig(
       { url: REDACTED_EVENT_VALUE, token: REDACTED_EVENT_VALUE },
       { url: "wss://gateway.example.test/ws", authToken: "stored-auth-token" },
     );
-    expect(config).toEqual({});
+    // `url` has a stored value it cannot be mapped to, so it must be re-entered
+    // (dropping it would delete the stored url on a replace-mode save).
+    expect(unresolvedPaths).toEqual(["url"]);
+    expect(JSON.stringify(config)).not.toContain("stored-auth-token");
+    expect(config).not.toHaveProperty("token");
   });
 
   it("reports placeholders it cannot resolve instead of guessing", () => {
@@ -82,7 +86,7 @@ describe("restoreRedactedAgentAdapterConfig", () => {
       },
       { args: ["--verbose"], headers: { authorization: "Bearer stored" } },
     );
-    expect(unresolvedPaths).toEqual(["args[1]", "headers.authorization"]);
+    expect(unresolvedPaths).toEqual(["args", "headers.authorization"]);
   });
 
   it("restores unchanged array elements by position", () => {
@@ -114,8 +118,65 @@ describe("restoreRedactedAgentAdapterConfig", () => {
       { disableDeviceAuth: REDACTED_EVENT_VALUE },
       { disableDeviceAuth: true },
     );
-    // The stored boolean is now displayed as-is, so the placeholder no longer
-    // matches it and is dropped; a merge-mode PATCH then keeps the stored value.
-    expect(config).toEqual({});
+    // A boolean cannot be a credential, so the stored flag comes back as-is.
+    expect(config).toEqual({ disableDeviceAuth: true });
+  });
+
+  it("refuses to restore by position in a reordered or shortened array", () => {
+    const stored = {
+      commandArgs: ["--api-key", "stored-api-key", "--token", "stored-token"],
+      mcpServers: [{ name: "a", apiKey: "key-a" }, { name: "b", apiKey: "key-b" }],
+    };
+    const { config, unresolvedPaths } = restoreRedactedAgentAdapterConfig(
+      {
+        commandArgs: ["--token", REDACTED_EVENT_VALUE],
+        mcpServers: [{ name: "b", apiKey: REDACTED_EVENT_VALUE }, { name: "a", apiKey: REDACTED_EVENT_VALUE }],
+      },
+      stored,
+    );
+    expect(unresolvedPaths).toEqual(["commandArgs", "mcpServers"]);
+    expect(JSON.stringify(config)).not.toMatch(/stored-api-key|stored-token|key-a|key-b/);
+  });
+
+  it("does not treat a stored placeholder as a real value", () => {
+    const { unresolvedPaths } = restoreRedactedAgentAdapterConfig(
+      { devicePrivateKeyPem: REDACTED_EVENT_VALUE, env: { API_KEY: { type: "plain", value: REDACTED_EVENT_VALUE } } },
+      { devicePrivateKeyPem: REDACTED_EVENT_VALUE, env: { API_KEY: REDACTED_EVENT_VALUE } },
+    );
+    expect(unresolvedPaths).toEqual(["devicePrivateKeyPem", "env.API_KEY"]);
+  });
+
+  it("reports edited env placeholders and drops env placeholders with no stored value", () => {
+    const { config, unresolvedPaths } = restoreRedactedAgentAdapterConfig(
+      {
+        env: {
+          EDITED: { type: "plain", value: `${REDACTED_EVENT_VALUE}x` },
+          MISSING: { type: "plain", value: REDACTED_EVENT_VALUE },
+        },
+      },
+      {},
+    );
+    expect(unresolvedPaths).toEqual(["env.EDITED"]);
+    expect(config.env).not.toHaveProperty("MISSING");
+  });
+
+  it("does not let stored secrets follow a changed destination", () => {
+    const stored = {
+      url: "wss://gateway.example.test/ws",
+      authToken: "stored-auth-token",
+      headers: { "x-openclaw-token": "stored-header-token" },
+      server: { baseUrl: "https://old.example.test", apiKey: "stored-server-key" },
+    };
+    const displayed = redactAgentAdapterConfig(stored);
+    const moved = restoreRedactedAgentAdapterConfig({ ...displayed, url: "wss://other.example.test/ws" }, stored);
+    expect(moved.unresolvedPaths).toEqual(["authToken", "headers.x-openclaw-token", "server.apiKey"]);
+    expect(JSON.stringify(moved.config)).not.toMatch(/stored-/);
+
+    const nested = restoreRedactedAgentAdapterConfig(
+      { ...displayed, server: { baseUrl: "https://new.example.test", apiKey: REDACTED_EVENT_VALUE } },
+      stored,
+    );
+    expect(nested.unresolvedPaths).toEqual(["server.apiKey"]);
+    expect(nested.config.authToken).toBe("stored-auth-token");
   });
 });
