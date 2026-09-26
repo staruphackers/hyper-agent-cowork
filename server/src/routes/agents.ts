@@ -132,9 +132,10 @@ import {
   requireServerAdapter,
 } from "../adapters/index.js";
 import {
-  REDACTED_EVENT_VALUE,
+  containsRedactedPlaceholder,
   redactAgentAdapterConfig,
   redactEventPayload,
+  restoreRedactedAgentAdapterConfig,
 } from "../redaction.js";
 import { redactCurrentUserValue } from "../log-redaction.js";
 import {
@@ -3152,26 +3153,31 @@ export function agentRoutes(
     };
   }
 
-  function restoreRedactedAgentEnv(
+  /**
+   * Replace the display placeholders a client echoes back from a redacted
+   * agent read with the stored values of the same agent. `sameAdapter` must be
+   * false when the requested config targets another adapter type: then only
+   * adapter-agnostic `env` bindings are restored, and any other hidden value
+   * must be re-entered instead of being carried into a different harness.
+   */
+  function restoreRedactedAdapterConfig(
     requestedConfig: Record<string, unknown>,
     existingConfig: Record<string, unknown>,
+    options: { sameAdapter: boolean; switchMessage: string },
   ): Record<string, unknown> {
-    const requestedEnv = asRecord(requestedConfig.env);
-    const existingEnv = asRecord(existingConfig.env);
-    if (!requestedEnv || !existingEnv) return requestedConfig;
-
-    const restoredEnv = { ...requestedEnv };
-    for (const [key, value] of Object.entries(requestedEnv)) {
-      const binding = asRecord(value);
-      if (
-        binding?.type === "plain"
-        && binding.value === REDACTED_EVENT_VALUE
-        && Object.prototype.hasOwnProperty.call(existingEnv, key)
-      ) {
-        restoredEnv[key] = existingEnv[key];
-      }
+    let source = existingConfig;
+    if (!options.sameAdapter) {
+      const { env: _env, ...nonEnv } = requestedConfig;
+      if (containsRedactedPlaceholder(nonEnv)) throw unprocessable(options.switchMessage);
+      source = hasOwn(existingConfig, "env") ? { env: existingConfig.env } : {};
     }
-    return { ...requestedConfig, env: restoredEnv };
+    const { config, unresolvedPaths } = restoreRedactedAgentAdapterConfig(requestedConfig, source);
+    if (unresolvedPaths.length > 0) {
+      throw unprocessable(
+        `Re-enter the hidden values at: ${unresolvedPaths.join(", ")}`,
+      );
+    }
+    return config;
   }
 
   function redactRevisionSnapshot(snapshot: unknown): Record<string, unknown> {
@@ -3500,14 +3506,18 @@ export function agentRoutes(
         const canRestoreEnv = savedAgent.adapterType === type || providerAdapter === type;
         // Permit testing a prospective adapter switch, but do not transfer
         // hidden values from the saved adapter into an unrelated harness.
-        if (!canRestoreEnv && Object.values(parseObject(inputAdapterConfig.env)).some(value => {
-          const binding = asRecord(value);
-          return binding?.type === "plain" && binding.value === REDACTED_EVENT_VALUE;
-        })) {
+        if (!canRestoreEnv && containsRedactedPlaceholder(inputAdapterConfig)) {
           throw unprocessable("Re-enter environment values when testing a different adapter");
         }
         adapterConfigForTest = canRestoreEnv
-          ? restoreRedactedAgentEnv(inputAdapterConfig, savedAgent.adapterConfig)
+          ? restoreRedactedAdapterConfig(
+            inputAdapterConfig,
+            asRecord(savedAgent.adapterConfig) ?? {},
+            {
+              sameAdapter: savedAgent.adapterType === type,
+              switchMessage: "Re-enter secret values when testing a different adapter",
+            },
+          )
           : inputAdapterConfig;
       }
       const normalizedAdapterConfig = await secretsSvc.normalizeAdapterConfigForPersistence(
@@ -5419,7 +5429,10 @@ export function agentRoutes(
         await assertCanManageInstructionsPath(req, existing);
       }
       let rawEffectiveAdapterConfig = requestedAdapterConfig
-        ? restoreRedactedAgentEnv(requestedAdapterConfig, existingAdapterConfig)
+        ? restoreRedactedAdapterConfig(requestedAdapterConfig, existingAdapterConfig, {
+          sameAdapter: !changingAdapterType,
+          switchMessage: "Re-enter secret values when switching adapter types",
+        })
         : changingAdapterType ? {} : existingAdapterConfig;
       if (requestedAdapterConfig && !changingAdapterType && !replaceAdapterConfig) {
         rawEffectiveAdapterConfig = { ...existingAdapterConfig, ...rawEffectiveAdapterConfig };

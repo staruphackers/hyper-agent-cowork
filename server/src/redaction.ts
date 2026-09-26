@@ -906,6 +906,12 @@ export function sanitizeRecord(
         redacted[key] = { type: "plain", value: REDACTED_EVENT_VALUE };
         continue;
       }
+      // A boolean cannot carry a credential, and masking one turns a flag such
+      // as `disableDeviceAuth` into a string the UI then writes back.
+      if (typeof value === "boolean") {
+        redacted[key] = value;
+        continue;
+      }
       redacted[key] = REDACTED_EVENT_VALUE;
       continue;
     }
@@ -987,6 +993,122 @@ export function redactAgentAdapterConfig(
   );
 
   return { ...(redactEventPayload(rest) ?? {}), env: redactedEnv };
+}
+
+/** True when any string leaf of `value` still carries the display placeholder. */
+export function containsRedactedPlaceholder(value: unknown): boolean {
+  if (typeof value === "string") return value.includes(REDACTED_EVENT_VALUE);
+  if (Array.isArray(value)) return value.some(containsRedactedPlaceholder);
+  if (isPlainObject(value)) return Object.values(value).some(containsRedactedPlaceholder);
+  return false;
+}
+
+export interface RestoredAgentAdapterConfig {
+  config: Record<string, unknown>;
+  /** Paths whose placeholder could not be mapped back to a stored value. */
+  unresolvedPaths: string[];
+}
+
+const DROP_PLACEHOLDER = Symbol("drop-redacted-placeholder");
+
+function isEnvPlaceholder(binding: unknown): boolean {
+  return binding === REDACTED_EVENT_VALUE
+    || (isPlainBinding(binding) && binding.value === REDACTED_EVENT_VALUE);
+}
+
+/**
+ * Agent reads pass `adapterConfig` through `redactAgentAdapterConfig`, so a
+ * client that edits and re-submits the config sends `***REDACTED***` back for
+ * every hidden value (env bindings, headers, tokens, private keys, ...). Map
+ * those placeholders back to the stored values of the same agent before the
+ * config is persisted or tested.
+ *
+ * A placeholder is restored only when the stored value at the same path would
+ * itself be displayed as that exact placeholder, so a value can never move to
+ * a different key. An exact placeholder with no matching stored value is
+ * dropped from its object; anything else still carrying the placeholder (an
+ * edited partially-redacted string, an array element) is reported in
+ * `unresolvedPaths` so the caller can ask for the value to be re-entered.
+ *
+ * Callers must only pass an `existingConfig` that belongs to the same agent
+ * and the same adapter type as the requested config.
+ */
+export function restoreRedactedAgentAdapterConfig(
+  requestedConfig: Record<string, unknown>,
+  existingConfig: Record<string, unknown>,
+): RestoredAgentAdapterConfig {
+  const unresolvedPaths: string[] = [];
+  const displayedConfig = redactAgentAdapterConfig(existingConfig);
+  const ownValue = (record: Record<string, unknown>, key: string) =>
+    Object.prototype.hasOwnProperty.call(record, key) ? record[key] : undefined;
+
+  const walk = (
+    requested: unknown,
+    existing: unknown,
+    displayed: unknown,
+    path: string,
+    inArray: boolean,
+  ): unknown => {
+    if (typeof requested === "string") {
+      if (!requested.includes(REDACTED_EVENT_VALUE)) return requested;
+      if (requested === displayed && existing !== undefined) return existing;
+      if (requested === REDACTED_EVENT_VALUE && !inArray) return DROP_PLACEHOLDER;
+      unresolvedPaths.push(path);
+      return requested;
+    }
+    if (Array.isArray(requested)) {
+      const existingItems = Array.isArray(existing) ? existing : [];
+      const displayedItems = Array.isArray(displayed) ? displayed : [];
+      return requested.map((item, index) =>
+        walk(item, existingItems[index], displayedItems[index], `${path}[${index}]`, true),
+      );
+    }
+    if (isPlainObject(requested)) {
+      const existingRecord = isPlainObject(existing) ? existing : {};
+      const displayedRecord = isPlainObject(displayed) ? displayed : {};
+      const restored: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(requested)) {
+        const next = walk(
+          value,
+          ownValue(existingRecord, key),
+          ownValue(displayedRecord, key),
+          path ? `${path}.${key}` : key,
+          false,
+        );
+        if (next !== DROP_PLACEHOLDER) restored[key] = next;
+      }
+      return restored;
+    }
+    return requested;
+  };
+
+  const restored: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(requestedConfig)) {
+    if (key === "env" && isPlainObject(value) && isPlainObject(existingConfig.env)) {
+      // Env values are displayed as `{ type: "plain", value: placeholder }`
+      // even when stored as a bare string, so restore whole bindings by name.
+      const existingEnv = existingConfig.env;
+      const restoredEnv: Record<string, unknown> = {};
+      for (const [envKey, binding] of Object.entries(value)) {
+        if (!isEnvPlaceholder(binding)) {
+          restoredEnv[envKey] = binding;
+        } else if (Object.prototype.hasOwnProperty.call(existingEnv, envKey)) {
+          restoredEnv[envKey] = existingEnv[envKey];
+        }
+      }
+      restored.env = restoredEnv;
+      continue;
+    }
+    const next = walk(
+      value,
+      ownValue(existingConfig, key),
+      ownValue(displayedConfig, key),
+      key,
+      false,
+    );
+    if (next !== DROP_PLACEHOLDER) restored[key] = next;
+  }
+  return { config: restored, unresolvedPaths };
 }
 
 export function redactSensitiveText(input: string): string {

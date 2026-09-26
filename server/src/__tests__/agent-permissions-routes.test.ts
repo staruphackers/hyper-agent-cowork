@@ -673,6 +673,124 @@ describe.sequential("agent permission routes", () => {
     expect(JSON.stringify(updateCallArgs?.adapterConfig ?? {})).not.toContain("***REDACTED***");
   }, 20_000);
 
+  describe("redacted non-env adapter config round-trips", () => {
+    const pem = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIFAKEFAKEFAKE\n-----END PRIVATE KEY-----\n";
+    const storedConfig = {
+      url: "wss://gateway.example.test/ws",
+      authToken: "stored-auth-token",
+      devicePrivateKeyPem: pem,
+      headers: { "x-openclaw-token": "stored-header-token", "x-trace": "visible" },
+      env: { EXISTING_VALUE: { type: "plain", value: "stored-env-value" } },
+    };
+
+    async function readRedactedConfig() {
+      mockAgentService.getById.mockResolvedValue({ ...baseAgent, adapterConfig: storedConfig });
+      mockAgentService.update.mockResolvedValue(baseAgent);
+      const app = await createApp({
+        type: "board",
+        userId: "board-user",
+        source: "local_implicit",
+        isInstanceAdmin: true,
+        companyIds: [companyId],
+      });
+      const res = await requestApp(app, (baseUrl) => request(baseUrl).get(`/api/agents/${agentId}`));
+      expect(res.status).toBe(200);
+      const displayed = res.body.adapterConfig as Record<string, any>;
+      // Premise: the read hides every secret this suite relies on.
+      expect(displayed.devicePrivateKeyPem).toBe("***REDACTED***");
+      expect(displayed.authToken).toBe("***REDACTED***");
+      expect(displayed.headers["x-openclaw-token"]).toBe("***REDACTED***");
+      expect(JSON.stringify(displayed)).not.toContain("stored-");
+      return { app, displayed };
+    }
+
+    function persistedAdapterConfig() {
+      const args = mockAgentService.update.mock.calls[0]?.[1] as
+        | { adapterConfig?: Record<string, unknown> }
+        | undefined;
+      return args?.adapterConfig ?? {};
+    }
+
+    it.each([false, true])(
+      "keeps stored private key, headers and auth token when the redacted config is saved (replaceAdapterConfig=%s)",
+      async (replaceAdapterConfig) => {
+        const { app, displayed } = await readRedactedConfig();
+        const patchRes = await requestApp(app, (baseUrl) =>
+          request(baseUrl).patch(`/api/agents/${agentId}`).send({
+            adapterConfig: displayed,
+            ...(replaceAdapterConfig ? { replaceAdapterConfig: true } : {}),
+          }),
+        );
+        expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(200);
+        expect(persistedAdapterConfig()).toMatchObject(storedConfig);
+        expect(JSON.stringify(persistedAdapterConfig())).not.toContain("***REDACTED***");
+      },
+      20_000,
+    );
+
+    it("persists values the user actually changed next to restored ones", async () => {
+      const { app, displayed } = await readRedactedConfig();
+      const patchRes = await requestApp(app, (baseUrl) =>
+        request(baseUrl).patch(`/api/agents/${agentId}`).send({
+          replaceAdapterConfig: true,
+          adapterConfig: {
+            ...displayed,
+            url: "wss://gateway-2.example.test/ws",
+            authToken: "rotated-auth-token",
+            headers: { ...displayed.headers, "x-trace": "changed" },
+          },
+        }),
+      );
+      expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(200);
+      expect(persistedAdapterConfig()).toMatchObject({
+        url: "wss://gateway-2.example.test/ws",
+        authToken: "rotated-auth-token",
+        devicePrivateKeyPem: pem,
+        headers: { "x-openclaw-token": "stored-header-token", "x-trace": "changed" },
+      });
+    }, 20_000);
+
+    it("round-trips a boolean *Auth* flag unchanged through read and save", async () => {
+      mockAgentService.getById.mockResolvedValue({
+        ...baseAgent,
+        adapterConfig: { ...storedConfig, disableDeviceAuth: true },
+      });
+      mockAgentService.update.mockResolvedValue(baseAgent);
+      const app = await createApp({
+        type: "board",
+        userId: "board-user",
+        source: "local_implicit",
+        isInstanceAdmin: true,
+        companyIds: [companyId],
+      });
+      const read = await requestApp(app, (baseUrl) => request(baseUrl).get(`/api/agents/${agentId}`));
+      expect(read.status).toBe(200);
+      expect(read.body.adapterConfig.disableDeviceAuth).toBe(true);
+      const patchRes = await requestApp(app, (baseUrl) =>
+        request(baseUrl).patch(`/api/agents/${agentId}`).send({
+          replaceAdapterConfig: true,
+          adapterConfig: read.body.adapterConfig,
+        }),
+      );
+      expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(200);
+      expect(persistedAdapterConfig().disableDeviceAuth).toBe(true);
+      expect(persistedAdapterConfig()).toMatchObject(storedConfig);
+    }, 20_000);
+
+    it("refuses to carry hidden non-env values into a different adapter type", async () => {
+      const { app, displayed } = await readRedactedConfig();
+      const patchRes = await requestApp(app, (baseUrl) =>
+        request(baseUrl).patch(`/api/agents/${agentId}`).send({
+          adapterType: "codex_local",
+          adapterConfig: { headers: displayed.headers },
+        }),
+      );
+      expect(patchRes.status).toBe(422);
+      expect(String(patchRes.body.error)).toContain("Re-enter secret values when switching adapter types");
+      expect(mockAgentService.update).not.toHaveBeenCalled();
+    }, 20_000);
+  });
+
   it("redacts company agent list for authenticated company members without agent admin permission", async () => {
     mockAccessService.canUser.mockResolvedValue(false);
     mockAccessService.decide.mockImplementation(async (input: { action?: string }) => ({
