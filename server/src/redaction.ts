@@ -1011,12 +1011,6 @@ export interface RestoredAgentAdapterConfig {
 
 const DROP_PLACEHOLDER = Symbol("drop-redacted-placeholder");
 
-// Keys that decide where a config sends its credentials. When one of them is
-// changed in an object, the hidden values of that object (and everything
-// under it) are not restored: a stored token must never follow a new URL or
-// command the caller just typed in.
-const CREDENTIAL_DESTINATION_KEY_RE = /(url|uri|endpoint|host|hostname|command)$/i;
-
 function isEnvPlaceholder(binding: unknown): boolean {
   return binding === REDACTED_EVENT_VALUE
     || (isPlainBinding(binding) && binding.value === REDACTED_EVENT_VALUE);
@@ -1037,18 +1031,6 @@ function sameJsonValue(a: unknown, b: unknown): boolean {
   return false;
 }
 
-function changesCredentialDestination(
-  requested: Record<string, unknown>,
-  existing: Record<string, unknown>,
-): boolean {
-  return Object.keys(requested).some((key) =>
-    CREDENTIAL_DESTINATION_KEY_RE.test(key)
-    && !sameJsonValue(
-      requested[key],
-      Object.prototype.hasOwnProperty.call(existing, key) ? existing[key] : undefined,
-    ));
-}
-
 /**
  * Agent reads pass `adapterConfig` through `redactAgentAdapterConfig`, so a
  * client that edits and re-submits the config sends `***REDACTED***` back for
@@ -1057,17 +1039,19 @@ function changesCredentialDestination(
  * config is persisted or tested.
  *
  * A placeholder is restored only when all of these hold, so a value can never
- * move to a different key or follow a new destination:
+ * move to a different key:
  * - the stored value at the same path would itself be displayed as that
  *   exact placeholder, and the stored value is not itself a placeholder;
  * - inside an array, the whole array was sent back exactly as displayed
  *   (arrays are matched by position, so an edited, reordered or shortened
- *   array cannot be restored safely);
- * - no credential destination (`url`, `baseUrl`, `endpoint`, `host`,
- *   `command`, ...) changed in the same object or any object above it.
+ *   array cannot be restored safely).
  * An exact placeholder with no stored value is dropped from its object.
  * Everything else still carrying the placeholder is reported in
  * `unresolvedPaths` so the caller can ask for the value to be re-entered.
+ *
+ * Known limit: a restored value still goes to whatever url/command the
+ * request carries, as env values always have. Asking for re-entry when a
+ * destination changes needs per-adapter rules and UI for every hidden field.
  *
  * Callers must only pass an `existingConfig` that belongs to the same agent
  * and the same adapter type as the requested config.
@@ -1088,11 +1072,10 @@ export function restoreRedactedAgentAdapterConfig(
     existing: unknown,
     displayed: unknown,
     path: string,
-    mayRestore: boolean,
   ): unknown => {
     if (typeof requested === "string") {
       if (!requested.includes(REDACTED_EVENT_VALUE)) return requested;
-      if (mayRestore && requested === displayed && isRestorable(existing)) return existing;
+      if (requested === displayed && isRestorable(existing)) return existing;
       // Older reads masked booleans too. A boolean cannot be a credential, so a
       // stale client echoing the placeholder gets the stored flag back.
       if (requested === REDACTED_EVENT_VALUE && typeof existing === "boolean") return existing;
@@ -1103,8 +1086,7 @@ export function restoreRedactedAgentAdapterConfig(
     if (Array.isArray(requested)) {
       if (!containsRedactedPlaceholder(requested)) return requested;
       if (
-        mayRestore
-        && Array.isArray(existing)
+        Array.isArray(existing)
         && sameJsonValue(requested, displayed)
         && isRestorable(existing)
       ) {
@@ -1116,7 +1098,6 @@ export function restoreRedactedAgentAdapterConfig(
     if (isPlainObject(requested)) {
       const existingRecord = isPlainObject(existing) ? existing : {};
       const displayedRecord = isPlainObject(displayed) ? displayed : {};
-      const childMayRestore = mayRestore && !changesCredentialDestination(requested, existingRecord);
       const restored: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(requested)) {
         const next = walk(
@@ -1124,7 +1105,6 @@ export function restoreRedactedAgentAdapterConfig(
           ownValue(existingRecord, key),
           ownValue(displayedRecord, key),
           path ? `${path}.${key}` : key,
-          childMayRestore,
         );
         if (next !== DROP_PLACEHOLDER) restored[key] = next;
       }
@@ -1136,11 +1116,11 @@ export function restoreRedactedAgentAdapterConfig(
   const { env: requestedEnv, ...requestedRest } = requestedConfig;
   const { env: _existingEnv, ...existingRest } = existingConfig;
   const { env: _displayedEnv, ...displayedRest } = displayedConfig;
-  const restored = walk(requestedRest, existingRest, displayedRest, "", true) as Record<string, unknown>;
+  const restored = walk(requestedRest, existingRest, displayedRest, "") as Record<string, unknown>;
 
   if (Object.prototype.hasOwnProperty.call(requestedConfig, "env")) {
     if (!isPlainObject(requestedEnv)) {
-      restored.env = walk(requestedEnv, existingConfig.env, displayedConfig.env, "env", true);
+      restored.env = walk(requestedEnv, existingConfig.env, displayedConfig.env, "env");
     } else {
       // Env values are displayed as `{ type: "plain", value: placeholder }`
       // even when stored as a bare string, so restore whole bindings by name.

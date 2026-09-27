@@ -159,24 +159,4 @@ describe("restoreRedactedAgentAdapterConfig", () => {
     expect(unresolvedPaths).toEqual(["env.EDITED"]);
     expect(config.env).not.toHaveProperty("MISSING");
   });
-
-  it("does not let stored secrets follow a changed destination", () => {
-    const stored = {
-      url: "wss://gateway.example.test/ws",
-      authToken: "stored-auth-token",
-      headers: { "x-openclaw-token": "stored-header-token" },
-      server: { baseUrl: "https://old.example.test", apiKey: "stored-server-key" },
-    };
-    const displayed = redactAgentAdapterConfig(stored);
-    const moved = restoreRedactedAgentAdapterConfig({ ...displayed, url: "wss://other.example.test/ws" }, stored);
-    expect(moved.unresolvedPaths).toEqual(["authToken", "headers.x-openclaw-token", "server.apiKey"]);
-    expect(JSON.stringify(moved.config)).not.toMatch(/stored-/);
-
-    const nested = restoreRedactedAgentAdapterConfig(
-      { ...displayed, server: { baseUrl: "https://new.example.test", apiKey: REDACTED_EVENT_VALUE } },
-      stored,
-    );
-    expect(nested.unresolvedPaths).toEqual(["server.apiKey"]);
-    expect(nested.config.authToken).toBe("stored-auth-token");
-  });
 });

@@ -184,7 +184,9 @@ function buildConfigSnapshot(
 }
 
 function containsRedactedMarker(value: unknown): boolean {
-  if (value === REDACTED_EVENT_VALUE) return true;
+  // Any string still carrying the display placeholder (including a partially
+  // redacted command such as "run --api-key ***REDACTED***") is not a real value.
+  if (typeof value === "string") return value.includes(REDACTED_EVENT_VALUE);
   if (Array.isArray(value)) return value.some((item) => containsRedactedMarker(item));
   if (typeof value !== "object" || value === null) return false;
   return Object.values(value as Record<string, unknown>).some((entry) => containsRedactedMarker(entry));

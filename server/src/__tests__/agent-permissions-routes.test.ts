@@ -748,7 +748,9 @@ describe.sequential("agent permission routes", () => {
       });
     }, 20_000);
 
-    it("asks for hidden values again when the gateway URL changes", async () => {
+    it("keeps the stored hidden values when only the gateway URL changes", async () => {
+      // The settings page has no field for the device private key, so a URL
+      // change must not force the key to be re-entered.
       const { app, displayed } = await readRedactedConfig();
       const patchRes = await requestApp(app, (baseUrl) =>
         request(baseUrl).patch(`/api/agents/${agentId}`).send({
@@ -756,10 +758,13 @@ describe.sequential("agent permission routes", () => {
           adapterConfig: { ...displayed, url: "wss://gateway-2.example.test/ws" },
         }),
       );
-      expect(patchRes.status).toBe(422);
-      expect(String(patchRes.body.error)).toContain("devicePrivateKeyPem");
-      expect(String(patchRes.body.error)).toContain("headers.x-openclaw-token");
-      expect(mockAgentService.update).not.toHaveBeenCalled();
+      expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(200);
+      expect(persistedAdapterConfig()).toMatchObject({
+        url: "wss://gateway-2.example.test/ws",
+        devicePrivateKeyPem: pem,
+        headers: { "x-openclaw-token": "stored-header-token" },
+      });
+      expect(JSON.stringify(persistedAdapterConfig())).not.toContain("***REDACTED***");
     }, 20_000);
 
     it("round-trips a boolean *Auth* flag unchanged through read and save", async () => {
