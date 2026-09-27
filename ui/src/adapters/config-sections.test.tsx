@@ -124,4 +124,15 @@ describe("adapter configuration sections", () => {
       );
     },
   );
+
+  it("warns that OpenClaw grants no scopes when device auth is disabled", () => {
+    expect(
+      renderSection(OpenClawGatewayConfigFields, "openclaw_gateway", "configuration", {
+        disableDeviceAuth: true,
+      }),
+    ).toContain("missing scope: operator.write");
+    expect(
+      renderSection(OpenClawGatewayConfigFields, "openclaw_gateway", "configuration", {}),
+    ).not.toContain("missing scope: operator.write");
+  });
 });

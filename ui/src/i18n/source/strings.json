@@ -3257,7 +3257,7 @@
   "~/.openclaw/workspace/paperclip-claimed-api-key.json": {
     "count": 1,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:384"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:387"
   },
   "● Editing · unsaved": {
     "count": 1,
@@ -5457,7 +5457,7 @@
   "Agent ID": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:189"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:192"
   },
   "Agent identity": {
     "count": 1,
@@ -5592,7 +5592,7 @@
   "agent-123": {
     "count": 1,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:203"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:206"
   },
   "Agent-lacks-permission failure": {
     "count": 2,
@@ -8172,7 +8172,7 @@
   "Auto-pair on first connect": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:432"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:437"
   },
   "Auto-Restart Dev Server When Idle": {
     "count": 2,
@@ -8257,7 +8257,7 @@
   "Automatically approve device pairing": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:446"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:451"
   },
   "Automatically queue bounded continuation runs when an adapter stops because its per-run turn cap was exhausted.": {
     "count": 1,
@@ -11212,7 +11212,7 @@
   "Claimed API key path": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:378"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:381"
   },
   "Claiming...": {
     "count": 1,
@@ -16059,6 +16059,11 @@
     "kind": "jsx",
     "first": "src/pages/InstanceAccess.tsx:241"
   },
+  "Current OpenClaw gateways grant no operator scopes without a device identity, so runs will fail with \"missing scope: operator.write\". Leave this off unless your gateway is configured for token-only access.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:430"
+  },
   "Current state": {
     "count": 1,
     "kind": "jsx",
@@ -17272,7 +17277,7 @@
   "Device auth": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:451"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:456"
   },
   "DF": {
     "count": 1,
@@ -17387,7 +17392,7 @@
   "Disable device auth": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:413"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:416"
   },
   "Disable failed": {
     "count": 2,
@@ -21552,7 +21557,7 @@
   "Fixed": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:221"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:224"
   },
   "Fixed port": {
     "count": 2,
@@ -22017,7 +22022,7 @@
   "Gateway auth token": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:175"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:178"
   },
   "Gateway bearer token": {
     "count": 1,
@@ -22062,7 +22067,7 @@
   "Gateway shared password": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:259"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:262"
   },
   "Gateway tabs": {
     "count": 2,
@@ -22082,7 +22087,7 @@
   "Gateway URL": {
     "count": 3,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:147"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:150"
   },
   "Gateway URL copied": {
     "count": 2,
@@ -22862,7 +22867,7 @@
   "Headers JSON": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:352"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:355"
   },
   "Heads up": {
     "count": 4,
@@ -23442,7 +23447,7 @@
   "https://paperclip.example": {
     "count": 1,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:326"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:329"
   },
   "https://paperclip.local/invite/new-token": {
     "count": 1,
@@ -33362,7 +33367,7 @@
   "OpenClaw gateway token": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:186"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:189"
   },
   "OpenCode": {
     "count": 3,
@@ -33507,7 +33512,7 @@
   "operator": {
     "count": 1,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:276"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:279"
   },
   "Operator": {
     "count": 4,
@@ -33527,7 +33532,7 @@
   "operator.admin": {
     "count": 1,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:300"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:303"
   },
   "Opt into features that are still being evaluated before they become default behavior.": {
     "count": 1,
@@ -34372,7 +34377,7 @@
   "paperclip": {
     "count": 3,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:242"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:245"
   },
   "Paperclip": {
     "count": 17,
@@ -34412,7 +34417,7 @@
   "Paperclip API URL override": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:312"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:315"
   },
   "Paperclip App": {
     "count": 2,
@@ -35172,7 +35177,7 @@
   "Password (alternative auth)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:248"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:251"
   },
   "password: ": {
     "count": 1,
@@ -35767,12 +35772,12 @@
   "Per issue": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:222"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:225"
   },
   "Per run": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:223"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:226"
   },
   "Perfect. I also want to see an empty state and a blocked composer state before we merge.": {
     "count": 1,
@@ -42122,7 +42127,7 @@
   "Role": {
     "count": 11,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:262"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:265"
   },
   "role=\"status\"": {
     "count": 1,
@@ -43667,7 +43672,7 @@
   "Scopes (comma-separated)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:280"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:283"
   },
   "Scratch notes": {
     "count": 2,
@@ -45407,7 +45412,7 @@
   "Session key": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:228"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:231"
   },
   "Session key strategy": {
     "count": 2,
@@ -45432,7 +45437,7 @@
   "Session strategy": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:207"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:210"
   },
   "Session URLs and headers come from your external Composio setup. Direct-tools sessions expose individual actions.": {
     "count": 1,
@@ -46957,7 +46962,7 @@
   "Skip device key authentication": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:427"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:426"
   },
   "Skip failed": {
     "count": 2,
@@ -52347,7 +52352,7 @@
   "Timeout (seconds)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:330"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:333"
   },
   "Timeout seconds": {
     "count": 2,
@@ -55687,7 +55692,7 @@
   "Wait timeout (ms)": {
     "count": 2,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:389"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:392"
   },
   "Wait until all ": {
     "count": 1,
@@ -56462,7 +56467,7 @@
   "When enabled, Paperclip persists a device key during onboarding so pairing approvals remain stable across runs.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:452"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:457"
   },
   "When on and every child is done, this step moves the item forward automatically. When off, someone has to move it.": {
     "count": 1,
@@ -57312,7 +57317,7 @@
   "ws://127.0.0.1:18789": {
     "count": 1,
     "kind": "attr",
-    "first": "src/adapters/openclaw-gateway/config-fields.tsx:161"
+    "first": "src/adapters/openclaw-gateway/config-fields.tsx:164"
   },
   "X-API-Key": {
     "count": 1,

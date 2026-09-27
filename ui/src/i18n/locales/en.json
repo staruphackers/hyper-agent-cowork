@@ -3211,6 +3211,7 @@
   "Current item": "Current item",
   "Current item version when the automation runs.": "Current item version when the automation runs.",
   "Current memberships": "Current memberships",
+  "Current OpenClaw gateways grant no operator scopes without a device identity, so runs will fail with \"missing scope: operator.write\". Leave this off unless your gateway is configured for token-only access.": "Current OpenClaw gateways grant no operator scopes without a device identity, so runs will fail with \"missing scope: operator.write\". Leave this off unless your gateway is configured for token-only access.",
   "Current state": "Current state",
   "Current value: ": "Current value: ",
   "Current version": "Current version",

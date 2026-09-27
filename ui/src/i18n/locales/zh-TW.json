@@ -9195,7 +9195,7 @@
   "Task Plan Decomposition": "任務計畫拆解",
   "Task and routine history is opt-in because it can be large.": "任務和例行工作歷史是選擇性加入的，因為它可能很大。",
   "Task archive failed": "任務封存失敗",
-  "Task archived from inbox": "任務已封存來自收件匣",
+  "Task archived from inbox": "已從收件匣封存任務",
   "Task blockers": "任務阻塞項",
   "Task chat: 200 responses, 4,000 tools": "任務聊天：200 則回覆、4,000 個工具",
   "Task controls": "任務控制項",
@@ -11275,5 +11275,6 @@
   "The tier is a label for cost and routing intent. It does not change behavior yet.": "分級只是用來標示成本與路由意圖的標籤，目前不會改變行為。",
   "This agent still has active runs": "這個代理人還有執行中的 run",
   "Tier": "分級",
-  "Toggle runtime profiles experimental setting": "切換執行設定組實驗功能"
+  "Toggle runtime profiles experimental setting": "切換執行設定組實驗功能",
+  "Current OpenClaw gateways grant no operator scopes without a device identity, so runs will fail with \"missing scope: operator.write\". Leave this off unless your gateway is configured for token-only access.": "新版 OpenClaw gateway 在沒有裝置身分時不會給任何操作權限，執行時會出現「missing scope: operator.write」。除非你的 gateway 設定為只用 token 存取，否則請不要勾選。"
 }

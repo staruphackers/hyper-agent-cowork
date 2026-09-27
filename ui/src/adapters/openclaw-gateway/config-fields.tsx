@@ -141,6 +141,9 @@ export function OpenClawGatewayConfigFields({
     "sessionKeyStrategy",
     String(config.sessionKeyStrategy ?? "fixed"),
   );
+  const deviceAuthDisabled = isCreate
+    ? values!.disableDeviceAuth ?? false
+    : eff("adapterConfig", "disableDeviceAuth", Boolean(config.disableDeviceAuth ?? false));
 
   return configFieldsForSection(section, (
     <>
@@ -414,11 +417,7 @@ export function OpenClawGatewayConfigFields({
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
-            checked={
-              isCreate
-                ? values!.disableDeviceAuth ?? false
-                : eff("adapterConfig", "disableDeviceAuth", Boolean(config.disableDeviceAuth ?? false))
-            }
+            checked={deviceAuthDisabled}
             onChange={(e) =>
               isCreate
                 ? set!({ disableDeviceAuth: e.target.checked })
@@ -427,6 +426,12 @@ export function OpenClawGatewayConfigFields({
           />
           Skip device key authentication
         </label>
+        {deviceAuthDisabled ? (
+          <p className="mt-1 text-xs text-destructive" role="alert">
+            Current OpenClaw gateways grant no operator scopes without a device identity, so runs will fail with
+            &quot;missing scope: operator.write&quot;. Leave this off unless your gateway is configured for token-only access.
+          </p>
+        ) : null}
       </Field>
 
       <Field label="Auto-pair on first connect">
