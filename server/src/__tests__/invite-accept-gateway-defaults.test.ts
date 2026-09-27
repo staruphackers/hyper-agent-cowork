@@ -15,6 +15,7 @@ import {
 } from "@paperclipai/db";
 import {
   buildJoinDefaultsPayloadForAccept,
+  findDuplicateOpenClawGatewayAgent,
   normalizeAgentDefaultsForJoin,
   prepareAgentDefaultsPayloadForJoinPersistence,
 } from "../routes/access.js";
@@ -143,6 +144,113 @@ describe("normalizeAgentDefaultsForJoin (openclaw_gateway)", () => {
     expect(normalized.fatalErrors).toEqual([]);
     expect(normalized.normalized?.disableDeviceAuth).toBe(true);
     expect(normalized.normalized?.devicePrivateKeyPem).toBeUndefined();
+    expect(normalized.diagnostics.map((diag) => diag.code)).toContain(
+      "openclaw_gateway_device_auth_disabled",
+    );
+  });
+
+  it("does not warn about device auth when it stays enabled", () => {
+    const normalized = normalizeAgentDefaultsForJoin({
+      adapterType: "openclaw_gateway",
+      defaultsPayload: {
+        url: "ws://127.0.0.1:18789",
+        headers: { "x-openclaw-token": "gateway-token-1234567890" },
+      },
+      deploymentMode: "authenticated",
+      deploymentExposure: "private",
+      bindHost: "127.0.0.1",
+      allowedHostnames: [],
+    });
+
+    expect(normalized.diagnostics.map((diag) => diag.code)).not.toContain(
+      "openclaw_gateway_device_auth_disabled",
+    );
+    expect(normalized.normalized?.claimedApiKeyPath).toBeUndefined();
+  });
+
+  it("keeps a reported claimedApiKeyPath so the adapter reads the key where the agent saved it", () => {
+    const normalized = normalizeAgentDefaultsForJoin({
+      adapterType: "openclaw_gateway",
+      defaultsPayload: {
+        url: "ws://127.0.0.1:18789",
+        headers: { "x-openclaw-token": "gateway-token-1234567890" },
+        claimedApiKeyPath: "/data/.openclaw/workspace/paperclip-claimed-api-key.json",
+      },
+      deploymentMode: "authenticated",
+      deploymentExposure: "private",
+      bindHost: "127.0.0.1",
+      allowedHostnames: [],
+    });
+
+    expect(normalized.normalized?.claimedApiKeyPath).toBe(
+      "/data/.openclaw/workspace/paperclip-claimed-api-key.json",
+    );
+    expect(normalized.diagnostics.map((diag) => diag.code)).toContain(
+      "openclaw_gateway_claimed_api_key_path_configured",
+    );
+  });
+
+  it.each([
+    "relative/paperclip-key.json",
+    "/data/.openclaw/workspace/key.txt",
+    "/data/key.json\nrm -rf /",
+  ])("ignores an unusable claimedApiKeyPath (%s)", (claimedApiKeyPath) => {
+    const normalized = normalizeAgentDefaultsForJoin({
+      adapterType: "openclaw_gateway",
+      defaultsPayload: {
+        url: "ws://127.0.0.1:18789",
+        headers: { "x-openclaw-token": "gateway-token-1234567890" },
+        claimedApiKeyPath,
+      },
+      deploymentMode: "authenticated",
+      deploymentExposure: "private",
+      bindHost: "127.0.0.1",
+      allowedHostnames: [],
+    });
+
+    expect(normalized.normalized?.claimedApiKeyPath).toBeUndefined();
+    expect(normalized.diagnostics.map((diag) => diag.code)).toContain(
+      "openclaw_gateway_claimed_api_key_path_invalid",
+    );
+  });
+});
+
+describe("findDuplicateOpenClawGatewayAgent", () => {
+  const gatewayAgent = (overrides: Record<string, unknown> = {}) => ({
+    id: "agent-1",
+    name: "Dahye",
+    status: "idle",
+    adapterType: "openclaw_gateway",
+    adapterConfig: { url: "wss://openclaw.example.test/" },
+    ...overrides,
+  });
+
+  it("finds a live agent on the same gateway even when the URL is written differently", () => {
+    expect(
+      findDuplicateOpenClawGatewayAgent([gatewayAgent()], {
+        url: "wss://OpenClaw.example.test",
+      }),
+    ).toEqual({ id: "agent-1", name: "Dahye" });
+  });
+
+  it("ignores terminated agents, other adapters, other gateways and other OpenClaw agent ids", () => {
+    const payload = { url: "wss://openclaw.example.test" };
+    expect(findDuplicateOpenClawGatewayAgent([gatewayAgent({ status: "terminated" })], payload)).toBeNull();
+    expect(findDuplicateOpenClawGatewayAgent([gatewayAgent({ adapterType: "hermes_gateway" })], payload)).toBeNull();
+    expect(
+      findDuplicateOpenClawGatewayAgent([gatewayAgent({ adapterConfig: { url: "wss://other.example.test" } })], payload),
+    ).toBeNull();
+    expect(
+      findDuplicateOpenClawGatewayAgent([gatewayAgent()], {
+        url: "wss://openclaw.example.test",
+        payloadTemplate: { agentId: "research" },
+      }),
+    ).toBeNull();
+  });
+
+  it("returns null when the join payload has no gateway URL", () => {
+    expect(findDuplicateOpenClawGatewayAgent([gatewayAgent()], {})).toBeNull();
+    expect(findDuplicateOpenClawGatewayAgent([gatewayAgent()], null)).toBeNull();
   });
 });
 

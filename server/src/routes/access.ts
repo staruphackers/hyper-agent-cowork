@@ -642,6 +642,52 @@ export function mergeJoinDefaultsPayloadForReplay(
   return merged;
 }
 
+function openClawGatewayIdentityKey(payload: unknown): string | null {
+  if (!isPlainObject(payload)) return null;
+  const record = payload as Record<string, unknown>;
+  const rawUrl = nonEmptyTrimmedString(record.url);
+  if (!rawUrl) return null;
+  let url: string;
+  try {
+    const parsed = new URL(rawUrl);
+    url = `${parsed.protocol}//${parsed.host.toLowerCase()}${parsed.pathname.replace(/\/+$/, "")}`;
+  } catch {
+    url = rawUrl.replace(/\/+$/, "").toLowerCase();
+  }
+  // One gateway can host several OpenClaw agents; payloadTemplate.agentId picks one.
+  const template = isPlainObject(record.payloadTemplate)
+    ? (record.payloadTemplate as Record<string, unknown>)
+    : {};
+  const agentId = nonEmptyTrimmedString(template.agentId) ?? "";
+  return `${url}#${agentId}`;
+}
+
+/**
+ * Returns the live agent that already talks to the same OpenClaw gateway agent,
+ * so approving a second join request does not silently create a duplicate.
+ */
+export function findDuplicateOpenClawGatewayAgent(
+  existingAgents: ReadonlyArray<{
+    id: string;
+    name: string;
+    status: string;
+    adapterType?: string | null;
+    adapterConfig?: unknown;
+  }>,
+  joinDefaultsPayload: unknown
+): { id: string; name: string } | null {
+  const key = openClawGatewayIdentityKey(joinDefaultsPayload);
+  if (!key) return null;
+  for (const agent of existingAgents) {
+    if (agent.adapterType !== "openclaw_gateway") continue;
+    if (agent.status === "terminated") continue;
+    if (openClawGatewayIdentityKey(agent.adapterConfig) === key) {
+      return { id: agent.id, name: agent.name };
+    }
+  }
+  return null;
+}
+
 export function canReplayOpenClawGatewayInviteAccept(input: {
   requestType: "human" | "agent";
   adapterType: string | null;
@@ -729,6 +775,17 @@ function summarizeOpenClawGatewayDefaultsForLog(defaultsPayload: unknown) {
       : null,
     gatewayToken: summarizeSecretForLog(gatewayTokenValue)
   };
+}
+
+// Keep in sync with DEFAULT_CLAIMED_API_KEY_PATH in the openclaw-gateway adapter:
+// the adapter tells the agent to read its Paperclip key from this file at wake time.
+export const OPENCLAW_DEFAULT_CLAIMED_API_KEY_PATH =
+  "~/.openclaw/workspace/paperclip-claimed-api-key.json";
+
+function isAcceptableClaimedApiKeyPath(value: string): boolean {
+  if (value.length > 512 || /[\0\r\n]/.test(value)) return false;
+  if (!value.endsWith(".json")) return false;
+  return value.startsWith("/") || value.startsWith("~/");
 }
 
 export function normalizeAgentDefaultsForJoin(input: {
@@ -955,6 +1012,35 @@ export function normalizeAgentDefaultsForJoin(input: {
   const disableDeviceAuth = parsedDisableDeviceAuth === true;
   if (parsedDisableDeviceAuth !== null) {
     normalized.disableDeviceAuth = parsedDisableDeviceAuth;
+  }
+  if (disableDeviceAuth) {
+    diagnostics.push({
+      code: "openclaw_gateway_device_auth_disabled",
+      level: "warn",
+      message:
+        "Device auth is disabled. Current OpenClaw gateways grant no operator scopes without a device identity, so runs fail with \"missing scope: operator.write\".",
+      hint:
+        "Leave disableDeviceAuth unset. Paperclip generates a device key; approve the pending device once in OpenClaw (openclaw devices approve <requestId>)."
+    });
+  }
+
+  const rawClaimedApiKeyPath = nonEmptyTrimmedString(defaults.claimedApiKeyPath);
+  if (rawClaimedApiKeyPath) {
+    if (isAcceptableClaimedApiKeyPath(rawClaimedApiKeyPath)) {
+      normalized.claimedApiKeyPath = rawClaimedApiKeyPath;
+      diagnostics.push({
+        code: "openclaw_gateway_claimed_api_key_path_configured",
+        level: "info",
+        message: `Paperclip will tell the agent to load its API key from ${rawClaimedApiKeyPath}.`
+      });
+    } else {
+      diagnostics.push({
+        code: "openclaw_gateway_claimed_api_key_path_invalid",
+        level: "warn",
+        message: "Ignored claimedApiKeyPath: it must be an absolute path or start with ~/ and end in .json.",
+        hint: `Omit it to use the default ${OPENCLAW_DEFAULT_CLAIMED_API_KEY_PATH}.`
+      });
+    }
   }
 
   const configuredDevicePrivateKeyPem = nonEmptyTrimmedString(
@@ -1853,6 +1939,14 @@ export function buildInviteOnboardingTextDocument(
   const diagnostics = Array.isArray(onboarding.connectivity?.diagnostics)
     ? onboarding.connectivity.diagnostics
     : [];
+  // Fill the OpenClaw example with a real base URL so the agent does not have to
+  // invent one (and then try to make it reachable on its own).
+  const suggestedPaperclipApiUrl =
+    (Array.isArray(onboarding.connectivity?.connectionCandidates)
+      ? onboarding.connectivity.connectionCandidates.find(
+          (entry): entry is string => typeof entry === "string" && /^https?:\/\//.test(entry)
+        )
+      : undefined) ?? "https://paperclip-hostname-your-agent-can-reach:3100";
 
   const lines: string[] = [];
   const appendBlock = (block: string) => {
@@ -1919,8 +2013,9 @@ export function buildInviteOnboardingTextDocument(
       "capabilities": "OpenClaw gateway agent",
       "agentDefaultsPayload": {
         "url": "wss://your-openclaw-gateway.example",
-        "paperclipApiUrl": "https://paperclip-hostname-your-agent-can-reach:3100",
+        "paperclipApiUrl": "${suggestedPaperclipApiUrl}",
         "headers": { "x-openclaw-token": "replace-me" },
+        "claimedApiKeyPath": "${OPENCLAW_DEFAULT_CLAIMED_API_KEY_PATH}",
         "waitTimeoutMs": 120000,
         "sessionKeyStrategy": "issue",
         "role": "operator",
@@ -1929,6 +2024,11 @@ export function buildInviteOnboardingTextDocument(
     }
 
     For OpenClaw Gateway, include agentDefaultsPayload.headers.x-openclaw-token with your gateway token. Legacy x-openclaw-auth is also accepted, but x-openclaw-token is preferred. Do NOT use /v1/responses or /hooks/* in this gateway join flow.
+
+    OpenClaw Gateway rules (read before changing anything):
+    - Do NOT change your OpenClaw gateway configuration during onboarding (trustedProxies, bind address, auth mode, allowed origins) and do NOT open temporary tunnels (cloudflared, trycloudflare, ngrok). A change that needs a gateway restart can take your runtime offline, and hosted OpenClaw installs may not restart it automatically. If Paperclip is not reachable, stop and ask your human operator.
+    - Keep device auth enabled: do not set disableDeviceAuth. Current OpenClaw gateways grant no operator scopes without a device identity, and runs then fail with "missing scope: operator.write". Paperclip generates the device key for you; the first run may ask for one device approval in OpenClaw (openclaw devices approve <requestId>).
+    - Save the claimed API key JSON to ${OPENCLAW_DEFAULT_CLAIMED_API_KEY_PATH}, where ~ is the home directory of the user that runs OpenClaw (check with: echo $HOME). Paperclip tells you to read the key from this file on every run. If you must use another location, send its absolute path as agentDefaultsPayload.claimedApiKeyPath.
 
     Hermes Gateway setup:
     - adapterType: "hermes_gateway"
@@ -1984,7 +2084,7 @@ export function buildInviteOnboardingTextDocument(
       "claimSecret": "<one-time-claim-secret>"
     }
 
-    On successful claim, save the full JSON response somewhere private for your runtime and set PAPERCLIP_API_KEY and PAPERCLIP_API_URL for future Paperclip API calls. The response body includes the full token exactly once, but runtime displays and tool summaries may mask or truncate it. Write the raw response token directly to private storage before logging anything, then verify it with an authenticated Paperclip API call. Do not persist displayed previews containing literal ... or [redacted].
+    On successful claim, save the full JSON response somewhere private for your runtime (OpenClaw: the claimedApiKeyPath file described above) and set PAPERCLIP_API_KEY and PAPERCLIP_API_URL for future Paperclip API calls. The response body includes the full token exactly once, but runtime displays and tool summaries may mask or truncate it. Write the raw response token directly to private storage before logging anything, then verify it with an authenticated Paperclip API call. Do not persist displayed previews containing literal ... or [redacted].
 
     Important:
     - claim secrets expire
@@ -2026,7 +2126,7 @@ export function buildInviteOnboardingTextDocument(
       - GET <candidate>/api/health
       - set the first reachable candidate as agentDefaultsPayload.paperclipApiUrl when submitting your join request
 
-      If none are reachable: ask your human operator for a reachable hostname/address and help them update network configuration.
+      If none are reachable: stop and ask your human operator for a reachable hostname/address. Do not change network, proxy, or gateway settings yourself, and do not open temporary tunnels.
       For authenticated/private mode, they may need:
       - npx paperclipai allowed-hostname <host>
       - then restart Paperclip and retry onboarding.
@@ -4249,6 +4349,25 @@ export function accessRoutes(
       } else {
         assertLegacyAgentInviteAdapterType(existing.adapterType);
         const existingAgents = await agents.list(companyId);
+        if (
+          existing.adapterType === "openclaw_gateway" &&
+          (req.body as { allowDuplicateGateway?: unknown } | undefined)?.allowDuplicateGateway !== true
+        ) {
+          const duplicate = findDuplicateOpenClawGatewayAgent(
+            existingAgents,
+            existing.agentDefaultsPayload
+          );
+          if (duplicate) {
+            throw conflict(
+              `Agent "${duplicate.name}" is already connected to this OpenClaw gateway. Archive or remove that agent first, or reject this join request.`,
+              {
+                code: "openclaw_gateway_duplicate_agent",
+                existingAgentId: duplicate.id,
+                existingAgentName: duplicate.name
+              }
+            );
+          }
+        }
         const managerId = resolveJoinRequestAgentManagerId(existingAgents);
         if (!managerId) {
           throw conflict(

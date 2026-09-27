@@ -83,6 +83,46 @@ describe("buildInviteOnboardingTextDocument", () => {
     expect(text).toContain("Decide which Paperclip adapter type matches your runtime.");
   });
 
+  it("tells OpenClaw not to reconfigure itself and where to keep its Paperclip key", () => {
+    const req = buildReq("cowork.example.test");
+    const invite = {
+      id: "invite-openclaw",
+      companyId: "company-1",
+      inviteType: "company_join",
+      allowedJoinTypes: "agent",
+      tokenHash: "hash",
+      defaultsPayload: null,
+      expiresAt: new Date("2026-03-05T00:00:00.000Z"),
+      invitedByUserId: null,
+      revokedAt: null,
+      acceptedAt: null,
+      createdAt: new Date("2026-03-04T00:00:00.000Z"),
+      updatedAt: new Date("2026-03-04T00:00:00.000Z"),
+    } as const;
+
+    const text = buildInviteOnboardingTextDocument(req, "token-oc", invite as any, {
+      deploymentMode: "authenticated",
+      deploymentExposure: "public",
+      bindHost: "0.0.0.0",
+      allowedHostnames: ["cowork.example.test"],
+      authPublicBaseUrl: "https://cowork.example.test",
+    });
+
+    expect(text).toContain("do NOT open temporary tunnels (cloudflared, trycloudflare, ngrok)");
+    expect(text).toContain("trustedProxies");
+    expect(text).toContain("stop and ask your human operator");
+    expect(text).not.toContain("help them update network configuration");
+    expect(text).toContain("do not set disableDeviceAuth");
+    expect(text).toContain("missing scope: operator.write");
+    expect(text).toContain("openclaw devices approve <requestId>");
+    expect(text).toContain(
+      '"claimedApiKeyPath": "~/.openclaw/workspace/paperclip-claimed-api-key.json"',
+    );
+    expect(text).toContain("check with: echo $HOME");
+    expect(text).not.toContain("paperclip-hostname-your-agent-can-reach");
+    expect(text).toMatch(/"paperclipApiUrl": "https?:\/\/[^"]+"/);
+  });
+
   it("includes loopback diagnostics for authenticated/private onboarding", () => {
     const req = buildReq("localhost:3100");
     const invite = {
