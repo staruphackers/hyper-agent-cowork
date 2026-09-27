@@ -423,6 +423,7 @@ function buildWakeText(
     `PAPERCLIP_API_KEY=<token from ${claimedApiKeyPath}>`,
     "",
     `Load PAPERCLIP_API_KEY from ${claimedApiKeyPath} (the token you saved after claim-api-key).`,
+    `If that file does not exist, do not invent or re-claim a key: say in your reply that ${claimedApiKeyPath} is missing and where your Paperclip key is actually stored, so the operator can set claimedApiKeyPath for this agent.`,
     "",
     `api_base=${apiBaseHint}`,
     `task_id=${payload.taskId ?? ""}`,
@@ -1506,9 +1507,19 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         continue;
       }
 
+      const missingScope = !pairingRequired && lower.includes("missing scope");
+      const invalidDeviceKey =
+        !pairingRequired &&
+        (lower.includes("decoder routines") || lower.includes("***redacted***"));
       const detailedMessage = pairingRequired
         ? `${message}. Approve the pending device in OpenClaw (for example: openclaw devices approve --latest --url <gateway-ws-url> --token <gateway-token>) and retry. Ensure this agent has a persisted adapterConfig.devicePrivateKeyPem so approvals are reused.`
-        : message;
+        : missingScope
+          ? disableDeviceAuth
+            ? `${message}. Device auth is disabled for this agent, and current OpenClaw gateways grant no operator scopes without a device identity. Turn device auth back on, then approve the device once in OpenClaw (openclaw devices approve <requestId>).`
+            : `${message}. The OpenClaw device paired with this agent does not have the scope Paperclip needs. Approve the device again in OpenClaw with operator scopes (openclaw devices approve <requestId>), or re-pair it.`
+          : invalidDeviceKey
+            ? `${message}. The stored device private key is not a valid PEM key (it may have been saved as a masked placeholder). Generate a new Ed25519 device key for this agent, then approve the new device once in OpenClaw.`
+            : message;
 
       await ctx.onLog("stderr", `[openclaw-gateway] request failed: ${detailedMessage}\n`);
 
@@ -1521,7 +1532,11 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
           ? "openclaw_gateway_timeout"
           : pairingRequired
             ? "openclaw_gateway_pairing_required"
-            : "openclaw_gateway_request_failed",
+            : missingScope
+              ? "openclaw_gateway_missing_scope"
+              : invalidDeviceKey
+                ? "openclaw_gateway_device_key_invalid"
+                : "openclaw_gateway_request_failed",
         resultJson: asRecord(latestResultPayload),
       };
     } finally {

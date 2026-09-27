@@ -378,6 +378,43 @@ afterEach(() => {
   // no global mocks
 });
 
+async function createMockGatewayServerRejectingConnect(errorMessage: string) {
+  const server = createServer();
+  const wss = new WebSocketServer({ server });
+  wss.on("connection", (socket) => {
+    socket.send(
+      JSON.stringify({ type: "event", event: "connect.challenge", payload: { nonce: "nonce-123" } }),
+    );
+    socket.on("message", (raw) => {
+      const frame = JSON.parse(Buffer.isBuffer(raw) ? raw.toString("utf8") : String(raw)) as {
+        type: string;
+        id: string;
+        method: string;
+      };
+      if (frame.type !== "req" || frame.method !== "connect") return;
+      socket.send(
+        JSON.stringify({
+          type: "res",
+          id: frame.id,
+          ok: false,
+          error: { code: "FORBIDDEN", message: errorMessage },
+        }),
+      );
+      socket.close(1008, errorMessage);
+    });
+  });
+  await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", () => resolve()));
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("failed to resolve test server address");
+  return {
+    url: `ws://127.0.0.1:${address.port}`,
+    close: async () => {
+      await new Promise<void>((resolve) => wss.close(() => resolve()));
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    },
+  };
+}
+
 describe("openclaw gateway ui stdout parser", () => {
   it("parses assistant deltas from gateway event lines", () => {
     const ts = "2026-03-06T15:00:00.000Z";
@@ -597,6 +634,58 @@ describe("openclaw gateway adapter execute", () => {
       );
       expect(logs.some((entry) => entry.includes("auto-approved pairing request"))).toBe(true);
       expect(gateway.getAgentPayload()).toBeTruthy();
+    } finally {
+      await gateway.close();
+    }
+  });
+  it("explains a missing operator scope when device auth is disabled", async () => {
+    const gateway = await createMockGatewayServerRejectingConnect("missing scope: operator.write");
+    try {
+      const result = await execute(
+        buildContext({
+          url: gateway.url,
+          headers: { "x-openclaw-token": "gateway-token" },
+          disableDeviceAuth: true,
+          waitTimeoutMs: 2000,
+        }),
+      );
+      expect(result.exitCode).toBe(1);
+      expect(result.errorCode).toBe("openclaw_gateway_missing_scope");
+      expect(result.errorMessage).toContain("Device auth is disabled");
+    } finally {
+      await gateway.close();
+    }
+  });
+
+  it("flags a masked or broken device private key instead of a generic failure", async () => {
+    const result = await execute(
+      buildContext({
+        url: "ws://127.0.0.1:9",
+        headers: { "x-openclaw-token": "gateway-token" },
+        devicePrivateKeyPem: "***REDACTED***",
+        waitTimeoutMs: 2000,
+      }),
+    );
+    expect(result.exitCode).toBe(1);
+    expect(result.errorCode).toBe("openclaw_gateway_device_key_invalid");
+    expect(result.errorMessage).toContain("not a valid PEM key");
+  });
+
+  it("tells the agent to report a missing claimed API key file instead of inventing one", async () => {
+    const gateway = await createMockGatewayServer();
+    try {
+      const result = await execute(
+        buildContext({
+          url: gateway.url,
+          headers: { "x-openclaw-token": "gateway-token" },
+          claimedApiKeyPath: "/data/.openclaw/workspace/paperclip-claimed-api-key.json",
+          waitTimeoutMs: 2000,
+        }),
+      );
+      expect(result.exitCode).toBe(0);
+      const message = String(gateway.getAgentPayload()?.message ?? "");
+      expect(message).toContain("Load PAPERCLIP_API_KEY from /data/.openclaw/workspace/paperclip-claimed-api-key.json");
+      expect(message).toContain("/data/.openclaw/workspace/paperclip-claimed-api-key.json is missing");
     } finally {
       await gateway.close();
     }
