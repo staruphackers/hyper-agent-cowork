@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { generateKeyPairSync } from "node:crypto";
 import { createServer } from "node:http";
 import { WebSocketServer } from "ws";
 import { execute, testEnvironment } from "@paperclipai/adapter-openclaw-gateway/server";
@@ -758,5 +759,68 @@ describe("openclaw gateway testEnvironment", () => {
 
     expect(result.status).toBe("fail");
     expect(result.checks.some((check) => check.code === "openclaw_gateway_url_missing")).toBe(true);
+  });
+
+  const deviceKeyPem = () =>
+    generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }).toString();
+  const codes = (result: { checks: Array<{ code: string }> }) => result.checks.map((check) => check.code);
+
+  it("signs the probe with the agent's device key and shows the approval command", async () => {
+    const gateway = await createMockGatewayServerWithPairing();
+    try {
+      const result = await testEnvironment({
+        companyId: "company-123",
+        adapterType: "openclaw_gateway",
+        config: {
+          url: gateway.url,
+          headers: { "x-openclaw-token": "gateway-token" },
+          devicePrivateKeyPem: deviceKeyPem(),
+        },
+      });
+
+      expect(codes(result)).toContain("openclaw_gateway_device_key_valid");
+      expect(codes(result)).toContain("openclaw_gateway_probe_pairing_required");
+      const pairing = result.checks.find((check) => check.code === "openclaw_gateway_probe_pairing_required");
+      expect(pairing?.hint).toContain("openclaw devices approve req-1");
+    } finally {
+      await gateway.close();
+    }
+  });
+
+  it("fails when a masked placeholder was saved as the device key", async () => {
+    const result = await testEnvironment({
+      companyId: "company-123",
+      adapterType: "openclaw_gateway",
+      config: {
+        url: "ws://127.0.0.1:9",
+        headers: { "x-openclaw-token": "gateway-token" },
+        devicePrivateKeyPem: "***REDACTED***",
+      },
+    });
+
+    expect(result.status).toBe("fail");
+    expect(codes(result)).toContain("openclaw_gateway_config_redacted_placeholder");
+    expect(codes(result)).toContain("openclaw_gateway_device_key_invalid");
+  });
+
+  it("warns about disabled device auth and passes the gateway's rejection reason through", async () => {
+    const gateway = await createMockGatewayServerRejectingConnect("missing scope: operator.write");
+    try {
+      const result = await testEnvironment({
+        companyId: "company-123",
+        adapterType: "openclaw_gateway",
+        config: {
+          url: gateway.url,
+          headers: { "x-openclaw-token": "gateway-token" },
+          disableDeviceAuth: true,
+        },
+      });
+
+      expect(codes(result)).toContain("openclaw_gateway_device_auth_disabled");
+      const rejected = result.checks.find((check) => check.code === "openclaw_gateway_probe_challenge_only");
+      expect(rejected?.message).toContain("missing scope: operator.write");
+    } finally {
+      await gateway.close();
+    }
   });
 });

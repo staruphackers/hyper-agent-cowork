@@ -34,7 +34,7 @@ type WakePayload = {
   issueIds: string[];
 };
 
-type GatewayDeviceIdentity = {
+export type GatewayDeviceIdentity = {
   deviceId: string;
   publicKeyRawBase64Url: string;
   privateKeyPem: string;
@@ -92,8 +92,8 @@ type GatewayClientRequestOptions = {
 
 const PROTOCOL_VERSION = 4;
 const DEFAULT_SCOPES = ["operator.admin"];
-const DEFAULT_CLIENT_ID = "gateway-client";
-const DEFAULT_CLIENT_MODE = "backend";
+export const DEFAULT_CLIENT_ID = "gateway-client";
+export const DEFAULT_CLIENT_MODE = "backend";
 const DEFAULT_CLIENT_VERSION = "paperclip";
 const DEFAULT_ROLE = "operator";
 
@@ -571,13 +571,13 @@ function base64UrlEncode(buf: Buffer): string {
   return buf.toString("base64").replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/g, "");
 }
 
-function signDevicePayload(privateKeyPem: string, payload: string): string {
+export function signDevicePayload(privateKeyPem: string, payload: string): string {
   const key = crypto.createPrivateKey(privateKeyPem);
   const sig = crypto.sign(null, Buffer.from(payload, "utf8"), key);
   return base64UrlEncode(sig);
 }
 
-function buildDeviceAuthPayloadV3(params: {
+export function buildDeviceAuthPayloadV3(params: {
   deviceId: string;
   clientId: string;
   clientMode: string;
@@ -608,7 +608,7 @@ function buildDeviceAuthPayloadV3(params: {
   ].join("|");
 }
 
-function resolveDeviceIdentity(config: Record<string, unknown>): GatewayDeviceIdentity {
+export function resolveDeviceIdentity(config: Record<string, unknown>): GatewayDeviceIdentity {
   const configuredPrivateKey = nonEmpty(config.devicePrivateKeyPem);
   if (configuredPrivateKey) {
     const privateKey = crypto.createPrivateKey(configuredPrivateKey);

@@ -6,6 +6,15 @@ import type {
 import { asString, parseObject } from "@paperclipai/adapter-utils/server-utils";
 import { randomUUID } from "node:crypto";
 import { WebSocket } from "ws";
+import {
+  DEFAULT_CLIENT_ID,
+  DEFAULT_CLIENT_MODE,
+  buildDeviceAuthPayloadV3,
+  resolveClaimedApiKeyPath,
+  resolveDeviceIdentity,
+  signDevicePayload,
+  type GatewayDeviceIdentity,
+} from "./execute.js";
 
 function summarizeStatus(checks: AdapterEnvironmentCheck[]): AdapterEnvironmentTestResult["status"] {
   if (checks.some((check) => check.level === "error")) return "fail";
@@ -90,28 +99,46 @@ function rawDataToString(data: unknown): string {
   return String(data ?? "");
 }
 
+type ProbeResult = {
+  status: "ok" | "challenge_only" | "failed";
+  /** Rejection text from the gateway, when it sent one. */
+  errorMessage?: string | null;
+  pairingRequestId?: string | null;
+  grantedScopes?: string[] | null;
+};
+
+function extractGrantedScopes(hello: Record<string, unknown> | null): string[] | null {
+  if (!hello) return null;
+  for (const candidate of [asRecord(hello.auth), asRecord(hello.session), hello]) {
+    const scopes = candidate?.scopes;
+    if (Array.isArray(scopes)) {
+      return scopes.filter((entry): entry is string => typeof entry === "string");
+    }
+  }
+  return null;
+}
+
 async function probeGateway(input: {
   url: string;
   headers: Record<string, string>;
   authToken: string | null;
+  password?: string | null;
   role: string;
   scopes: string[];
+  clientId: string;
+  clientMode: string;
+  deviceIdentity: GatewayDeviceIdentity | null;
   timeoutMs: number;
-}): Promise<"ok" | "challenge_only" | "failed"> {
+}): Promise<ProbeResult> {
   return await new Promise((resolve) => {
     const ws = new WebSocket(input.url, { headers: input.headers, maxPayload: 2 * 1024 * 1024 });
     const timeout = setTimeout(() => {
-      try {
-        ws.close();
-      } catch {
-        // ignore
-      }
-      resolve("failed");
+      finish({ status: "failed", errorMessage: "gateway did not answer in time" });
     }, input.timeoutMs);
 
     let completed = false;
 
-    const finish = (status: "ok" | "challenge_only" | "failed") => {
+    const finish = (result: ProbeResult) => {
       if (completed) return;
       completed = true;
       clearTimeout(timeout);
@@ -120,7 +147,7 @@ async function probeGateway(input: {
       } catch {
         // ignore
       }
-      resolve(status);
+      resolve(result);
     };
 
     ws.on("message", (raw) => {
@@ -134,57 +161,88 @@ async function probeGateway(input: {
       if (event?.type === "event" && event.event === "connect.challenge") {
         const nonce = nonEmpty(asRecord(event.payload)?.nonce);
         if (!nonce) {
-          finish("failed");
+          finish({ status: "failed", errorMessage: "gateway challenge had no nonce" });
           return;
         }
 
         const connectId = randomUUID();
-        ws.send(
-          JSON.stringify({
-            type: "req",
-            id: connectId,
-            method: "connect",
-            params: {
-              minProtocol: 4,
-              maxProtocol: 4,
-              client: {
-                id: "gateway-client",
-                version: "paperclip-probe",
-                platform: process.platform,
-                mode: "probe",
-              },
-              role: input.role,
-              scopes: input.scopes,
-              ...(input.authToken
-                ? {
-                    auth: {
-                      token: input.authToken,
-                    },
-                  }
-                : {}),
-            },
-          }),
-        );
+        const signedAtMs = Date.now();
+        const params: Record<string, unknown> = {
+          minProtocol: 4,
+          maxProtocol: 4,
+          client: {
+            id: input.clientId,
+            version: "paperclip-probe",
+            platform: process.platform,
+            mode: input.clientMode,
+          },
+          role: input.role,
+          scopes: input.scopes,
+          ...(input.authToken || input.password
+            ? {
+                auth: {
+                  ...(input.authToken ? { token: input.authToken } : {}),
+                  ...(input.password ? { password: input.password } : {}),
+                },
+              }
+            : {}),
+        };
+        // Sign exactly like a real run so the probe sees the same pairing and scope answer.
+        if (input.deviceIdentity) {
+          const payload = buildDeviceAuthPayloadV3({
+            deviceId: input.deviceIdentity.deviceId,
+            clientId: input.clientId,
+            clientMode: input.clientMode,
+            role: input.role,
+            scopes: input.scopes,
+            signedAtMs,
+            token: input.authToken,
+            nonce,
+            platform: process.platform,
+          });
+          params.device = {
+            id: input.deviceIdentity.deviceId,
+            publicKey: input.deviceIdentity.publicKeyRawBase64Url,
+            signature: signDevicePayload(input.deviceIdentity.privateKeyPem, payload),
+            signedAt: signedAtMs,
+            nonce,
+          };
+        }
+        ws.send(JSON.stringify({ type: "req", id: connectId, method: "connect", params }));
         return;
       }
 
       if (event?.type === "res") {
         if (event.ok === true) {
-          finish("ok");
+          finish({ status: "ok", grantedScopes: extractGrantedScopes(asRecord(event.payload)) });
         } else {
-          finish("challenge_only");
+          const error = asRecord(event.error);
+          const details = asRecord(error?.details);
+          finish({
+            status: "challenge_only",
+            errorMessage: nonEmpty(error?.message) ?? nonEmpty(error?.code),
+            pairingRequestId: nonEmpty(details?.requestId),
+          });
         }
       }
     });
 
-    ws.on("error", () => {
-      finish("failed");
+    ws.on("error", (err) => {
+      finish({ status: "failed", errorMessage: err instanceof Error ? err.message : String(err) });
     });
 
     ws.on("close", () => {
-      if (!completed) finish("failed");
+      if (!completed) finish({ status: "failed", errorMessage: "gateway closed the connection" });
     });
   });
+}
+
+function containsRedactedPlaceholder(value: unknown, depth = 0): boolean {
+  if (depth > 6) return false;
+  if (typeof value === "string") return value.includes("***REDACTED***");
+  if (Array.isArray(value)) return value.some((entry) => containsRedactedPlaceholder(entry, depth + 1));
+  const record = asRecord(value);
+  return record ? Object.values(record).some((entry) => containsRedactedPlaceholder(entry, depth + 1)) : false;
 }
 
 export async function testEnvironment(
@@ -267,35 +325,111 @@ export async function testEnvironment(
     });
   }
 
+  if (containsRedactedPlaceholder(config)) {
+    checks.push({
+      code: "openclaw_gateway_config_redacted_placeholder",
+      level: "error",
+      message: "Some settings contain the masked placeholder ***REDACTED*** instead of a real value.",
+      hint: "Re-enter the gateway token and generate a new device key; the placeholder was saved by mistake.",
+    });
+  }
+
+  const disableDeviceAuth = config.disableDeviceAuth === true || config.disableDeviceAuth === "true";
+  let deviceIdentity: GatewayDeviceIdentity | null = null;
+  if (disableDeviceAuth) {
+    checks.push({
+      code: "openclaw_gateway_device_auth_disabled",
+      level: "warn",
+      message: "Device auth is disabled. Current OpenClaw gateways grant no operator scopes without a device identity.",
+      hint: "Turn device auth back on; Paperclip signs with this agent's device key and OpenClaw needs one approval.",
+    });
+  } else if (nonEmpty(config.devicePrivateKeyPem)) {
+    try {
+      deviceIdentity = resolveDeviceIdentity({ devicePrivateKeyPem: config.devicePrivateKeyPem });
+      checks.push({
+        code: "openclaw_gateway_device_key_valid",
+        level: "info",
+        message: `Device key is valid (deviceId ${deviceIdentity.deviceId.slice(0, 12)}…).`,
+      });
+    } catch {
+      checks.push({
+        code: "openclaw_gateway_device_key_invalid",
+        level: "error",
+        message: "The stored device private key is not a valid PEM key.",
+        hint: "Generate a new Ed25519 device key for this agent, then approve the new device once in OpenClaw.",
+      });
+    }
+  } else {
+    checks.push({
+      code: "openclaw_gateway_device_key_missing",
+      level: "warn",
+      message: "No device private key is stored, so every run uses a new temporary device that OpenClaw has not approved.",
+      hint: "Store an Ed25519 devicePrivateKeyPem for this agent (agents that join through an invite get one automatically).",
+    });
+  }
+
+  checks.push({
+    code: "openclaw_gateway_claimed_api_key_path",
+    level: "info",
+    message: `The agent must keep its Paperclip API key at ${resolveClaimedApiKeyPath(config.claimedApiKeyPath)} on the OpenClaw host.`,
+  });
+
   if (url && (url.protocol === "ws:" || url.protocol === "wss:")) {
     try {
+      const effectiveScopes = scopes.length > 0 ? scopes : ["operator.admin"];
       const probeResult = await probeGateway({
         url: url.toString(),
         headers,
         authToken,
+        password,
         role,
-        scopes: scopes.length > 0 ? scopes : ["operator.admin"],
+        scopes: effectiveScopes,
+        clientId: nonEmpty(config.clientId) ?? DEFAULT_CLIENT_ID,
+        clientMode: nonEmpty(config.clientMode) ?? DEFAULT_CLIENT_MODE,
+        deviceIdentity,
         timeoutMs: 3_000,
       });
+      const signedWith = deviceIdentity ? "this agent's device key" : "the gateway token only";
 
-      if (probeResult === "ok") {
+      if (probeResult.status === "ok") {
         checks.push({
           code: "openclaw_gateway_probe_ok",
           level: "info",
-          message: "Gateway connect probe succeeded.",
+          message: `Gateway connect probe succeeded (signed with ${signedWith}).`,
         });
-      } else if (probeResult === "challenge_only") {
+        const granted = probeResult.grantedScopes;
+        if (granted && !granted.some((scope) => scope === "operator.admin" || scope === "operator.write")) {
+          checks.push({
+            code: "openclaw_gateway_probe_missing_write_scope",
+            level: "warn",
+            message: `The gateway granted scopes [${granted.join(", ") || "none"}], so runs will fail with "missing scope: operator.write".`,
+            hint: "Keep device auth enabled and approve this agent's device in OpenClaw with operator scopes.",
+          });
+        } else if (granted) {
+          checks.push({
+            code: "openclaw_gateway_probe_scopes",
+            level: "info",
+            message: `Granted scopes: ${granted.join(", ")}.`,
+          });
+        }
+      } else if (probeResult.status === "challenge_only") {
+        const reason = probeResult.errorMessage ?? "no reason given";
+        const pairing = /pairing required|not[_ -]?paired/i.test(reason) || Boolean(probeResult.pairingRequestId);
         checks.push({
-          code: "openclaw_gateway_probe_challenge_only",
+          code: pairing ? "openclaw_gateway_probe_pairing_required" : "openclaw_gateway_probe_challenge_only",
           level: "warn",
-          message: "Gateway challenge was received, but connect probe was rejected.",
-          hint: "Check gateway credentials, scopes, role, and device-auth requirements.",
+          message: pairing
+            ? `OpenClaw is waiting for you to approve this agent's device (${reason}).`
+            : `Gateway rejected the connect probe: ${reason}.`,
+          hint: pairing
+            ? `In OpenClaw run: openclaw devices approve ${probeResult.pairingRequestId ?? "<requestId>"} — then test again.`
+            : "Check gateway credentials, scopes, role, and device-auth requirements.",
         });
       } else {
         checks.push({
           code: "openclaw_gateway_probe_failed",
           level: "warn",
-          message: "Gateway probe failed.",
+          message: `Gateway probe failed${probeResult.errorMessage ? `: ${probeResult.errorMessage}` : "."}`,
           hint: "Verify network reachability and gateway URL from the Paperclip server host.",
         });
       }
