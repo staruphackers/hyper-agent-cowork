@@ -1,6 +1,12 @@
 export const type = "openclaw_gateway";
 export const label = "OpenClaw Gateway";
 
+/**
+ * Default run timeout. OpenClaw agents often need a few minutes for a real
+ * task; at 120 s Paperclip marked finished work as timed out.
+ */
+export const DEFAULT_TIMEOUT_SEC = 600;
+
 /** Where the adapter tells the agent to read its Paperclip key when nothing else is configured. */
 export const DEFAULT_CLAIMED_API_KEY_PATH = "~/.openclaw/workspace/paperclip-claimed-api-key.json";
 
@@ -47,7 +53,7 @@ Gateway connect identity fields:
 Request behavior fields:
 - payloadTemplate (object, optional): additional fields merged into gateway agent params
 - workspaceRuntime (object, optional): reserved workspace runtime metadata; workspace runtime services are manually controlled from the workspace UI and are not auto-started by heartbeats
-- timeoutSec (number, optional): adapter timeout in seconds (default 120)
+- timeoutSec (number, optional): adapter timeout in seconds (default 600)
 - waitTimeoutMs (number, optional): agent.wait timeout override (default timeoutSec * 1000)
 - autoPairOnFirstConnect (boolean, optional): on first "pairing required", attempt device.pair.list/device.pair.approve via shared auth, then retry once (default true)
 - paperclipApiUrl (string, optional): absolute Paperclip base URL advertised in wake text

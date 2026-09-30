@@ -28,10 +28,10 @@ function baseValues(): CreateConfigValues {
 }
 
 describe("buildOpenClawGatewayConfig", () => {
-  it("applies the documented timeout defaults when unset (timeoutSec=120, waitTimeoutMs=120000)", () => {
+  it("applies the documented timeout defaults when unset (timeoutSec=600, waitTimeoutMs=600000)", () => {
     const config = buildOpenClawGatewayConfig(baseValues());
-    expect(config.timeoutSec).toBe(120);
-    expect(config.waitTimeoutMs).toBe(120000);
+    expect(config.timeoutSec).toBe(600);
+    expect(config.waitTimeoutMs).toBe(600000);
   });
 
   it("preserves explicit timeout values when provided", () => {

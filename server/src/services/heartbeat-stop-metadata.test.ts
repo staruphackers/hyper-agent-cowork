@@ -123,7 +123,7 @@ describe("heartbeat stop metadata", () => {
     expect(result).toMatchObject({
       summary: "done",
       stopReason: "completed",
-      effectiveTimeoutSec: 120,
+      effectiveTimeoutSec: 600,
       timeoutConfigured: true,
       timeoutSource: "default",
       timeoutFired: false,

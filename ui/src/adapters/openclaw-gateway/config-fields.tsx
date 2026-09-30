@@ -348,7 +348,7 @@ export function OpenClawGatewayConfigFields({
           }}
           immediate
           className={inputClass}
-          placeholder="120"
+          placeholder="600"
         />
       </Field>
 
@@ -396,7 +396,7 @@ export function OpenClawGatewayConfigFields({
               ? values!.waitTimeoutMs != null
                 ? String(values!.waitTimeoutMs)
                 : ""
-              : eff("adapterConfig", "waitTimeoutMs", String(config.waitTimeoutMs ?? "120000"))
+              : eff("adapterConfig", "waitTimeoutMs", String(config.waitTimeoutMs ?? "600000"))
           }
           onCommit={(v) => {
             const parsed = Number.parseInt(v.trim(), 10);
@@ -409,7 +409,7 @@ export function OpenClawGatewayConfigFields({
           }}
           immediate
           className={inputClass}
-          placeholder="120000"
+          placeholder="600000"
         />
       </Field>
 

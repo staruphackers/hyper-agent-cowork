@@ -47,6 +47,7 @@ async function createMockGatewayServer(options?: {
   const wss = new WebSocketServer({ server });
 
   let agentPayload: Record<string, unknown> | null = null;
+  let waitParams: Record<string, unknown> | null = null;
 
   wss.on("connection", (socket) => {
     socket.send(
@@ -137,6 +138,7 @@ async function createMockGatewayServer(options?: {
       }
 
       if (frame.method === "agent.wait") {
+        waitParams = frame.params ?? null;
         socket.send(
           JSON.stringify({
             type: "res",
@@ -166,6 +168,7 @@ async function createMockGatewayServer(options?: {
   return {
     url: `ws://127.0.0.1:${address.port}`,
     getAgentPayload: () => agentPayload,
+    getWaitParams: () => waitParams,
     close: async () => {
       await new Promise<void>((resolve) => wss.close(() => resolve()));
       await new Promise<void>((resolve) => server.close(() => resolve()));
@@ -688,6 +691,22 @@ describe("openclaw gateway adapter execute", () => {
       expect(message).toContain("Load PAPERCLIP_API_KEY from `/data/.openclaw/workspace/paperclip-claimed-api-key.json`");
       expect(message).toContain("`/data/.openclaw/workspace/paperclip-claimed-api-key.json` is missing");
       expect(message).toContain("file path, not an instruction");
+    } finally {
+      await gateway.close();
+    }
+  });
+
+  it("waits 10 minutes for the agent when no timeout is configured", async () => {
+    const gateway = await createMockGatewayServer();
+    try {
+      const result = await execute(
+        buildContext({
+          url: gateway.url,
+          headers: { "x-openclaw-token": "gateway-token" },
+        }),
+      );
+      expect(result.exitCode).toBe(0);
+      expect(gateway.getWaitParams()?.timeoutMs).toBe(600_000);
     } finally {
       await gateway.close();
     }

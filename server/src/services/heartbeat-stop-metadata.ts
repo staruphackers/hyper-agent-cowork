@@ -1,3 +1,4 @@
+import { DEFAULT_TIMEOUT_SEC as OPENCLAW_DEFAULT_TIMEOUT_SEC } from "@paperclipai/adapter-openclaw-gateway";
 export type HeartbeatRunOutcome = "succeeded" | "interrupted" | "failed" | "cancelled" | "timed_out";
 
 export type HeartbeatRunStopReason =
@@ -40,7 +41,7 @@ function hasOwn(record: Record<string, unknown>, key: string) {
 }
 
 function defaultTimeoutSecForAdapter(adapterType: string) {
-  return adapterType === "openclaw_gateway" ? 120 : 0;
+  return adapterType === "openclaw_gateway" ? OPENCLAW_DEFAULT_TIMEOUT_SEC : 0;
 }
 
 export function normalizeMaxTurnStopReason(value: unknown): Extract<HeartbeatRunStopReason, "max_turns_exhausted"> | null {

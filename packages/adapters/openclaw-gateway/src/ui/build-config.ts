@@ -1,4 +1,5 @@
 import type { CreateConfigValues } from "@paperclipai/adapter-utils";
+import { DEFAULT_TIMEOUT_SEC } from "../index.js";
 
 function parseJsonObject(text: string): Record<string, unknown> | null {
   const trimmed = text.trim();
@@ -64,8 +65,8 @@ export function buildOpenClawGatewayConfig(v: CreateConfigValues): Record<string
   }
 
   // Safe defaults — applied when fields are not explicitly set
-  if (ac.timeoutSec == null) ac.timeoutSec = 120;
-  if (ac.waitTimeoutMs == null) ac.waitTimeoutMs = 120000;
+  if (ac.timeoutSec == null) ac.timeoutSec = DEFAULT_TIMEOUT_SEC;
+  if (ac.waitTimeoutMs == null) ac.waitTimeoutMs = DEFAULT_TIMEOUT_SEC * 1000;
   if (!ac.sessionKeyStrategy) ac.sessionKeyStrategy = "issue";
   if (!ac.role) ac.role = "operator";
   if (!ac.scopes) ac.scopes = ["operator.admin"];

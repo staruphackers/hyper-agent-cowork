@@ -18,7 +18,7 @@ import {
 } from "@paperclipai/adapter-utils/server-utils";
 import crypto, { randomUUID } from "node:crypto";
 import { WebSocket } from "ws";
-import { DEFAULT_CLAIMED_API_KEY_PATH, isSafeClaimedApiKeyPath } from "../index.js";
+import { DEFAULT_CLAIMED_API_KEY_PATH, DEFAULT_TIMEOUT_SEC, isSafeClaimedApiKeyPath } from "../index.js";
 
 type SessionKeyStrategy = "fixed" | "issue" | "run";
 
@@ -1078,7 +1078,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     };
   }
 
-  const timeoutSec = Math.max(0, Math.floor(asNumber(ctx.config.timeoutSec, 120)));
+  const timeoutSec = Math.max(0, Math.floor(asNumber(ctx.config.timeoutSec, DEFAULT_TIMEOUT_SEC)));
   const timeoutMs = timeoutSec > 0 ? timeoutSec * 1000 : 0;
   const connectTimeoutMs = timeoutMs > 0 ? Math.min(timeoutMs, 15_000) : 10_000;
   const waitTimeoutMs = parseOptionalPositiveInteger(ctx.config.waitTimeoutMs) ?? (timeoutMs > 0 ? timeoutMs : 30_000);
