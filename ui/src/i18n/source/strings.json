@@ -282,7 +282,7 @@
   " and move active assignments before hiding this user from assignment fields.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:507"
+    "first": "src/pages/CompanyAccess.tsx:508"
   },
   " and paste the Paperclip": {
     "count": 1,
@@ -347,7 +347,7 @@
   " as read.": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:2657"
+    "first": "src/pages/Inbox.tsx:2658"
   },
   " attached": {
     "count": 2,
@@ -927,7 +927,7 @@
   " from IP ": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:707"
+    "first": "src/pages/Inbox.tsx:708"
   },
   " from npm and hot-swap the running adapter module. Existing agents will use the new version on their next run.": {
     "count": 1,
@@ -1387,7 +1387,7 @@
   " more task": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:559"
+    "first": "src/pages/CompanyAccess.tsx:560"
   },
   " more tasks": {
     "count": 2,
@@ -2202,7 +2202,7 @@
   " unread ": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:2657"
+    "first": "src/pages/Inbox.tsx:2658"
   },
   " unsaved": {
     "count": 1,
@@ -2887,7 +2887,7 @@
   "· set by ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:285"
+    "first": "src/components/AttentionQueueRow.tsx:286"
   },
   "· View in Coverage": {
     "count": 1,
@@ -3372,7 +3372,7 @@
   "1 hour": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AttentionQueueRow.tsx:74"
+    "first": "src/components/AttentionQueueRow.tsx:75"
   },
   "1 hr ago": {
     "count": 1,
@@ -3582,7 +3582,7 @@
   "4 hours": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AttentionQueueRow.tsx:75"
+    "first": "src/components/AttentionQueueRow.tsx:76"
   },
   "403 Forbidden: Issue is outside this actor's authorization boundary": {
     "count": 1,
@@ -4427,7 +4427,7 @@
   "Active statuses — open tasks, whether or not an agent is running.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2397"
+    "first": "src/pages/Inbox.tsx:2398"
   },
   "Active template": {
     "count": 1,
@@ -4562,7 +4562,7 @@
   "adapter: ": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:708"
+    "first": "src/pages/Inbox.tsx:709"
   },
   "Adapter: ": {
     "count": 3,
@@ -5167,7 +5167,7 @@
   "Advanced access, scoped assignment, and explicit grant controls are provided by installed organization settings extensions.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:630"
+    "first": "src/pages/CompanyAccess.tsx:631"
   },
   "Advanced authentication": {
     "count": 2,
@@ -5192,7 +5192,7 @@
   "Advanced Permissions": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:628"
+    "first": "src/pages/CompanyAccess.tsx:629"
   },
   "Advanced permissions remain editable through the EE permissions extension when installed.": {
     "count": 1,
@@ -5202,7 +5202,7 @@
   "Advanced permissions unavailable": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:637"
+    "first": "src/pages/CompanyAccess.tsx:638"
   },
   "Advanced rules": {
     "count": 1,
@@ -5777,7 +5777,7 @@
   "Alerts": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:3271"
+    "first": "src/pages/Inbox.tsx:3272"
   },
   "Alex Morgan": {
     "count": 3,
@@ -7152,7 +7152,7 @@
   "Approve human": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:349"
+    "first": "src/pages/CompanyAccess.tsx:350"
   },
   "Approve it in the": {
     "count": 1,
@@ -7373,6 +7373,11 @@
     "count": 4,
     "kind": "obj",
     "first": "src/components/KeyboardShortcutsCheatsheet.tsx:27"
+  },
+  "Archive or remove that agent first, or reject this join request.": {
+    "count": 2,
+    "kind": "manual",
+    "first": "src/lib/join-request-approve-error.ts:33"
   },
   "Archive organization": {
     "count": 1,
@@ -9417,7 +9422,7 @@
   "Budget at": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:3304"
+    "first": "src/pages/Inbox.tsx:3305"
   },
   "Budget control plane": {
     "count": 2,
@@ -10642,12 +10647,12 @@
   "Checking assigned tasks...": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:517"
+    "first": "src/pages/CompanyAccess.tsx:518"
   },
   "Checking for advanced permission extensions...": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:620"
+    "first": "src/pages/CompanyAccess.tsx:621"
   },
   "Checking GitHub identity…": {
     "count": 1,
@@ -11127,7 +11132,7 @@
   "Choose which inbox columns stay visible": {
     "count": 8,
     "kind": "attr",
-    "first": "src/pages/Inbox.tsx:2510"
+    "first": "src/pages/Inbox.tsx:2511"
   },
   "Choose which ones this profile should allow.": {
     "count": 1,
@@ -11872,7 +11877,7 @@
   "Collapse decision": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AttentionQueueRow.tsx:182"
+    "first": "src/components/AttentionQueueRow.tsx:183"
   },
   "Collapse folder": {
     "count": 1,
@@ -12587,12 +12592,12 @@
   "Confirmation accepted": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AttentionQueueRow.tsx:572"
+    "first": "src/components/AttentionQueueRow.tsx:573"
   },
   "Confirmation declined": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AttentionQueueRow.tsx:572"
+    "first": "src/components/AttentionQueueRow.tsx:573"
   },
   "Confirmation expired": {
     "count": 1,
@@ -14122,7 +14127,7 @@
   "Core Paperclip keeps enforcing organization boundaries and any existing restrictive policy data, but editing advanced permissions requires an installed extension.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:638"
+    "first": "src/pages/CompanyAccess.tsx:639"
   },
   "Corrective run": {
     "count": 2,
@@ -16127,7 +16132,7 @@
   "Custom": {
     "count": 7,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:703"
+    "first": "src/components/AttentionQueueRow.tsx:704"
   },
   "Custom (cron)": {
     "count": 2,
@@ -16362,7 +16367,7 @@
   "Decision actions": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AttentionQueueRow.tsx:537"
+    "first": "src/components/AttentionQueueRow.tsx:538"
   },
   "Decision note: ": {
     "count": 1,
@@ -18382,7 +18387,7 @@
   "Edit member": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:439"
+    "first": "src/pages/CompanyAccess.tsx:440"
   },
   "Edit message": {
     "count": 1,
@@ -19772,7 +19777,7 @@
   "Expand decision": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AttentionQueueRow.tsx:182"
+    "first": "src/components/AttentionQueueRow.tsx:183"
   },
   "Expand folder": {
     "count": 1,
@@ -20200,9 +20205,9 @@
     "first": "src/pages/Approvals.tsx:53"
   },
   "Failed to approve join request": {
-    "count": 4,
+    "count": 9,
     "kind": "obj",
-    "first": "src/pages/CompanyAccess.tsx:156"
+    "first": "src/components/AttentionQueueRow.tsx:892"
   },
   "Failed to archive organization": {
     "count": 1,
@@ -20217,7 +20222,7 @@
   "Failed to archive task": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:1887"
+    "first": "src/pages/Inbox.tsx:1888"
   },
   "Failed to build export package.": {
     "count": 1,
@@ -20457,7 +20462,7 @@
   "Failed to load join requests.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/JoinRequestQueue.tsx:73"
+    "first": "src/pages/JoinRequestQueue.tsx:77"
   },
   "Failed to load local folder settings.": {
     "count": 1,
@@ -20482,7 +20487,7 @@
   "Failed to load organization members.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:262"
+    "first": "src/pages/CompanyAccess.tsx:263"
   },
   "Failed to load organizations. Try again before changing access.": {
     "count": 1,
@@ -20617,7 +20622,7 @@
   "Failed to reject join request": {
     "count": 4,
     "kind": "obj",
-    "first": "src/pages/CompanyAccess.tsx:174"
+    "first": "src/pages/CompanyAccess.tsx:175"
   },
   "Failed to relink template": {
     "count": 2,
@@ -20632,7 +20637,7 @@
   "Failed to remove member": {
     "count": 2,
     "kind": "obj",
-    "first": "src/pages/CompanyAccess.tsx:230"
+    "first": "src/pages/CompanyAccess.tsx:231"
   },
   "Failed to remove skill.": {
     "count": 2,
@@ -20822,7 +20827,7 @@
   "Failed to undo inbox archive": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:1928"
+    "first": "src/pages/Inbox.tsx:1929"
   },
   "Failed to uninstall plugin": {
     "count": 2,
@@ -20877,7 +20882,7 @@
   "Failed to update member": {
     "count": 2,
     "kind": "obj",
-    "first": "src/pages/CompanyAccess.tsx:138"
+    "first": "src/pages/CompanyAccess.tsx:139"
   },
   "Failed to update permissions": {
     "count": 2,
@@ -23492,7 +23497,7 @@
   "Human join request": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:338"
+    "first": "src/pages/Inbox.tsx:339"
   },
   "Human message": {
     "count": 2,
@@ -23522,7 +23527,7 @@
   "Humans": {
     "count": 1,
     "kind": "attr",
-    "first": "src/pages/CompanyAccess.tsx:532"
+    "first": "src/pages/CompanyAccess.tsx:533"
   },
   "Humans I pick": {
     "count": 2,
@@ -24162,7 +24167,7 @@
   "Inbox controls": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2403"
+    "first": "src/pages/Inbox.tsx:2404"
   },
   "Inbox disconnected. Email history remains in its tasks.": {
     "count": 1,
@@ -24172,7 +24177,7 @@
   "Inbox zero.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2725"
+    "first": "src/pages/Inbox.tsx:2726"
   },
   "Include": {
     "count": 1,
@@ -24962,7 +24967,7 @@
   "Invite context": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:172"
+    "first": "src/pages/JoinRequestQueue.tsx:176"
   },
   "Invite created": {
     "count": 2,
@@ -25002,7 +25007,7 @@
   "Invite metadata unavailable": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:346"
+    "first": "src/pages/CompanyAccess.tsx:347"
   },
   "Invite not available": {
     "count": 4,
@@ -25522,17 +25527,17 @@
   "Join request approved": {
     "count": 4,
     "kind": "obj",
-    "first": "src/pages/CompanyAccess.tsx:150"
+    "first": "src/pages/CompanyAccess.tsx:151"
   },
   "Join Request Queue": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:82"
+    "first": "src/pages/JoinRequestQueue.tsx:86"
   },
   "Join request rejected": {
     "count": 4,
     "kind": "obj",
-    "first": "src/pages/CompanyAccess.tsx:168"
+    "first": "src/pages/CompanyAccess.tsx:169"
   },
   "Join requests": {
     "count": 3,
@@ -25542,7 +25547,7 @@
   "Join Requests": {
     "count": 2,
     "kind": "obj",
-    "first": "src/pages/JoinRequestQueue.tsx:26"
+    "first": "src/pages/JoinRequestQueue.tsx:27"
   },
   "Joined resource": {
     "count": 3,
@@ -26257,7 +26262,7 @@
   "Leave unassigned": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:530"
+    "first": "src/pages/CompanyAccess.tsx:531"
   },
   "Leaving plan mode": {
     "count": 1,
@@ -26762,7 +26767,7 @@
   "Live runs only — tasks currently connected to an agent run.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2395"
+    "first": "src/pages/Inbox.tsx:2396"
   },
   "Live states": {
     "count": 1,
@@ -27087,7 +27092,7 @@
   "Loading join requests…": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:64"
+    "first": "src/pages/JoinRequestQueue.tsx:68"
   },
   "Loading keys...": {
     "count": 2,
@@ -27137,7 +27142,7 @@
   "Loading organization access…": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:253"
+    "first": "src/pages/CompanyAccess.tsx:254"
   },
   "Loading organizations...": {
     "count": 3,
@@ -28077,12 +28082,12 @@
   "Mark all as read": {
     "count": 4,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:2669"
+    "first": "src/pages/Inbox.tsx:2670"
   },
   "Mark all as read?": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:2655"
+    "first": "src/pages/Inbox.tsx:2656"
   },
   "Mark as done": {
     "count": 1,
@@ -28162,7 +28167,7 @@
   "Marking…": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2650"
+    "first": "src/pages/Inbox.tsx:2651"
   },
   "Match tools by a name pattern, a risk level, or a specific tool ID. These run on top of the choices above.": {
     "count": 1,
@@ -28312,12 +28317,12 @@
   "Member removed": {
     "count": 2,
     "kind": "obj",
-    "first": "src/pages/CompanyAccess.tsx:220"
+    "first": "src/pages/CompanyAccess.tsx:221"
   },
   "Member updated": {
     "count": 2,
     "kind": "obj",
-    "first": "src/pages/CompanyAccess.tsx:132"
+    "first": "src/pages/CompanyAccess.tsx:133"
   },
   "Member-owned values": {
     "count": 1,
@@ -28347,7 +28352,7 @@
   "Membership status": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:465"
+    "first": "src/pages/CompanyAccess.tsx:466"
   },
   "Memory citation": {
     "count": 1,
@@ -28547,7 +28552,7 @@
   "Mine": {
     "count": 4,
     "kind": "obj",
-    "first": "src/pages/Inbox.tsx:2408"
+    "first": "src/pages/Inbox.tsx:2409"
   },
   "Minimal": {
     "count": 9,
@@ -28607,7 +28612,7 @@
   "Missing issue reference for this decision.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:780"
+    "first": "src/components/AttentionQueueRow.tsx:781"
   },
   "Missing task comment": {
     "count": 1,
@@ -29792,7 +29797,7 @@
   "Next week": {
     "count": 4,
     "kind": "obj",
-    "first": "src/components/AttentionQueueRow.tsx:77"
+    "first": "src/components/AttentionQueueRow.tsx:78"
   },
   "Next, give an agent an email address from Permissions.": {
     "count": 1,
@@ -30512,7 +30517,7 @@
   "No email available": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:341"
+    "first": "src/pages/CompanyAccess.tsx:342"
   },
   "No enabled legacy adapter": {
     "count": 1,
@@ -30687,12 +30692,12 @@
   "No inbox items match these filters.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2730"
+    "first": "src/pages/Inbox.tsx:2731"
   },
   "No inbox items match your search.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2723"
+    "first": "src/pages/Inbox.tsx:2724"
   },
   "No individual access entries. Unlinked people cannot invoke this bot.": {
     "count": 1,
@@ -30752,7 +30757,7 @@
   "No join requests match the current filters.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:122"
+    "first": "src/pages/JoinRequestQueue.tsx:126"
   },
   "No keys needed for this one.": {
     "count": 1,
@@ -30907,7 +30912,7 @@
   "No new inbox items.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2727"
+    "first": "src/pages/Inbox.tsx:2728"
   },
   "No non-default workspace activity yet.": {
     "count": 1,
@@ -31182,7 +31187,7 @@
   "No recent inbox items.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2729"
+    "first": "src/pages/Inbox.tsx:2730"
   },
   "No recent tasks.": {
     "count": 2,
@@ -31832,7 +31837,7 @@
   "No user memberships found for this organization yet.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:374"
+    "first": "src/pages/CompanyAccess.tsx:375"
   },
   "No user secret definitions yet. Create one to require each member to supply their own credential.": {
     "count": 2,
@@ -32712,7 +32717,7 @@
   "Open": {
     "count": 13,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:217"
+    "first": "src/components/AttentionQueueRow.tsx:218"
   },
   "Open ": {
     "count": 7,
@@ -33042,7 +33047,7 @@
   "Open Invites": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:650"
+    "first": "src/pages/CompanyAccess.tsx:651"
   },
   "Open Issues": {
     "count": 2,
@@ -33062,7 +33067,7 @@
   "Open Members": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:647"
+    "first": "src/pages/CompanyAccess.tsx:648"
   },
   "Open Microsoft Entra ": {
     "count": 1,
@@ -33212,7 +33217,7 @@
   "Open source": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:325"
+    "first": "src/components/AttentionQueueRow.tsx:326"
   },
   "Open task": {
     "count": 2,
@@ -33592,7 +33597,7 @@
   "Optional decision note…": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AttentionQueueRow.tsx:859"
+    "first": "src/components/AttentionQueueRow.tsx:860"
   },
   "Optional description shown in the organization profile.": {
     "count": 2,
@@ -33862,7 +33867,7 @@
   "Organization Members": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:286"
+    "first": "src/pages/CompanyAccess.tsx:287"
   },
   "Organization name": {
     "count": 2,
@@ -33877,7 +33882,7 @@
   "Organization role": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:448"
+    "first": "src/pages/CompanyAccess.tsx:449"
   },
   "Organization secret": {
     "count": 1,
@@ -34002,7 +34007,7 @@
   "Other results": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:2949"
+    "first": "src/pages/Inbox.tsx:2950"
   },
   "Other subtasks": {
     "count": 2,
@@ -35712,7 +35717,7 @@
   "Pending human joins": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:320"
+    "first": "src/pages/CompanyAccess.tsx:321"
   },
   "Pending input": {
     "count": 1,
@@ -36362,7 +36367,7 @@
   "Plugin extensions unavailable: ": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:642"
+    "first": "src/pages/CompanyAccess.tsx:643"
   },
   "Plugin ID": {
     "count": 1,
@@ -38612,7 +38617,7 @@
   "Reappears ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:297"
+    "first": "src/components/AttentionQueueRow.tsx:298"
   },
   "Reason": {
     "count": 10,
@@ -39537,7 +39542,7 @@
   "Reject human": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:350"
+    "first": "src/pages/CompanyAccess.tsx:351"
   },
   "Reject proposal": {
     "count": 1,
@@ -39867,7 +39872,7 @@
   "Remove member": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:505"
+    "first": "src/pages/CompanyAccess.tsx:506"
   },
   "Remove provider vault": {
     "count": 1,
@@ -40387,7 +40392,7 @@
   "Request details": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:183"
+    "first": "src/pages/JoinRequestQueue.tsx:187"
   },
   "Request failed: 401": {
     "count": 1,
@@ -40407,7 +40412,7 @@
   "Request revision": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:864"
+    "first": "src/components/AttentionQueueRow.tsx:865"
   },
   "Request revisions": {
     "count": 2,
@@ -40432,7 +40437,7 @@
   "Request type": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:105"
+    "first": "src/pages/JoinRequestQueue.tsx:109"
   },
   "Request URL": {
     "count": 1,
@@ -40457,7 +40462,7 @@
   "requested ": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:707"
+    "first": "src/pages/Inbox.tsx:708"
   },
   "Requested a selection from 1 option": {
     "count": 1,
@@ -40482,7 +40487,7 @@
   "requested by ": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:581"
+    "first": "src/pages/Inbox.tsx:582"
   },
   "Requested changes": {
     "count": 1,
@@ -41087,7 +41092,7 @@
   "Restore": {
     "count": 9,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:226"
+    "first": "src/components/AttentionQueueRow.tsx:227"
   },
   "Restore as new revision": {
     "count": 1,
@@ -41712,7 +41717,7 @@
   "Review human and agent join requests outside the mixed inbox feed. This queue uses the same approval mutations as the inline inbox cards.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:84"
+    "first": "src/pages/JoinRequestQueue.tsx:88"
   },
   "Review identity access": {
     "count": 1,
@@ -41777,7 +41782,7 @@
   "Review pending join requests before they become active organization members.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:321"
+    "first": "src/pages/CompanyAccess.tsx:322"
   },
   "Review permissions": {
     "count": 1,
@@ -42377,7 +42382,7 @@
   "Row actions": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AttentionQueueRow.tsx:310"
+    "first": "src/components/AttentionQueueRow.tsx:311"
   },
   "run": {
     "count": 2,
@@ -42497,7 +42502,7 @@
   "Run exited with an error.": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:288"
+    "first": "src/pages/Inbox.tsx:289"
   },
   "Run failed": {
     "count": 7,
@@ -42637,7 +42642,7 @@
   "Run retry failed": {
     "count": 6,
     "kind": "obj",
-    "first": "src/pages/Inbox.tsx:1813"
+    "first": "src/pages/Inbox.tsx:1814"
   },
   "Run review now": {
     "count": 1,
@@ -43312,7 +43317,7 @@
   "Save member": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:496"
+    "first": "src/pages/CompanyAccess.tsx:497"
   },
   "Save note": {
     "count": 3,
@@ -43972,7 +43977,7 @@
   "Search inbox…": {
     "count": 6,
     "kind": "attr",
-    "first": "src/pages/Inbox.tsx:2422"
+    "first": "src/pages/Inbox.tsx:2423"
   },
   "Search installed skills": {
     "count": 1,
@@ -44452,12 +44457,12 @@
   "See less": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AttentionQueueRow.tsx:187"
+    "first": "src/components/AttentionQueueRow.tsx:188"
   },
   "See more": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AttentionQueueRow.tsx:187"
+    "first": "src/components/AttentionQueueRow.tsx:188"
   },
   "See the paperclip skill → ": {
     "count": 1,
@@ -44722,7 +44727,7 @@
   "Select an organization to manage access.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:249"
+    "first": "src/pages/CompanyAccess.tsx:250"
   },
   "Select an organization to manage apps.": {
     "count": 3,
@@ -44772,7 +44777,7 @@
   "Select an organization to review join requests.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:60"
+    "first": "src/pages/JoinRequestQueue.tsx:64"
   },
   "Select an organization to start chatting with your board concierge.": {
     "count": 1,
@@ -44817,7 +44822,7 @@
   "Select an organization to view inbox.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/pages/Inbox.tsx:2334"
+    "first": "src/pages/Inbox.tsx:2335"
   },
   "Select an organization to view its work timeline.": {
     "count": 2,
@@ -47202,7 +47207,7 @@
   "Snooze": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:686"
+    "first": "src/components/AttentionQueueRow.tsx:687"
   },
   "Snooze 1h": {
     "count": 1,
@@ -47212,7 +47217,7 @@
   "Snooze until…": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:712"
+    "first": "src/components/AttentionQueueRow.tsx:713"
   },
   "Snoozed": {
     "count": 1,
@@ -47367,7 +47372,7 @@
   "Source IP ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:185"
+    "first": "src/pages/JoinRequestQueue.tsx:189"
   },
   "Source issue": {
     "count": 2,
@@ -48497,7 +48502,7 @@
   "Submitted ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/JoinRequestQueue.tsx:184"
+    "first": "src/pages/JoinRequestQueue.tsx:188"
   },
   "Submitted summary": {
     "count": 1,
@@ -48807,7 +48812,7 @@
   "Suspended": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:475"
+    "first": "src/pages/CompanyAccess.tsx:476"
   },
   "Switch account": {
     "count": 2,
@@ -49142,7 +49147,7 @@
   "Task reassignment": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:524"
+    "first": "src/pages/CompanyAccess.tsx:525"
   },
   "Task recovery": {
     "count": 2,
@@ -50792,7 +50797,7 @@
   "This account can manage access here through instance-admin privileges, but it does not currently hold an active organization membership.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:310"
+    "first": "src/pages/CompanyAccess.tsx:311"
   },
   "This account is not available to you.": {
     "count": 1,
@@ -51478,6 +51483,16 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/StatusCards/StatusCardDetailDrawer.tsx:461"
+  },
+  "This OpenClaw is already connected to agent:": {
+    "count": 2,
+    "kind": "manual",
+    "first": "src/lib/join-request-approve-error.ts:31"
+  },
+  "This OpenClaw is already connected to another agent.": {
+    "count": 2,
+    "kind": "manual",
+    "first": "src/lib/join-request-approve-error.ts:32"
   },
   "This operation requires approval, but this runner has no interactive approval handler. Review the operation and update the agent's permission setting before retrying.": {
     "count": 1,
@@ -52202,7 +52217,7 @@
   "This will mark ": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:2656"
+    "first": "src/pages/Inbox.tsx:2657"
   },
   "This will promote your user to instance admin and migrate organization ownership access from local trusted mode.": {
     "count": 1,
@@ -52782,7 +52797,7 @@
   "Tomorrow morning": {
     "count": 2,
     "kind": "obj",
-    "first": "src/components/AttentionQueueRow.tsx:76"
+    "first": "src/components/AttentionQueueRow.tsx:77"
   },
   "tone": {
     "count": 1,
@@ -53617,7 +53632,7 @@
   "Unable to retry run": {
     "count": 3,
     "kind": "dyn",
-    "first": "src/pages/Inbox.tsx:1814"
+    "first": "src/pages/Inbox.tsx:1815"
   },
   "Unable to save sub-task changes": {
     "count": 1,
@@ -53862,7 +53877,7 @@
   "Unknown agent requester": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/JoinRequestQueue.tsx:141"
+    "first": "src/pages/JoinRequestQueue.tsx:145"
   },
   "Unknown app": {
     "count": 1,
@@ -53885,7 +53900,7 @@
     "first": "src/pages/Agents.production.tsx:150"
   },
   "Unknown error": {
-    "count": 15,
+    "count": 14,
     "kind": "dyn",
     "first": "src/components/ExecutionWorkspaceCloseDialog.tsx:72"
   },
@@ -53907,7 +53922,7 @@
   "Unknown human requester": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:335"
+    "first": "src/pages/CompanyAccess.tsx:336"
   },
   "Unknown inviter": {
     "count": 1,
@@ -53987,7 +54002,7 @@
   "Unread": {
     "count": 4,
     "kind": "obj",
-    "first": "src/pages/Inbox.tsx:2410"
+    "first": "src/pages/Inbox.tsx:2411"
   },
   "Unsafe dev-only escape hatch. Remote Hermes gateways should use HTTPS; loopback HTTP remains allowed.": {
     "count": 2,
@@ -54022,7 +54037,7 @@
   "Unset": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:399"
+    "first": "src/pages/CompanyAccess.tsx:400"
   },
   "Unstar agent": {
     "count": 1,
@@ -54162,7 +54177,7 @@
   "Update organization role and membership status for ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/pages/CompanyAccess.tsx:440"
+    "first": "src/pages/CompanyAccess.tsx:441"
   },
   "Update reference": {
     "count": 2,
@@ -55067,7 +55082,7 @@
   "utilization this month": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/pages/Inbox.tsx:3306"
+    "first": "src/pages/Inbox.tsx:3307"
   },
   "UX Lab": {
     "count": 2,
@@ -55462,7 +55477,7 @@
   "View issue": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AttentionQueueRow.tsx:660"
+    "first": "src/components/AttentionQueueRow.tsx:661"
   },
   "View logs": {
     "count": 1,
@@ -57487,7 +57502,7 @@
   "You do not have permission to manage organization members.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/CompanyAccess.tsx:259"
+    "first": "src/pages/CompanyAccess.tsx:260"
   },
   "You do not have permission to respond to this card.": {
     "count": 1,
@@ -57497,7 +57512,7 @@
   "You do not have permission to review join requests for this organization.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/pages/JoinRequestQueue.tsx:70"
+    "first": "src/pages/JoinRequestQueue.tsx:74"
   },
   "You don't have another profile to copy yet.": {
     "count": 1,

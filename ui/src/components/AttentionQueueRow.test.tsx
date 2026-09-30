@@ -9,6 +9,7 @@ import type { AttentionItem, AttentionSourceKind } from "@paperclipai/shared";
 import { approvalsApi } from "../api/approvals";
 import { ApiError } from "../api/client";
 import { issuesApi } from "../api/issues";
+import { accessApi } from "../api/access";
 import { ToastViewport } from "./ToastViewport";
 import { ToastProvider } from "../context/ToastContext";
 import { AttentionQueueRow } from "./AttentionQueueRow";
@@ -24,6 +25,13 @@ vi.mock("../api/approvals", () => ({
     approve: vi.fn(),
     reject: vi.fn(),
     requestRevision: vi.fn(),
+  },
+}));
+
+vi.mock("../api/access", () => ({
+  accessApi: {
+    approveJoinRequest: vi.fn(),
+    rejectJoinRequest: vi.fn(),
   },
 }));
 
@@ -563,6 +571,47 @@ describe("AttentionQueueRow", () => {
     expect(approvalsApi.approve).toHaveBeenCalledWith("approval-1");
     expect(onToggleExpand).not.toHaveBeenCalled();
     expect(container?.textContent).toContain("Approval approved");
+  });
+
+  it("explains a refused OpenClaw join request instead of failing silently", async () => {
+    vi.mocked(accessApi.approveJoinRequest).mockRejectedValue(
+      new ApiError("Agent \"Dahye\" is already connected to this OpenClaw gateway.", 409, {
+        error: "Agent \"Dahye\" is already connected to this OpenClaw gateway.",
+        details: { code: "openclaw_gateway_duplicate_agent", existingAgentId: "agent-1", existingAgentName: "Dahye" },
+      }),
+    );
+    render(
+      <AttentionQueueRow
+        item={buildItem({
+          sourceKind: "join_request",
+          subject: {
+            kind: "join_request",
+            id: "join-1",
+            companyId: "c1",
+            title: "OpenClaw wants to join",
+            identifier: null,
+            status: "pending_approval",
+            href: "/PAP/inbox",
+            metadata: {},
+          },
+          decisionVerbs: [{ id: "approve", label: "Approve", description: null }],
+        } as Partial<AttentionItem>)}
+        companyId="c1"
+        expanded={false}
+        onToggleExpand={noop}
+        onDismiss={noop}
+      />,
+    );
+
+    const approve = Array.from(container?.querySelectorAll("button") ?? []).find(
+      (button) => button.textContent === "Approve",
+    );
+    act(() => approve?.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(accessApi.approveJoinRequest).toHaveBeenCalledWith("c1", "join-1");
+    expect(container?.textContent).toContain("This OpenClaw is already connected to agent: Dahye");
+    expect(container?.textContent).toContain("Archive or remove that agent first, or reject this join request.");
   });
 
   it("renders configured confirmation labels and accepts from the compact action area", async () => {

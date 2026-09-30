@@ -189,6 +189,7 @@ import {
   taskDateGroupSeparator,
   type TaskDateGroup,
 } from "../lib/task-date-groups";
+import { joinRequestApproveErrorMessage } from "../lib/join-request-approve-error";
 
 const INBOX_HEARTBEAT_RUN_LIMIT = 200;
 const INBOX_ISSUE_LIST_LIMIT = 500;
@@ -1770,7 +1771,7 @@ function StreamlinedInbox() {
       queryClient.invalidateQueries({ queryKey: queryKeys.companies.all });
     },
     onError: (err) => {
-      setActionError(err instanceof Error ? err.message : "Failed to approve join request");
+      setActionError(joinRequestApproveErrorMessage(err));
     },
   });
 

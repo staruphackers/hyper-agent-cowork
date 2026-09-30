@@ -34,6 +34,7 @@ import { PageTabBar } from "@/components/PageTabBar";
 import { useHiddenSettings } from "@/hooks/useHiddenSettings";
 import { useCloudInstance } from "@/hooks/useCloudInstance";
 import { InvitesSection } from "@/components/access/InvitesSection";
+import { joinRequestApproveErrorMessage } from "../lib/join-request-approve-error";
 
 const reassignmentIssueStatuses = "backlog,todo,in_progress,in_review,blocked,failed,timed_out";
 type EditableMemberStatus = "pending" | "active" | "suspended";
@@ -154,7 +155,7 @@ export function CompanyAccess() {
     onError: (error) => {
       pushToast({
         title: "Failed to approve join request",
-        body: error instanceof Error ? error.message : "Unknown error",
+        body: joinRequestApproveErrorMessage(error),
         tone: "error",
       });
     },

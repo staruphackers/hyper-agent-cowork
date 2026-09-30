@@ -651,9 +651,10 @@ function openClawGatewayIdentityKey(payload: unknown): string | null {
   let url: string;
   try {
     const parsed = new URL(rawUrl);
-    url = `${parsed.protocol}//${parsed.host.toLowerCase()}${parsed.pathname.replace(/\/+$/, "")}`;
+    // ws:// and wss:// to the same host and path reach the same gateway.
+    url = `${parsed.host.toLowerCase()}${parsed.pathname.replace(/\/+$/, "")}`;
   } catch {
-    url = rawUrl.replace(/\/+$/, "").toLowerCase();
+    url = rawUrl.replace(/^wss?:\/\//i, "").replace(/\/+$/, "").toLowerCase();
   }
   // One gateway can host several OpenClaw agents; payloadTemplate.agentId picks one.
   const template = isPlainObject(record.payloadTemplate)

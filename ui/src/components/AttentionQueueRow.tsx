@@ -20,6 +20,7 @@ import { useToastActions } from "../context/ToastContext";
 import { queryKeys } from "../lib/queryKeys";
 import { describeAttentionResolverAudience, type InteractionAudienceDescription } from "../lib/interaction-audience";
 import { interactionResolutionErrorMessage } from "../lib/interaction-resolution-error";
+import { duplicateOpenClawAgentMessage, joinRequestApproveErrorMessage } from "../lib/join-request-approve-error";
 import {
   attentionDetailImages,
   attentionDetailLine,
@@ -525,7 +526,7 @@ function CompactDecisionActions({
       // the real responder instead of asking for a retry that will fail again.
       pushToast({
         title: `Could not ${decisionLabel(action)}`,
-        body: interactionResolutionErrorMessage(error, audience),
+        body: duplicateOpenClawAgentMessage(error) ?? interactionResolutionErrorMessage(error, audience),
         tone: "error",
       });
     },
@@ -883,9 +884,13 @@ function JoinRequestResolver({ item, companyId, toggle }: { item: AttentionItem;
     queryClient.invalidateQueries({ queryKey: queryKeys.attention(companyId) });
     queryClient.invalidateQueries({ queryKey: queryKeys.access.joinRequests(companyId) });
   };
+  const { pushToast } = useToastActions();
   const approve = useMutation({
     mutationFn: () => accessApi.approveJoinRequest(companyId, item.subject.id),
     onSuccess: invalidate,
+    onError: (error) => {
+      pushToast({ title: "Failed to approve join request", body: joinRequestApproveErrorMessage(error), tone: "error" });
+    },
   });
   const reject = useMutation({
     mutationFn: () => accessApi.rejectJoinRequest(companyId, item.subject.id),

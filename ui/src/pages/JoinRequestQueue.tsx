@@ -10,6 +10,7 @@ import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { useCompany } from "@/context/CompanyContext";
 import { useToast } from "@/context/ToastContext";
 import { queryKeys } from "@/lib/queryKeys";
+import { joinRequestApproveErrorMessage } from "../lib/join-request-approve-error";
 
 export function JoinRequestQueue() {
   const { selectedCompany, selectedCompanyId } = useCompany();
@@ -45,6 +46,9 @@ export function JoinRequestQueue() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.companyMembers(selectedCompanyId!) });
       await queryClient.invalidateQueries({ queryKey: queryKeys.access.companyUserDirectory(selectedCompanyId!) });
       pushToast({ title: "Join request approved", tone: "success" });
+    },
+    onError: (error) => {
+      pushToast({ title: "Failed to approve join request", body: joinRequestApproveErrorMessage(error), tone: "error" });
     },
   });
 
