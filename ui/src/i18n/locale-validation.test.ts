@@ -106,4 +106,14 @@ describe("locale validation", () => {
       "message is too long: 200 characters exceeds 133",
     ]);
   });
+
+  it("keeps zh-TW actions in Chinese word order (no \"匯入來自X\" / \"寫入中到\")", () => {
+    // zhtw.10 T8: "Import from X" was rendered word-for-word as "匯入來自X".
+    // In Chinese the source goes first: "從X匯入".
+    const literalOrder = /(匯入|匯出|移除|更新|安裝|封存|讀取|寫入|開始|內建|建立|複製|下載|上傳)中?來自|中到/;
+    const offenders = Object.entries(localeMessages["zh-TW"] as Record<string, string>)
+      .filter(([, value]) => literalOrder.test(value))
+      .map(([key, value]) => `${key} => ${value}`);
+    expect(offenders).toEqual([]);
+  });
 });
