@@ -15,6 +15,7 @@ import {
 } from "./helpers/embedded-postgres.js";
 import { agentService } from "../services/agents.ts";
 import { approvalService } from "../services/approvals.ts";
+import { redactEventPayload } from "../redaction.ts";
 
 const embeddedPostgresSupport = await getEmbeddedPostgresTestSupport();
 const describeEmbeddedPostgres = embeddedPostgresSupport.supported ? describe : describe.skip;
@@ -156,5 +157,103 @@ describeEmbeddedPostgres("pending approval agent config integrity", () => {
       budgetMonthlyCents: 1234,
       metadata: { source: "hire-form" },
     });
+  });
+
+  // The hire route stores a redacted copy of the pending agent's config as the
+  // approval snapshot (routes/agents.ts). Activation must put the frozen real
+  // values back instead of writing "***REDACTED***" into the agent.
+  async function seedPendingHire(companyId: string, realConfig: Record<string, unknown>, snapshotConfig: Record<string, unknown>) {
+    const agentSvc = agentService(db);
+    const pending = await agentSvc.create(companyId, {
+      name: "Gateway Hire",
+      role: "general",
+      title: null,
+      icon: null,
+      capabilities: null,
+      adapterType: "openclaw_gateway",
+      adapterConfig: realConfig,
+      runtimeConfig: { maxConcurrentRuns: 1 },
+      budgetMonthlyCents: 0,
+      metadata: { apiToken: "meta-secret", source: "hire-form" },
+      status: "pending_approval",
+      spentMonthlyCents: 0,
+      permissions: {},
+      lastHeartbeatAt: null,
+    });
+    const approval = await approvalService(db).create(companyId, {
+      type: "hire_agent",
+      requestedByAgentId: null,
+      requestedByUserId: "board-user",
+      status: "pending",
+      payload: {
+        name: "Gateway Hire",
+        role: "general",
+        adapterType: "openclaw_gateway",
+        adapterConfig: snapshotConfig,
+        runtimeConfig: redactEventPayload({ maxConcurrentRuns: 1 }),
+        metadata: redactEventPayload({ apiToken: "meta-secret", source: "hire-form" }),
+        agentId: pending.id,
+        appearance: pending.appearance,
+      },
+      decisionNote: null,
+      decidedByUserId: null,
+      decidedAt: null,
+      updatedAt: new Date(),
+    });
+    return { pending, approval };
+  }
+
+  const realGatewayConfig = {
+    url: "wss://gateway.example/",
+    authToken: "gateway-token-value",
+    password: "gateway-password",
+    headers: { "x-openclaw-token": "header-token-value" },
+    devicePrivateKeyPem: "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIA==\n-----END PRIVATE KEY-----\n",
+    disableDeviceAuth: false,
+    maxRawInputTokens: 4000,
+    timeoutSec: 120,
+  };
+
+  it("restores the frozen secret values when a redacted hire snapshot is approved", async () => {
+    const companyId = await seedCompany();
+    const snapshot = redactEventPayload(realGatewayConfig)!;
+    expect(JSON.stringify(snapshot)).toContain("***REDACTED***");
+    const { pending, approval } = await seedPendingHire(companyId, realGatewayConfig, snapshot);
+
+    await approvalService(db).approve(approval.id, "board-user", "Approved gateway hire");
+
+    const activated = await agentService(db).getById(pending.id);
+    expect(activated?.status).toBe("idle");
+    expect(activated?.adapterConfig).toEqual(realGatewayConfig);
+    expect(activated?.metadata).toEqual({ apiToken: "meta-secret", source: "hire-form" });
+    expect(JSON.stringify(activated)).not.toContain("***REDACTED***");
+  });
+
+  it("keeps non-secret edits from the snapshot while restoring its masked fields", async () => {
+    const companyId = await seedCompany();
+    const snapshot = { ...redactEventPayload(realGatewayConfig)!, timeoutSec: 600 };
+    const { pending, approval } = await seedPendingHire(companyId, realGatewayConfig, snapshot);
+
+    await approvalService(db).approve(approval.id, "board-user", "Approved gateway hire");
+
+    const activated = await agentService(db).getById(pending.id);
+    expect(activated?.adapterConfig).toEqual({ ...realGatewayConfig, timeoutSec: 600 });
+  });
+
+  it("refuses to activate when a masked snapshot value has no frozen value to restore", async () => {
+    const companyId = await seedCompany();
+    const { authToken: _dropped, ...withoutToken } = realGatewayConfig;
+    const snapshot = { ...redactEventPayload(withoutToken)!, authToken: "***REDACTED***" };
+    const { pending, approval } = await seedPendingHire(companyId, withoutToken, snapshot);
+
+    await expect(
+      approvalService(db).approve(approval.id, "board-user", "Approved gateway hire"),
+    ).rejects.toMatchObject({ status: 422 });
+
+    const still = await agentService(db).getById(pending.id);
+    expect(still?.status).toBe("pending_approval");
+    expect(JSON.stringify(still?.adapterConfig)).not.toContain("***REDACTED***");
+    const [stillApproval] = await db.select().from(approvals).where(eq(approvals.id, approval.id));
+    expect(stillApproval?.status).toBe("pending");
   });
 });

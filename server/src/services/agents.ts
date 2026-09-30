@@ -42,6 +42,7 @@ import {
 import { logActivity } from "./activity-log.js";
 import { normalizeAgentPermissions } from "./agent-permissions.js";
 import { REDACTED_EVENT_VALUE, sanitizeRecord } from "../redaction.js";
+import { resolveHireApprovalSnapshot } from "./hire-approval-snapshot.js";
 import {
   assertClaudeOAuthBindingInvariant,
   claudeOAuthBindingsMatchExactly,
@@ -1142,7 +1143,9 @@ export function agentService(db: Db) {
         const txDb = tx as unknown as Db;
         const existing = await agentService(txDb).getById(id);
         if (!existing || existing.status !== "pending_approval") return null;
-        const approvedPatch = approvedPayload ? configPatchFromApprovalPayload(approvedPayload) : {};
+        const approvedPatch = approvedPayload
+          ? configPatchFromApprovalPayload(resolveHireApprovalSnapshot(approvedPayload, existing))
+          : {};
         let patch = { ...approvedPatch } as Partial<typeof agents.$inferInsert>;
         let approvalBindingDecision: ClaudeOAuthBindingInvariantDecision | null = null;
         if (

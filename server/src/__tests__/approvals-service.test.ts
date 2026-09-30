@@ -4,6 +4,7 @@ import { approvalService } from "../services/approvals.ts";
 const mockAgentService = vi.hoisted(() => ({
   activatePendingApproval: vi.fn(),
   create: vi.fn(),
+  getById: vi.fn(),
   terminate: vi.fn(),
 }));
 
@@ -133,6 +134,23 @@ describe("approvalService resolution idempotency", () => {
         adapterConfig: approved.payload.adapterConfig,
       }),
     );
+  });
+
+  it("refuses a payload-only hire whose config still holds masked values, before marking it approved", async () => {
+    const payload = {
+      name: "New Gateway",
+      adapterType: "openclaw_gateway",
+      adapterConfig: { url: "wss://gateway.example/", authToken: "***REDACTED***" },
+    };
+    const dbStub = createDbStub([[{ ...createApproval("pending"), payload }]], []);
+
+    const svc = approvalService(dbStub.db as any);
+    await expect(svc.approve("approval-1", "board", "ship it")).rejects.toMatchObject({
+      status: 422,
+      details: { code: "hire_approval_redacted_values", fields: ["adapterConfig.authToken"] },
+    });
+    expect(dbStub.db.update).not.toHaveBeenCalled();
+    expect(mockAgentService.create).not.toHaveBeenCalled();
   });
 });
 

@@ -1032,6 +1032,48 @@ function sameJsonValue(a: unknown, b: unknown): boolean {
 }
 
 /**
+ * Hire approvals store `redactEventPayload(frozenConfig)` as their snapshot.
+ * Put back every masked value whose snapshot subtree is exactly what that
+ * redaction produced from the frozen config; anything else carrying the
+ * placeholder is reported as unresolved so callers can refuse to persist it.
+ */
+export function restoreRedactedApprovalSnapshot(
+  snapshot: Record<string, unknown>,
+  frozen: Record<string, unknown>,
+): RestoredAgentAdapterConfig {
+  const unresolvedPaths: string[] = [];
+  const displayed = redactEventPayload(frozen) ?? {};
+  const walk = (requested: unknown, existing: unknown, shown: unknown, path: string): unknown => {
+    if (!containsRedactedPlaceholder(requested)) return requested;
+    if (
+      existing !== undefined
+      && !containsRedactedPlaceholder(existing)
+      && sameJsonValue(requested, shown)
+    ) {
+      return existing;
+    }
+    if (isPlainObject(requested)) {
+      const existingRecord = isPlainObject(existing) ? existing : {};
+      const shownRecord = isPlainObject(shown) ? shown : {};
+      const restored: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(requested)) {
+        restored[key] = walk(
+          value,
+          Object.prototype.hasOwnProperty.call(existingRecord, key) ? existingRecord[key] : undefined,
+          Object.prototype.hasOwnProperty.call(shownRecord, key) ? shownRecord[key] : undefined,
+          path ? `${path}.${key}` : key,
+        );
+      }
+      return restored;
+    }
+    unresolvedPaths.push(path || "(root)");
+    return requested;
+  };
+  const config = walk(snapshot, frozen, displayed, "") as Record<string, unknown>;
+  return { config, unresolvedPaths };
+}
+
+/**
  * Agent reads pass `adapterConfig` through `redactAgentAdapterConfig`, so a
  * client that edits and re-submits the config sends `***REDACTED***` back for
  * every hidden value (env bindings, headers, tokens, private keys, ...). Map

@@ -5,6 +5,7 @@ import { approvalComments, approvals } from "@paperclipai/db";
 import { notFound, unprocessable } from "../errors.js";
 import { redactCurrentUserText } from "../log-redaction.js";
 import { agentService } from "./agents.js";
+import { resolveHireApprovalSnapshot } from "./hire-approval-snapshot.js";
 import { budgetService } from "./budgets.js";
 import { notifyHireApproved } from "./hire-hook.js";
 import { instanceSettingsService } from "./instance-settings.js";
@@ -47,6 +48,7 @@ export function approvalService(db: Db) {
     targetStatus: "approved" | "rejected",
     decidedByUserId: string,
     decisionNote: string | null | undefined,
+    beforeApply?: (existing: Awaited<ReturnType<typeof getExistingApproval>>) => Promise<void>,
   ): Promise<ResolutionResult> {
     const existing = await getExistingApproval(id);
     if (!canResolveStatuses.has(existing.status)) {
@@ -57,6 +59,8 @@ export function approvalService(db: Db) {
         `Only pending or revision requested approvals can be ${targetStatus === "approved" ? "approved" : "rejected"}`,
       );
     }
+
+    await beforeApply?.(existing);
 
     const now = new Date();
     const updated = await db
@@ -142,11 +146,22 @@ export function approvalService(db: Db) {
     },
 
     approve: async (id: string, decidedByUserId: string, decisionNote?: string | null) => {
+      // Refuse before the approval is marked approved, so a hire whose snapshot
+      // still holds unrestorable masked values stays pending instead of half-applied.
       const { approval: updated, applied } = await resolveApproval(
         id,
         "approved",
         decidedByUserId,
         decisionNote,
+        async (existing) => {
+          if (existing.type !== "hire_agent") return;
+          const pendingPayload = existing.payload as Record<string, unknown>;
+          const pendingAgentId = typeof pendingPayload.agentId === "string" ? pendingPayload.agentId : null;
+          const pendingAgent = pendingAgentId ? await agentsSvc.getById(pendingAgentId) : null;
+          if (!pendingAgentId || pendingAgent?.status === "pending_approval") {
+            resolveHireApprovalSnapshot(pendingPayload, pendingAgent ?? {});
+          }
+        },
       );
 
       let hireApprovedAgentId: string | null = null;
@@ -159,6 +174,7 @@ export function approvalService(db: Db) {
           await reconcileApprovedBuiltInAgent(updated.companyId, payload);
           hireApprovedAgentId = payloadAgentId;
         } else {
+          resolveHireApprovalSnapshot(payload, {});
           const created = await agentsSvc.create(updated.companyId, {
             name: String(payload.name ?? "New Agent"),
             appearance: payload.appearance == null ? undefined : agentAppearanceSchema.parse(payload.appearance),
