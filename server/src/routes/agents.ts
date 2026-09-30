@@ -137,6 +137,10 @@ import {
   redactEventPayload,
   restoreRedactedAgentAdapterConfig,
 } from "../redaction.js";
+import {
+  findOpenClawCredentialsCarriedToNewGateway,
+  openClawCredentialReentryMessage,
+} from "./openclaw-credential-guard.js";
 import { redactCurrentUserValue } from "../log-redaction.js";
 import {
   HarnessRuntimeRequestResolutionError,
@@ -3176,6 +3180,20 @@ export function agentRoutes(
     record.adapterConfig = config;
   }
 
+  function assertOpenClawCredentialsReentered(
+    requestedConfig: Record<string, unknown> | null,
+    existingConfig: Record<string, unknown>,
+    effectiveConfig: Record<string, unknown>,
+  ) {
+    const carried = findOpenClawCredentialsCarriedToNewGateway({ requestedConfig, existingConfig, effectiveConfig });
+    if (carried.length > 0) {
+      throw unprocessable(openClawCredentialReentryMessage(carried), {
+        code: "openclaw_gateway_reenter_credentials",
+        fields: carried,
+      });
+    }
+  }
+
   function restoreRedactedAdapterConfig(
     requestedConfig: Record<string, unknown>,
     existingConfig: Record<string, unknown>,
@@ -3535,6 +3553,13 @@ export function agentRoutes(
             },
           )
           : inputAdapterConfig;
+        if (savedAgent.adapterType === "openclaw_gateway" && type === "openclaw_gateway") {
+          assertOpenClawCredentialsReentered(
+            inputAdapterConfig,
+            asRecord(savedAgent.adapterConfig) ?? {},
+            adapterConfigForTest,
+          );
+        }
       }
       const normalizedAdapterConfig = await secretsSvc.normalizeAdapterConfigForPersistence(
         companyId,
@@ -5463,6 +5488,9 @@ export function agentRoutes(
         : changingAdapterType ? {} : existingAdapterConfig;
       if (requestedAdapterConfig && !changingAdapterType && !replaceAdapterConfig) {
         rawEffectiveAdapterConfig = { ...existingAdapterConfig, ...rawEffectiveAdapterConfig };
+      }
+      if (requestedAdapterConfig && !changingAdapterType && existing.adapterType === "openclaw_gateway") {
+        assertOpenClawCredentialsReentered(requestedAdapterConfig, existingAdapterConfig, rawEffectiveAdapterConfig);
       }
       if (changingAdapterType) {
         // Preserve adapter-agnostic keys (env, cwd, etc.) from the existing config

@@ -767,6 +767,93 @@ describe.sequential("agent permission routes", () => {
       expect(JSON.stringify(persistedAdapterConfig())).not.toContain("***REDACTED***");
     }, 20_000);
 
+    describe("OpenClaw gateway destination changes (zhtw.10 T3)", () => {
+      async function readRedactedGatewayConfig() {
+        mockAgentService.getById.mockResolvedValue({
+          ...baseAgent,
+          adapterType: "openclaw_gateway",
+          adapterConfig: storedConfig,
+        });
+        mockAgentService.update.mockResolvedValue(baseAgent);
+        const app = await createApp({
+          type: "board",
+          userId: "board-user",
+          source: "local_implicit",
+          isInstanceAdmin: true,
+          companyIds: [companyId],
+        });
+        const res = await requestApp(app, (baseUrl) => request(baseUrl).get(`/api/agents/${agentId}`));
+        expect(res.status).toBe(200);
+        return { app, displayed: res.body.adapterConfig as Record<string, any> };
+      }
+
+      it.each([false, true])(
+        "refuses to send stored gateway credentials to a new gateway URL (replaceAdapterConfig=%s)",
+        async (replaceAdapterConfig) => {
+          const { app, displayed } = await readRedactedGatewayConfig();
+          const patchRes = await requestApp(app, (baseUrl) =>
+            request(baseUrl).patch(`/api/agents/${agentId}`).send({
+              adapterType: "openclaw_gateway",
+              adapterConfig: { ...displayed, url: "wss://gateway-2.example.test/ws" },
+              ...(replaceAdapterConfig ? { replaceAdapterConfig: true } : {}),
+            }),
+          );
+          expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(422);
+          expect(patchRes.body.details).toMatchObject({
+            code: "openclaw_gateway_reenter_credentials",
+            fields: ["authToken", "headers.x-openclaw-token"],
+          });
+          expect(mockAgentService.update).not.toHaveBeenCalled();
+        },
+        20_000,
+      );
+
+      it("refuses a partial update that only sends a new gateway URL", async () => {
+        const { app } = await readRedactedGatewayConfig();
+        const patchRes = await requestApp(app, (baseUrl) =>
+          request(baseUrl).patch(`/api/agents/${agentId}`).send({
+            adapterConfig: { url: "wss://gateway-2.example.test/ws" },
+          }),
+        );
+        expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(422);
+        expect(mockAgentService.update).not.toHaveBeenCalled();
+      }, 20_000);
+
+      it("accepts a new gateway URL once the credentials are typed in again, keeping the private key", async () => {
+        const { app, displayed } = await readRedactedGatewayConfig();
+        const patchRes = await requestApp(app, (baseUrl) =>
+          request(baseUrl).patch(`/api/agents/${agentId}`).send({
+            replaceAdapterConfig: true,
+            adapterConfig: {
+              ...displayed,
+              url: "wss://gateway-2.example.test/ws",
+              authToken: "new-auth-token",
+              headers: { ...displayed.headers, "x-openclaw-token": "new-header-token" },
+            },
+          }),
+        );
+        expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(200);
+        expect(persistedAdapterConfig()).toMatchObject({
+          url: "wss://gateway-2.example.test/ws",
+          authToken: "new-auth-token",
+          devicePrivateKeyPem: pem,
+          headers: { "x-openclaw-token": "new-header-token", "x-trace": "visible" },
+        });
+      }, 20_000);
+
+      it("still saves the redacted config unchanged when the gateway URL stays the same", async () => {
+        const { app, displayed } = await readRedactedGatewayConfig();
+        const patchRes = await requestApp(app, (baseUrl) =>
+          request(baseUrl).patch(`/api/agents/${agentId}`).send({
+            replaceAdapterConfig: true,
+            adapterConfig: displayed,
+          }),
+        );
+        expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(200);
+        expect(persistedAdapterConfig()).toMatchObject(storedConfig);
+      }, 20_000);
+    });
+
     it("round-trips a boolean *Auth* flag unchanged through read and save", async () => {
       mockAgentService.getById.mockResolvedValue({
         ...baseAgent,

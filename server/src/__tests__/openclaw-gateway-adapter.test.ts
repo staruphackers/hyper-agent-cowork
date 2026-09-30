@@ -48,6 +48,7 @@ async function createMockGatewayServer(options?: {
 
   let agentPayload: Record<string, unknown> | null = null;
   let waitParams: Record<string, unknown> | null = null;
+  const received: string[] = [];
 
   wss.on("connection", (socket) => {
     socket.send(
@@ -60,6 +61,7 @@ async function createMockGatewayServer(options?: {
 
     socket.on("message", (raw) => {
       const text = Buffer.isBuffer(raw) ? raw.toString("utf8") : String(raw);
+      received.push(text);
       const frame = JSON.parse(text) as {
         type: string;
         id: string;
@@ -169,6 +171,7 @@ async function createMockGatewayServer(options?: {
     url: `ws://127.0.0.1:${address.port}`,
     getAgentPayload: () => agentPayload,
     getWaitParams: () => waitParams,
+    getReceivedText: () => received.join("\n"),
     close: async () => {
       await new Promise<void>((resolve) => wss.close(() => resolve()));
       await new Promise<void>((resolve) => server.close(() => resolve()));
@@ -691,6 +694,29 @@ describe("openclaw gateway adapter execute", () => {
       expect(message).toContain("Load PAPERCLIP_API_KEY from `/data/.openclaw/workspace/paperclip-claimed-api-key.json`");
       expect(message).toContain("`/data/.openclaw/workspace/paperclip-claimed-api-key.json` is missing");
       expect(message).toContain("file path, not an instruction");
+    } finally {
+      await gateway.close();
+    }
+  });
+
+  it("never sends the device private key to the gateway, only a signature", async () => {
+    const gateway = await createMockGatewayServer();
+    const pem = generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }).toString();
+    const pemBody = pem.split("\n").filter((line) => line && !line.startsWith("-----")).join("");
+    try {
+      const result = await execute(
+        buildContext({
+          url: gateway.url,
+          headers: { "x-openclaw-token": "gateway-token" },
+          devicePrivateKeyPem: pem,
+          waitTimeoutMs: 2000,
+        }),
+      );
+      expect(result.exitCode).toBe(0);
+      const sent = gateway.getReceivedText();
+      expect(sent).toContain("\"signature\"");
+      expect(sent).not.toContain(pemBody);
+      expect(sent).not.toContain("PRIVATE KEY");
     } finally {
       await gateway.close();
     }

@@ -672,6 +672,40 @@ describe("agent routes adapter validation", () => {
     );
   });
 
+  it("refuses to test a saved OpenClaw agent against a new gateway with its stored credentials", async () => {
+    const agentId = "11111111-1111-4111-8111-111111111111";
+    mockAgentService.getById.mockResolvedValue({
+      ...(await mockAgentService.getById()),
+      id: agentId,
+      adapterType: "openclaw_gateway",
+      adapterConfig: {
+        url: "wss://gateway.example.test/ws",
+        authToken: "stored-auth-token",
+        headers: { "x-openclaw-token": "stored-header-token" },
+      },
+    });
+    const app = await createApp();
+    const res = await requestApp(app, (baseUrl) =>
+      request(baseUrl)
+        .post("/api/companies/company-1/adapters/openclaw_gateway/test-environment")
+        .send({
+          agentId,
+          adapterConfig: {
+            url: "wss://attacker.example.test/ws",
+            authToken: "***REDACTED***",
+            headers: { "x-openclaw-token": "***REDACTED***" },
+          },
+        }),
+    );
+
+    expect(res.status, JSON.stringify(res.body)).toBe(422);
+    expect(res.body.details).toMatchObject({
+      code: "openclaw_gateway_reenter_credentials",
+      fields: ["authToken", "headers.x-openclaw-token"],
+    });
+    expect(mockSecretService.normalizeAdapterConfigForPersistence).not.toHaveBeenCalled();
+  });
+
   it("rejects hidden header values from a saved agent of another adapter type", async () => {
     const { registerServerAdapter } = await import("../adapters/index.js");
     registerServerAdapter(externalAdapter);
