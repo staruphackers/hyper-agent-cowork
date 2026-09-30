@@ -106,6 +106,7 @@ import {
 import { claimFirstInstanceAdmin } from "../first-admin-claim.js";
 import { getStorageService } from "../storage/index.js";
 import { secretService } from "../services/secrets.js";
+import { DEFAULT_CLAIMED_API_KEY_PATH, isSafeClaimedApiKeyPath } from "@paperclipai/adapter-openclaw-gateway";
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -777,16 +778,10 @@ function summarizeOpenClawGatewayDefaultsForLog(defaultsPayload: unknown) {
   };
 }
 
-// Keep in sync with DEFAULT_CLAIMED_API_KEY_PATH in the openclaw-gateway adapter:
-// the adapter tells the agent to read its Paperclip key from this file at wake time.
-export const OPENCLAW_DEFAULT_CLAIMED_API_KEY_PATH =
-  "~/.openclaw/workspace/paperclip-claimed-api-key.json";
-
-function isAcceptableClaimedApiKeyPath(value: string): boolean {
-  if (value.length > 512 || /[\0\r\n]/.test(value)) return false;
-  if (!value.endsWith(".json")) return false;
-  return value.startsWith("/") || value.startsWith("~/");
-}
+// Shared with the openclaw-gateway adapter, which reads the key from this file
+// at wake time and applies the same path rule before quoting it to the agent.
+export const OPENCLAW_DEFAULT_CLAIMED_API_KEY_PATH = DEFAULT_CLAIMED_API_KEY_PATH;
+const isAcceptableClaimedApiKeyPath = isSafeClaimedApiKeyPath;
 
 export function normalizeAgentDefaultsForJoin(input: {
   adapterType: string | null;

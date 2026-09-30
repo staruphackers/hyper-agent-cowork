@@ -1,6 +1,21 @@
 export const type = "openclaw_gateway";
 export const label = "OpenClaw Gateway";
 
+/** Where the adapter tells the agent to read its Paperclip key when nothing else is configured. */
+export const DEFAULT_CLAIMED_API_KEY_PATH = "~/.openclaw/workspace/paperclip-claimed-api-key.json";
+
+/**
+ * claimedApiKeyPath is sent to the agent inside its wake instructions, and a
+ * join requester can set it. Only allow a plain absolute or ~/ path to a .json
+ * file (letters, digits, . _ - /, no ".." segment) so it cannot carry text the
+ * agent would read as instructions.
+ */
+export function isSafeClaimedApiKeyPath(value: string): boolean {
+  if (value.length > 512) return false;
+  if (!/^(?:~\/|\/)[A-Za-z0-9._\-/]+\.json$/.test(value)) return false;
+  return !value.split("/").includes("..");
+}
+
 export const models: { id: string; label: string }[] = [];
 
 export const agentConfigurationDoc = `# openclaw_gateway agent configuration
