@@ -4,8 +4,9 @@
 // Run it inside the Paperclip container:
 //   docker exec -i <container> node /app/scripts/openclaw-doctor.mjs
 //
-// It never prints secret values: only setting names, agent names, short ids
-// and PASS / WARN / FAIL. It never writes to the database.
+// It never prints setting values: only setting names, agent names, short ids,
+// the gateway scheme and host, and PASS / WARN / FAIL. It never writes to the
+// database.
 // Exit code: 0 when nothing failed, 1 when at least one FAIL, 2 when it could
 // not read the database.
 
@@ -19,6 +20,25 @@ export const DEFAULT_CLAIMED_API_KEY_PATH = "~/.openclaw/workspace/paperclip-cla
 
 function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+// Same rule as isSafeClaimedApiKeyPath in the openclaw-gateway adapter
+// (packages/adapters/openclaw-gateway/src/index.ts); the adapter ignores any
+// other value and falls back to the default path.
+export function isSafeClaimedApiKeyPath(value) {
+  if (typeof value !== "string" || value.length > 512) return false;
+  if (!/^(?:~\/|\/)[A-Za-z0-9._\-/]+\.json$/.test(value)) return false;
+  return !value.split("/").includes("..");
+}
+
+/** Scheme and host only: no userinfo, path or query, which can carry secrets. */
+export function displayGateway(rawUrl) {
+  try {
+    const parsed = new URL(rawUrl);
+    return `${parsed.protocol}//${parsed.host}`;
+  } catch {
+    return "(unreadable URL)";
+  }
 }
 
 function nonEmpty(value) {
@@ -59,9 +79,10 @@ export function gatewayIdentityKey(config) {
   let url;
   try {
     const parsed = new URL(rawUrl);
-    url = `${parsed.protocol}//${parsed.host.toLowerCase()}${parsed.pathname.replace(/\/+$/, "")}`;
+    // ws:// and wss:// to the same host and path reach the same gateway.
+    url = `${parsed.host.toLowerCase()}${parsed.pathname.replace(/\/+$/, "")}`;
   } catch {
-    url = rawUrl.replace(/\/+$/, "").toLowerCase();
+    url = rawUrl.replace(/^wss?:\/\//i, "").replace(/\/+$/, "").toLowerCase();
   }
   const agentId = isRecord(config?.payloadTemplate) ? nonEmpty(config.payloadTemplate.agentId) ?? "" : "";
   return `${url}#${agentId}`;
@@ -92,9 +113,9 @@ export function evaluateOpenClawAgents(agents) {
     if (!url) {
       push("FAIL", "gateway-url", "No gateway URL");
     } else if (url.startsWith("wss://")) {
-      push("PASS", "gateway-url", url);
+      push("PASS", "gateway-url", displayGateway(url));
     } else if (url.startsWith("ws://")) {
-      push("WARN", "gateway-url", `${url} is not encrypted (use wss:// for remote gateways)`);
+      push("WARN", "gateway-url", `${displayGateway(url)} is not encrypted (use wss:// for remote gateways)`);
     } else {
       push("FAIL", "gateway-url", "Gateway URL must start with ws:// or wss://");
     }
@@ -132,26 +153,33 @@ export function evaluateOpenClawAgents(agents) {
         ? config.scopes.split(",").map((scope) => scope.trim())
         : null;
     if (scopes && !scopes.some((scope) => scope === "operator.admin" || scope === "operator.write")) {
-      push("WARN", "scopes", `Requested scopes [${scopes.join(", ")}] do not include operator.admin or operator.write`);
+      push("WARN", "scopes", "Requested scopes include neither operator.admin nor operator.write");
     }
 
-    push("INFO", "api-key-path", `Agent must keep its Paperclip key at ${nonEmpty(config.claimedApiKeyPath) ?? DEFAULT_CLAIMED_API_KEY_PATH} on the OpenClaw host`);
+    const customKeyPath = nonEmpty(config.claimedApiKeyPath);
+    if (!customKeyPath) {
+      push("INFO", "api-key-path", `Agent must keep its Paperclip key at ${DEFAULT_CLAIMED_API_KEY_PATH} on the OpenClaw host`);
+    } else if (isSafeClaimedApiKeyPath(customKeyPath)) {
+      push("INFO", "api-key-path", "Agent uses a custom key path (set in claimedApiKeyPath) on the OpenClaw host");
+    } else {
+      push("WARN", "api-key-path", `claimedApiKeyPath is not a plain .json file path, so Paperclip ignores it and uses ${DEFAULT_CLAIMED_API_KEY_PATH}`);
+    }
 
     const key = gatewayIdentityKey(config);
     if (key) {
-      const list = byGateway.get(key) ?? [];
-      list.push(label);
-      byGateway.set(key, list);
+      const entry = byGateway.get(key) ?? { labels: [], host: displayGateway(nonEmpty(config.url) ?? "") };
+      entry.labels.push(label);
+      byGateway.set(key, entry);
     }
   }
 
-  for (const [key, labels] of byGateway) {
+  for (const { labels, host } of byGateway.values()) {
     if (labels.length > 1) {
       results.push({
         agent: labels.join(" + "),
         level: "WARN",
         check: "duplicate-agent",
-        detail: `${labels.length} live agents point at the same OpenClaw gateway (${key.split("#")[0]}); archive the extra one`,
+        detail: `${labels.length} live agents point at the same OpenClaw gateway (${host}); archive the extra one`,
       });
     }
   }
