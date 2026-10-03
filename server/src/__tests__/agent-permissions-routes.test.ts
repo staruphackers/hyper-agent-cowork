@@ -841,6 +841,27 @@ describe.sequential("agent permission routes", () => {
         });
       }, 20_000);
 
+      it("cannot move a masked header token under a renamed header while changing the URL", async () => {
+        // Review finding (10-01): the re-entry rule checks credential paths. A
+        // masked value can only be restored at its own path, so renaming the
+        // header never carries the stored token to the new gateway.
+        const { app } = await readRedactedGatewayConfig();
+        const patchRes = await requestApp(app, (baseUrl) =>
+          request(baseUrl).patch(`/api/agents/${agentId}`).send({
+            replaceAdapterConfig: true,
+            adapterConfig: {
+              url: "wss://gateway-2.example.test/ws",
+              authToken: "new-auth-token",
+              headers: { "X-OpenClaw-Token": "***REDACTED***", "x-trace": "visible" },
+            },
+          }),
+        );
+        expect([200, 422]).toContain(patchRes.status);
+        const persisted = JSON.stringify(mockAgentService.update.mock.calls[0]?.[1] ?? {});
+        expect(persisted).not.toContain("stored-header-token");
+        expect(persisted).not.toContain("***REDACTED***");
+      }, 20_000);
+
       it("still saves the redacted config unchanged when the gateway URL stays the same", async () => {
         const { app, displayed } = await readRedactedGatewayConfig();
         const patchRes = await requestApp(app, (baseUrl) =>

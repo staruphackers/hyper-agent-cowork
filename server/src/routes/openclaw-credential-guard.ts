@@ -22,12 +22,19 @@ function gatewayDestination(value: unknown): string | null {
   const raw = value.trim();
   try {
     const parsed = new URL(raw);
-    // ws and wss to the same host and path are the same gateway; the query
-    // string is not part of the destination.
+    // ws and wss to the same host and path are the same gateway (a downgrade
+    // is checked separately); the query string is not part of the destination.
     return `${parsed.host.toLowerCase()}${parsed.pathname.replace(/\/+$/, "")}`;
   } catch {
     return raw.toLowerCase().replace(/\/+$/, "");
   }
+}
+
+/** wss:// to ws:// would send the same credentials without encryption. */
+function downgradesTransport(beforeUrl: unknown, afterUrl: unknown): boolean {
+  const scheme = (value: unknown) =>
+    typeof value === "string" ? value.trim().toLowerCase().split(":", 1)[0] : "";
+  return scheme(beforeUrl) === "wss" && scheme(afterUrl) === "ws";
 }
 
 function storedCredentials(config: Record<string, unknown>): Array<[string, string]> {
@@ -67,7 +74,8 @@ export function findOpenClawCredentialsCarriedToNewGateway(input: {
 }): string[] {
   const before = gatewayDestination(input.existingConfig.url);
   const after = gatewayDestination(input.effectiveConfig.url);
-  if (before === null || after === null || before === after) return [];
+  if (before === null || after === null) return [];
+  if (before === after && !downgradesTransport(input.existingConfig.url, input.effectiveConfig.url)) return [];
   return storedCredentials(input.existingConfig)
     .filter(([path, stored]) =>
       valueAt(input.effectiveConfig, path) === stored
@@ -77,4 +85,34 @@ export function findOpenClawCredentialsCarriedToNewGateway(input: {
 
 export function openClawCredentialReentryMessage(paths: string[]): string {
   return `The gateway URL changed. Type these values in again so they are not sent to the new gateway: ${paths.join(", ")}`;
+}
+
+/**
+ * zhtw.10 (D1-A). Replaying an OpenClaw invite on an already-approved join
+ * request updates the live agent without a new approval. Upstream uses this to
+ * refresh the gateway token and the Paperclip URL; anyone holding the invite
+ * link could also redirect the agent. These settings may only be changed from
+ * the agent's settings page, so a replay that changes them is refused.
+ */
+export function findOpenClawReplayLockedChanges(
+  existingConfig: Record<string, unknown>,
+  nextConfig: Record<string, unknown>,
+): string[] {
+  const locked: string[] = [];
+  const before = gatewayDestination(existingConfig.url);
+  const after = gatewayDestination(nextConfig.url);
+  if (before !== after || downgradesTransport(existingConfig.url, nextConfig.url)) locked.push("url");
+  const keyPath = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim() : null);
+  if (keyPath(existingConfig.claimedApiKeyPath) !== keyPath(nextConfig.claimedApiKeyPath)) {
+    locked.push("claimedApiKeyPath");
+  }
+  const deviceAuthOff = (value: unknown) => value === true || value === "true";
+  if (deviceAuthOff(existingConfig.disableDeviceAuth) !== deviceAuthOff(nextConfig.disableDeviceAuth)) {
+    locked.push("disableDeviceAuth");
+  }
+  return locked;
+}
+
+export function openClawReplayLockedMessage(fields: string[]): string {
+  return `This agent is already approved. Change these settings from the agent's settings page, not by reusing the invite: ${fields.join(", ")}`;
 }

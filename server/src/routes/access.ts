@@ -54,7 +54,8 @@ import {
   notFound,
   unauthorized,
   badRequest,
-  tooManyRequests
+  tooManyRequests,
+  unprocessable
 } from "../errors.js";
 import { getHiddenSettings } from "../services/settings-visibility.js";
 import { runtimeCanonicalOrigin } from "../services/cloud-runtime-identity.js";
@@ -107,6 +108,7 @@ import { claimFirstInstanceAdmin } from "../first-admin-claim.js";
 import { getStorageService } from "../storage/index.js";
 import { secretService } from "../services/secrets.js";
 import { DEFAULT_CLAIMED_API_KEY_PATH, isSafeClaimedApiKeyPath } from "@paperclipai/adapter-openclaw-gateway";
+import { findOpenClawReplayLockedChanges, openClawReplayLockedMessage } from "./openclaw-credential-guard.js";
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -3918,6 +3920,38 @@ export function accessRoutes(
 
       if (requestType === "agent" && joinDefaults.fatalErrors.length > 0) {
         throw badRequest(joinDefaults.fatalErrors.join("; "));
+      }
+
+      // zhtw.10 D1-A: an invite replay on an approved OpenClaw join request
+      // updates the live agent without a new approval. Let it refresh the token
+      // and Paperclip URL as upstream intends, but refuse redirecting the agent,
+      // and never swap out the device key that OpenClaw already approved.
+      if (
+        inviteAlreadyAccepted &&
+        requestType === "agent" &&
+        adapterType === "openclaw_gateway" &&
+        existingJoinRequestForInvite?.status === "approved" &&
+        existingJoinRequestForInvite.createdAgentId &&
+        joinDefaults.normalized
+      ) {
+        const replayAgent = await agents.getById(existingJoinRequestForInvite.createdAgentId);
+        const liveConfig = isPlainObject(replayAgent?.adapterConfig)
+          ? (replayAgent!.adapterConfig as Record<string, unknown>)
+          : {};
+        const lockedFields = findOpenClawReplayLockedChanges(liveConfig, {
+          ...liveConfig,
+          ...joinDefaults.normalized,
+        });
+        if (lockedFields.length > 0) {
+          throw unprocessable(openClawReplayLockedMessage(lockedFields), {
+            code: "openclaw_gateway_replay_locked_fields",
+            fields: lockedFields,
+          });
+        }
+        const liveDeviceKey = liveConfig.devicePrivateKeyPem;
+        if (typeof liveDeviceKey === "string" && liveDeviceKey.trim()) {
+          joinDefaults.normalized.devicePrivateKeyPem = liveDeviceKey;
+        }
       }
 
       const persistedJoinDefaultsPayload =
