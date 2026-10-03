@@ -238,6 +238,15 @@ describe("redactUrlSecrets", () => {
     expect(() => redactUrlSecrets(nested)).not.toThrow();
   });
 
+  // Seventh review N1: a second URL with no space in between must be masked too.
+  it("masks every URL in a string, even when two URLs touch", () => {
+    expect(redactUrlSecrets(`wss://u:PW@h/","other":"https://x:SECRET2@z/?k=S3`)).toBe(
+      `wss://***@h/","other":"https://***@z/?***`,
+    );
+    expect(redactUrlSecrets("'wss://a:b@h/'+'wss://x:SECRET@z/'")).toBe("'wss://***@h/'+'wss://***@z/'");
+    expect(redactUrlSecrets("wss://h/?r=https://x:p@y/")).toBe("wss://h/?***https://***@y/");
+  });
+
   it("runs in linear time on hostile input (fifth review ReDoS)", () => {
     const inputs = ["a".repeat(200_000), `http://${"a".repeat(200_000)}`, "a://".repeat(50_000), `x?${"y".repeat(200_000)}`];
     for (const input of inputs) {

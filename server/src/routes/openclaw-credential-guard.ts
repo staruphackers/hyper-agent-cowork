@@ -274,8 +274,17 @@ function redactUrlSecretsInText(text: string): string {
       separator = text.indexOf("://", separator + 3);
       continue;
     }
+    // A URL also ends where the next URL's scheme begins (seventh review N1),
+    // so two URLs with no space between them are each masked. A "://" inside a
+    // query is cut off here and masked as its own URL, which over-masks safely.
     let end = separator + 3;
-    while (end < text.length && !URL_STOP_CHAR.test(text[end] ?? "")) end += 1;
+    let limit = text.length;
+    const nextSeparator = text.indexOf("://", end);
+    if (nextSeparator !== -1) {
+      limit = nextSeparator;
+      while (limit > end && URL_SCHEME_CHAR.test(text[limit - 1] ?? "")) limit -= 1;
+    }
+    while (end < limit && !URL_STOP_CHAR.test(text[end] ?? "")) end += 1;
     out += text.slice(cursor, start) + redactOneUrl(text.slice(start, end));
     cursor = end;
     separator = text.indexOf("://", cursor);
