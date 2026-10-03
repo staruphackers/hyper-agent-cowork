@@ -119,9 +119,25 @@ describe("invite replay on an approved agent (zhtw.10 D1-A whitelist)", () => {
     timeoutSec: 600,
   };
 
-  it("allows the gateway token and Paperclip URL, and ignores fields the request did not send", () => {
+  it("allows only the gateway token, and ignores fields the request did not send", () => {
     const normalized = { ...live, url: "wss://stale-from-first-join.example/ws", headers: { "x-openclaw-token": "new-token" } };
-    expect(findOpenClawReplayLockedChanges(live, normalized, ["headers", "paperclipApiUrl"])).toEqual([]);
+    expect(findOpenClawReplayLockedChanges(live, normalized, ["headers"])).toEqual([]);
+  });
+
+  it("treats the same Paperclip URL with or without a trailing slash as unchanged", () => {
+    expect(
+      findOpenClawReplayLockedChanges(
+        { ...live, paperclipApiUrl: "https://cowork.example" },
+        { ...live, paperclipApiUrl: "https://cowork.example/" },
+        ["paperclipApiUrl"],
+      ),
+    ).toEqual([]);
+  });
+
+  it("refuses a new Paperclip URL (Kimi D2-A: the agent sends its Paperclip API key there)", () => {
+    expect(
+      findOpenClawReplayLockedChanges(live, { ...live, paperclipApiUrl: "https://attacker.example" }, ["paperclipApiUrl"]),
+    ).toEqual(["paperclipApiUrl"]);
   });
 
   it("refuses every other field the request changes, including payloadTemplate and scopes", () => {

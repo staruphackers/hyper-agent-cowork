@@ -172,6 +172,11 @@ describe("POST /invites/:token/accept replay on an approved OpenClaw join reques
       ["payloadTemplate"],
     ],
     [
+      "a new Paperclip URL (the agent would send its Paperclip API key there)",
+      { paperclipApiUrl: "https://attacker.example" },
+      ["paperclipApiUrl"],
+    ],
+    [
       "a new session key and scopes",
       { sessionKeyStrategy: "fixed", sessionKey: "shared", scopes: ["operator.admin"] },
       ["sessionKeyStrategy", "sessionKey", "scopes"],

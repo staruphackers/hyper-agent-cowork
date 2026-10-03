@@ -98,7 +98,10 @@ export function openClawCredentialReentryMessage(paths: string[]): string {
  * payload is stale once the owner edits the agent, so it must neither trigger a
  * refusal nor be written back over the live config.
  */
-export const OPENCLAW_REPLAY_REFRESHABLE_FIELDS: ReadonlySet<string> = new Set(["headers", "paperclipApiUrl"]);
+// Only the gateway token (headers) may be refreshed. paperclipApiUrl is locked too
+// (Kimi D2-A, 2026-10-03): the agent sends its Paperclip API key to that address,
+// so changing it is an owner action on the settings page, not an invite-holder one.
+export const OPENCLAW_REPLAY_REFRESHABLE_FIELDS: ReadonlySet<string> = new Set(["headers"]);
 
 export function openClawReplayRequestedFields(body: unknown): string[] {
   const record = asRecord(body);
@@ -111,6 +114,13 @@ export function openClawReplayRequestedFields(body: unknown): string[] {
 function sameSetting(field: string, live: unknown, next: unknown): boolean {
   if (field === "url") {
     return gatewayDestination(live) === gatewayDestination(next) && !downgradesTransport(live, next);
+  }
+  if (field === "paperclipApiUrl") {
+    const canonical = (value: unknown) => {
+      if (typeof value !== "string" || !value.trim()) return null;
+      try { return new URL(value.trim()).toString(); } catch { return value.trim(); }
+    };
+    return canonical(live) === canonical(next);
   }
   if (field === "disableDeviceAuth") {
     const off = (value: unknown) => value === true || value === "true";
@@ -143,9 +153,6 @@ export function buildOpenClawReplayAdapterConfig(
   requestedHeaders: unknown,
 ): Record<string, unknown> {
   const next: Record<string, unknown> = { ...liveConfig };
-  if (requestedFields.includes("paperclipApiUrl") && normalizedReplay.paperclipApiUrl !== undefined) {
-    next.paperclipApiUrl = normalizedReplay.paperclipApiUrl;
-  }
   const sentHeaders = asRecord(requestedHeaders);
   const replayHeaders = asRecord(normalizedReplay.headers) ?? {};
   if (requestedFields.includes("headers") && sentHeaders) {
