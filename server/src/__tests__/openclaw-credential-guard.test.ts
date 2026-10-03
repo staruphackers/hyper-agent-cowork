@@ -202,6 +202,11 @@ describe("invite replay on an approved agent (zhtw.10 D1-A whitelist)", () => {
     ]);
   });
 
+  it("treats a bare 'Bearer' as an invalid token, not as the token itself", () => {
+    expect(reviewOpenClawReplayHeaders(live, { "x-openclaw-token": "Bearer" }).invalidToken).toBe(true);
+    expect(reviewOpenClawReplayHeaders(live, { "x-openclaw-token": "Bearer   " }).invalidToken).toBe(true);
+  });
+
   it("accepts a legacy 'Bearer <token>' value and stores just the token", () => {
     expect(reviewOpenClawReplayHeaders(live, { "x-openclaw-auth": "Bearer new-token" }).token).toBe("new-token");
   });
@@ -215,6 +220,22 @@ describe("invite replay on an approved agent (zhtw.10 D1-A whitelist)", () => {
 describe("redactUrlSecrets", () => {
   it("masks the whole userinfo even when the password contains @, and the fragment", () => {
     expect(redactUrlSecrets("wss://user:p@ss@gw.example/x#frag")).toBe("wss://***@gw.example/x#***");
+  });
+
+  // Sixth review N1/N2/N4.
+  it("does not stop at a quote inside the URL", () => {
+    expect(redactUrlSecrets("wss://user:pa'ss@host/x?token=abc'def")).toBe("wss://***@host/x?***");
+  });
+
+  it("masks URLs whose scheme run starts with a non-letter", () => {
+    expect(redactUrlSecrets("1wss://u:PW@h/")).toBe("1wss://***@h/");
+    expect(redactUrlSecrets("-wss://u:PW@h/?t=1")).toBe("-wss://***@h/?***");
+  });
+
+  it("does not overflow the stack on deeply nested input", () => {
+    let nested: unknown = "wss://u:p@h/";
+    for (let i = 0; i < 20_000; i += 1) nested = [nested];
+    expect(() => redactUrlSecrets(nested)).not.toThrow();
   });
 
   it("runs in linear time on hostile input (fifth review ReDoS)", () => {

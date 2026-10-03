@@ -191,7 +191,9 @@ export function reviewOpenClawReplayHeaders(
     sentTokens["x-openclaw-token"] ?? sentTokens["x-openclaw-auth"] ?? inbound.token ?? inbound.auth ?? undefined;
   if (raw === undefined || raw === null) return { token: null, lockedFields, invalidToken: false };
 
-  const token = typeof raw === "string" ? raw.trim().replace(/^bearer\s+/i, "") : "";
+  const trimmed = typeof raw === "string" ? raw.trim() : "";
+  // A bare "Bearer" (or "Bearer   ") is not a token (sixth review N3).
+  const token = /^bearer$/i.test(trimmed) ? "" : trimmed.replace(/^bearer\s+/i, "");
   if (!GATEWAY_TOKEN_PATTERN.test(token)) return { token: null, lockedFields, invalidToken: true };
 
   // A replay may only replace an existing gateway token header. If the agent has
@@ -231,7 +233,10 @@ export function buildOpenClawReplayAdapterConfig(
 }
 
 const URL_SCHEME_CHAR = /[a-z0-9+.-]/i;
-const URL_STOP_CHAR = /[\s"'<>`]/;
+// Only whitespace ends a URL: quotes and brackets can appear inside a stored
+// URL's userinfo or query (sixth review N1); over-masking trailing punctuation is fine.
+const URL_STOP_CHAR = /\s/;
+const REDACT_MAX_DEPTH = 64;
 
 function redactOneUrl(url: string): string {
   const separator = url.indexOf("://");
@@ -263,7 +268,9 @@ function redactUrlSecretsInText(text: string): string {
   while (separator !== -1) {
     let start = separator;
     while (start > cursor && URL_SCHEME_CHAR.test(text[start - 1] ?? "")) start -= 1;
-    if (start === separator || !/[a-z]/i.test(text[start] ?? "")) {
+    // A scheme starts with a letter; skip leading digits/+/./- (sixth review N2).
+    while (start < separator && !/[a-z]/i.test(text[start] ?? "")) start += 1;
+    if (start === separator) {
       separator = text.indexOf("://", separator + 3);
       continue;
     }
@@ -277,12 +284,15 @@ function redactUrlSecretsInText(text: string): string {
 }
 
 /** Masks userinfo, query and fragment of any URL found in strings (deep). */
-export function redactUrlSecrets<T>(value: T): T {
+export function redactUrlSecrets<T>(value: T, depth = 0): T {
   if (typeof value === "string") return redactUrlSecretsInText(value) as T;
-  if (Array.isArray(value)) return value.map((item) => redactUrlSecrets(item)) as T;
+  if (depth >= REDACT_MAX_DEPTH && typeof value === "object" && value !== null) return "***" as T;
+  if (Array.isArray(value)) return value.map((item) => redactUrlSecrets(item, depth + 1)) as T;
   const record = asRecord(value);
   if (!record) return value;
-  return Object.fromEntries(Object.entries(record).map(([key, item]) => [key, redactUrlSecrets(item)])) as T;
+  return Object.fromEntries(
+    Object.entries(record).map(([key, item]) => [key, redactUrlSecrets(item, depth + 1)]),
+  ) as T;
 }
 
 export function openClawReplayLockedMessage(fields: string[]): string {
