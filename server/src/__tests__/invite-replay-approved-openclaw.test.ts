@@ -52,7 +52,7 @@ const liveConfig = {
   timeoutSec: 600,
 };
 
-function joinRequestRow(status: string) {
+function joinRequestRow(status: string, storedPayload: Record<string, unknown> = storedJoinPayload) {
   return {
     id: "request-1",
     inviteId: "invite-1",
@@ -62,11 +62,11 @@ function joinRequestRow(status: string) {
     adapterType: "openclaw_gateway",
     agentName: "Dahye",
     createdAgentId: status === "approved" ? "agent-1" : null,
-    agentDefaultsPayload: storedJoinPayload,
+    agentDefaultsPayload: storedPayload,
   };
 }
 
-function createDb(status = "approved") {
+function createDb(status = "approved", storedPayload: Record<string, unknown> = storedJoinPayload) {
   const selectResults: unknown[][] = [
     [
       {
@@ -81,7 +81,7 @@ function createDb(status = "approved") {
         acceptedAt: new Date("2026-09-26T00:00:00.000Z"),
       },
     ],
-    [joinRequestRow(status)],
+    [joinRequestRow(status, storedPayload)],
   ];
   let lastSet: Record<string, unknown> | null = null;
   const chain = () => {
@@ -94,7 +94,7 @@ function createDb(status = "approved") {
       where: vi.fn(() => q),
       returning: vi.fn(() => q),
       then: (resolve: (rows: unknown[]) => unknown) =>
-        Promise.resolve([{ ...joinRequestRow(status), ...(lastSet ?? {}) }]).then(resolve),
+        Promise.resolve([{ ...joinRequestRow(status, storedPayload), ...(lastSet ?? {}) }]).then(resolve),
     };
     return q;
   };
@@ -132,10 +132,19 @@ function createApp(db: Record<string, unknown>) {
   return app;
 }
 
-function replay(db: Record<string, unknown>, agentDefaultsPayload: Record<string, unknown>) {
-  return request(createApp(db))
-    .post("/api/invites/invite-token/accept")
-    .send({ requestType: "agent", adapterType: "openclaw_gateway", agentDefaultsPayload });
+function replay(
+  db: Record<string, unknown>,
+  agentDefaultsPayload: Record<string, unknown>,
+  httpHeaders: Record<string, string> = {},
+) {
+  let req = request(createApp(db)).post("/api/invites/invite-token/accept");
+  for (const [name, value] of Object.entries(httpHeaders)) req = req.set(name, value);
+  return req.send({ requestType: "agent", adapterType: "openclaw_gateway", agentDefaultsPayload });
+}
+
+function writtenAdapterConfig(): Record<string, any> {
+  expect(agentServiceMock.update).toHaveBeenCalledTimes(1);
+  return (agentServiceMock.update.mock.calls[0]?.[1] as { adapterConfig: Record<string, any> }).adapterConfig;
 }
 
 describe("POST /invites/:token/accept replay on an approved OpenClaw join request", () => {
@@ -214,6 +223,109 @@ describe("POST /invites/:token/accept replay on an approved OpenClaw join reques
     for (const secret of ["first-join-token-1234567890", "new-gateway-token-1234567890", "PRIVATE KEY"]) {
       expect(body).not.toContain(secret);
     }
+  });
+
+  // Fourth review F1: only the gateway token header may be refreshed; any other
+  // header (Host, Cookie, Authorization...) would be sent to the owner's gateway.
+  it.each([
+    ["a Host header", { Host: "evil.example" }, ["headers.Host"]],
+    ["a cookie and a forwarded-for header", { Cookie: "s=1", "X-Forwarded-For": "10.0.0.1" }, ["headers.Cookie", "headers.X-Forwarded-For"]],
+    ["an Authorization header", { authorization: "Bearer attacker-token-1234567890" }, ["headers.authorization"]],
+  ])("refuses %s on an approved agent and writes nothing", async (_label, headers, fields) => {
+    const { db, writes } = createDb();
+    const res = await replay(db, { headers: { "x-openclaw-token": "new-gateway-token-1234567890", ...headers } });
+
+    expect(res.status, JSON.stringify(res.body)).toBe(422);
+    expect(res.body.details.code).toBe("openclaw_gateway_replay_locked_fields");
+    expect(res.body.details.fields).toEqual(fields);
+    expect(writes.update).not.toHaveBeenCalled();
+    expect(agentServiceMock.update).not.toHaveBeenCalled();
+  });
+
+  it("refuses headers sent in a non-object shape", async () => {
+    const { db, writes } = createDb();
+    const res = await replay(db, { headers: [["x-openclaw-token", "new-gateway-token-1234567890"]] });
+
+    expect(res.status, JSON.stringify(res.body)).toBe(422);
+    expect(res.body.details.fields).toEqual(["headers"]);
+    expect(writes.update).not.toHaveBeenCalled();
+  });
+
+  it("refuses a gateway token with spaces or line breaks", async () => {
+    const { db, writes } = createDb();
+    const res = await replay(db, { headers: { "x-openclaw-token": "abc\r\nHost: evil.example" } });
+
+    expect(res.status, JSON.stringify(res.body)).toBe(422);
+    expect(res.body.details.code).toBe("openclaw_gateway_replay_invalid_token");
+    expect(writes.update).not.toHaveBeenCalled();
+    expect(agentServiceMock.update).not.toHaveBeenCalled();
+  });
+
+  // Fourth review F2: a different header-name case must not bring the old token back.
+  it("writes the token the request sent even when the header name case differs", async () => {
+    const { db } = createDb();
+    await replay(db, { headers: { "X-OpenClaw-Token": "new-gateway-token-1234567890" } });
+
+    expect(writtenAdapterConfig()).toEqual({
+      ...liveConfig,
+      headers: { "x-openclaw-token": "new-gateway-token-1234567890" },
+    });
+  });
+
+  it("stores a token sent as x-openclaw-auth under x-openclaw-token", async () => {
+    const { db } = createDb();
+    await replay(db, { headers: { "x-openclaw-auth": "new-gateway-token-1234567890" } });
+
+    expect(writtenAdapterConfig()).toEqual({
+      ...liveConfig,
+      headers: { "x-openclaw-token": "new-gateway-token-1234567890" },
+    });
+  });
+
+  it("applies a token sent only as an HTTP header", async () => {
+    const { db } = createDb();
+    await replay(db, {}, { "x-openclaw-token": "new-gateway-token-1234567890" });
+
+    expect(writtenAdapterConfig()).toEqual({
+      ...liveConfig,
+      headers: { "x-openclaw-token": "new-gateway-token-1234567890" },
+    });
+  });
+
+  it("refuses a token refresh when the owner keeps the gateway token in another field", async () => {
+    agentServiceMock.getById.mockResolvedValue({
+      id: "agent-1",
+      companyId: "company-1",
+      name: "Dahye",
+      status: "idle",
+      adapterType: "openclaw_gateway",
+      adapterConfig: { ...liveConfig, authToken: "owner-set-token-1234567890" },
+    });
+    const { db, writes } = createDb();
+    const res = await replay(db, { headers: { "x-openclaw-token": "new-gateway-token-1234567890" } });
+
+    expect(res.status, JSON.stringify(res.body)).toBe(422);
+    expect(res.body.details.fields).toEqual(["headers.x-openclaw-token"]);
+    expect(writes.update).not.toHaveBeenCalled();
+  });
+
+  it("does not echo URL credentials or query strings back in diagnostics", async () => {
+    const stored = { ...storedJoinPayload, url: "wss://gwuser:gwpass@gw.example/x?token=STOREDQ" };
+    agentServiceMock.getById.mockResolvedValue({
+      id: "agent-1",
+      companyId: "company-1",
+      name: "Dahye",
+      status: "idle",
+      adapterType: "openclaw_gateway",
+      adapterConfig: { ...liveConfig, url: "wss://gwuser:gwpass@gw.example/x?token=STOREDQ" },
+    });
+    const { db } = createDb("approved", stored);
+    const res = await replay(db, { headers: { "x-openclaw-token": "new-gateway-token-1234567890" } });
+
+    expect(res.status, JSON.stringify(res.body)).toBe(202);
+    const body = JSON.stringify(res.body);
+    expect(body).not.toContain("gwpass");
+    expect(body).not.toContain("STOREDQ");
   });
 
   it("still lets a pending (not yet approved) join request be replayed with new settings", async () => {

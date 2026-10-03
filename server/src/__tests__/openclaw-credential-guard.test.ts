@@ -3,6 +3,8 @@ import {
   buildOpenClawReplayAdapterConfig,
   findOpenClawCredentialsCarriedToNewGateway,
   findOpenClawReplayLockedChanges,
+  redactUrlSecrets,
+  reviewOpenClawReplayHeaders,
 } from "../routes/openclaw-credential-guard.js";
 
 const stored = {
@@ -161,15 +163,43 @@ describe("invite replay on an approved agent (zhtw.10 D1-A whitelist)", () => {
     expect(findOpenClawReplayLockedChanges(live, normalized, ["url", "disableDeviceAuth"])).toEqual([]);
   });
 
-  it("writes only the sent refreshable fields on top of the live config", () => {
-    const normalized = {
-      url: "wss://stale-from-first-join.example/ws",
-      headers: { "X-OpenClaw-Token": "new-token", "x-trace": "stale" },
-      devicePrivateKeyPem: "stale-key",
-      paperclipApiUrl: "https://cowork-2.example",
-    };
+  it("writes only the gateway token on top of the live config, under x-openclaw-token", () => {
+    expect(buildOpenClawReplayAdapterConfig(live, "new-token")).toEqual({
+      ...live,
+      headers: { "x-trace": "kept", "x-openclaw-token": "new-token" },
+    });
+    expect(buildOpenClawReplayAdapterConfig(live, null)).toEqual(live);
+  });
+
+  it("takes the token from the request, whatever the header name case", () => {
+    expect(reviewOpenClawReplayHeaders(live, { "X-OpenClaw-Token": " new-token " })).toEqual({
+      token: "new-token",
+      lockedFields: [],
+      invalidToken: false,
+    });
+  });
+
+  it("allows resending an unchanged non-token header but refuses a changed one", () => {
+    expect(reviewOpenClawReplayHeaders(live, { "X-Trace": "kept" }).lockedFields).toEqual([]);
+    expect(reviewOpenClawReplayHeaders(live, { "x-trace": "other" }).lockedFields).toEqual(["headers.x-trace"]);
+  });
+
+  it("flags a token with whitespace or control characters", () => {
+    expect(reviewOpenClawReplayHeaders(live, { "x-openclaw-token": "a b" }).invalidToken).toBe(true);
+    expect(reviewOpenClawReplayHeaders(live, { "x-openclaw-token": 42 }).invalidToken).toBe(true);
+  });
+});
+
+describe("redactUrlSecrets", () => {
+  it("masks user:password@ and query strings inside URLs, deeply", () => {
     expect(
-      buildOpenClawReplayAdapterConfig(live, normalized, ["headers"], { "x-openclaw-token": "new-token" }),
-    ).toEqual({ ...live, headers: { "X-OpenClaw-Token": "new-token", "x-trace": "kept" } });
+      redactUrlSecrets({
+        message: "Gateway endpoint set to wss://u:pw@gw.example/x?token=SECRET",
+        list: ["https://cowork.example/path"],
+      }),
+    ).toEqual({
+      message: "Gateway endpoint set to wss://***@gw.example/x?***",
+      list: ["https://cowork.example/path"],
+    });
   });
 });

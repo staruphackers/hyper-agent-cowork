@@ -111,6 +111,8 @@ import { redactEventPayload } from "../redaction.js";
 import { DEFAULT_CLAIMED_API_KEY_PATH, isSafeClaimedApiKeyPath } from "@paperclipai/adapter-openclaw-gateway";
 import {
   buildOpenClawReplayAdapterConfig,
+  redactUrlSecrets,
+  reviewOpenClawReplayHeaders,
   findOpenClawReplayLockedChanges,
   openClawReplayLockedMessage,
   openClawReplayRequestedFields,
@@ -3928,11 +3930,18 @@ export function accessRoutes(
         throw badRequest(joinDefaults.fatalErrors.join("; "));
       }
 
-      // zhtw.10 D1-A: an invite replay on an approved OpenClaw join request
+      // zhtw.10 D1-A/D2-A: an invite replay on an approved OpenClaw join request
       // updates the live agent without a new approval. Only the gateway token
-      // and Paperclip URL may be refreshed this way; refuse anything else the
-      // request tries to change, before anything is written.
+      // may be refreshed this way; refuse anything else the request tries to
+      // change, before anything is written.
       const replayRequestedFields = openClawReplayRequestedFields(req.body);
+      const replayRequestedHeaders = isPlainObject(req.body.agentDefaultsPayload)
+        ? (req.body.agentDefaultsPayload as Record<string, unknown>).headers
+        : undefined;
+      const replayInboundTokens = {
+        token: req.header("x-openclaw-token") ?? null,
+        auth: req.header("x-openclaw-auth") ?? null,
+      };
       if (
         inviteAlreadyAccepted &&
         requestType === "agent" &&
@@ -3946,11 +3955,16 @@ export function accessRoutes(
           const liveConfig = isPlainObject(replayAgent.adapterConfig)
             ? (replayAgent.adapterConfig as Record<string, unknown>)
             : {};
-          const lockedFields = findOpenClawReplayLockedChanges(
-            liveConfig,
-            joinDefaults.normalized,
-            replayRequestedFields,
-          );
+          const headerReview = reviewOpenClawReplayHeaders(liveConfig, replayRequestedHeaders, replayInboundTokens);
+          if (headerReview.invalidToken) {
+            throw unprocessable("The gateway token must be a single line of printable characters without spaces.", {
+              code: "openclaw_gateway_replay_invalid_token",
+            });
+          }
+          const lockedFields = [
+            ...findOpenClawReplayLockedChanges(liveConfig, joinDefaults.normalized, replayRequestedFields),
+            ...headerReview.lockedFields,
+          ];
           if (lockedFields.length > 0) {
             throw unprocessable(openClawReplayLockedMessage(lockedFields), {
               code: "openclaw_gateway_replay_locked_fields",
@@ -4118,15 +4132,18 @@ export function accessRoutes(
         const existingAdapterConfig = isPlainObject(existingAgent.adapterConfig)
           ? (existingAgent.adapterConfig as Record<string, unknown>)
           : {};
-        // Write only the refreshable fields this request sent; the stored join
-        // payload is stale once the owner edits the agent (zhtw.10 D1-A).
+        // Write only the gateway token this request sent, taken from the request
+        // itself; the stored join payload is stale once the owner edits the agent
+        // (zhtw.10 D1-A, fourth review F2). Re-reviewed against the config read
+        // here, so a concurrent owner edit can only cause the token to be skipped.
+        const writeReview = reviewOpenClawReplayHeaders(
+          existingAdapterConfig,
+          replayRequestedHeaders,
+          replayInboundTokens,
+        );
         const nextAdapterConfig = buildOpenClawReplayAdapterConfig(
           existingAdapterConfig,
-          joinDefaults.normalized ?? {},
-          replayRequestedFields,
-          isPlainObject(req.body.agentDefaultsPayload)
-            ? (req.body.agentDefaultsPayload as Record<string, unknown>).headers
-            : undefined,
+          writeReview.invalidToken || writeReview.lockedFields.length > 0 ? null : writeReview.token,
         );
         const updatedAgent = await agents.update(created.createdAgentId, {
           adapterType,
@@ -4246,12 +4263,15 @@ export function accessRoutes(
       // or the device key back (zhtw.10).
       const response = {
         ...toJoinRequestResponse(created),
-        agentDefaultsPayload: redactEventPayload(
-          isPlainObject(created.agentDefaultsPayload)
-            ? (created.agentDefaultsPayload as Record<string, unknown>)
-            : null,
+        agentDefaultsPayload: redactUrlSecrets(
+          redactEventPayload(
+            isPlainObject(created.agentDefaultsPayload)
+              ? (created.agentDefaultsPayload as Record<string, unknown>)
+              : null,
+          ),
         ),
       };
+      const responseDiagnostics = redactUrlSecrets(joinDefaults.diagnostics);
       if (claimSecret) {
         const companyBranding = await getInviteCompanyBranding(invite.companyId);
         const onboardingManifest = buildInviteOnboardingManifest(
@@ -4268,14 +4288,14 @@ export function accessRoutes(
           claimSecret,
           claimApiKeyPath: `/api/join-requests/${created.id}/claim-api-key`,
           onboarding: onboardingManifest.onboarding,
-          diagnostics: joinDefaults.diagnostics
+          diagnostics: responseDiagnostics
         });
         return;
       }
       res.status(202).json({
         ...response,
-        ...(joinDefaults.diagnostics.length > 0
-          ? { diagnostics: joinDefaults.diagnostics }
+        ...(responseDiagnostics.length > 0
+          ? { diagnostics: responseDiagnostics }
           : {})
       });
     }

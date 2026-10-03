@@ -141,33 +141,106 @@ export function findOpenClawReplayLockedChanges(
     && !sameSetting(field, liveConfig[field], normalizedReplay[field]));
 }
 
+// Header names that carry the gateway token. A replay may refresh this token and
+// nothing else; every other header would be sent to the owner's gateway on each
+// wake-up (fourth review F1), so changing one is an owner action.
+export const OPENCLAW_REPLAY_TOKEN_HEADERS: readonly string[] = ["x-openclaw-token", "x-openclaw-auth"];
+const GATEWAY_TOKEN_PATTERN = /^[\x21-\x7E]{1,4096}$/;
+
+function headerValueIgnoreCase(headers: Record<string, unknown>, name: string): unknown {
+  const match = Object.keys(headers).find((key) => key.toLowerCase() === name.toLowerCase());
+  return match === undefined ? undefined : headers[match];
+}
+
+function nonEmptyText(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+export type OpenClawReplayHeaderReview = {
+  /** The gateway token to write, taken from the request itself (never the merged stored payload). */
+  token: string | null;
+  /** Header changes an invite holder may not make (reported like locked fields). */
+  lockedFields: string[];
+  /** The request sent a token that is not a plain printable value. */
+  invalidToken: boolean;
+};
+
+export function reviewOpenClawReplayHeaders(
+  liveConfig: Record<string, unknown>,
+  requestedHeaders: unknown,
+  inbound: { token?: string | null; auth?: string | null } = {},
+): OpenClawReplayHeaderReview {
+  const liveHeaders = asRecord(liveConfig.headers) ?? {};
+  const lockedFields: string[] = [];
+  const sent = asRecord(requestedHeaders);
+  if (requestedHeaders !== undefined && requestedHeaders !== null && !sent) lockedFields.push("headers");
+
+  const sentTokens: Record<string, unknown> = {};
+  for (const [name, value] of Object.entries(sent ?? {})) {
+    const lower = name.toLowerCase();
+    if (OPENCLAW_REPLAY_TOKEN_HEADERS.includes(lower)) {
+      if (!(lower in sentTokens)) sentTokens[lower] = value;
+      continue;
+    }
+    const live = headerValueIgnoreCase(liveHeaders, lower);
+    if (JSON.stringify(nonEmptyText(live) ?? live ?? null) !== JSON.stringify(nonEmptyText(value) ?? value ?? null)) {
+      lockedFields.push(`headers.${name}`);
+    }
+  }
+
+  const raw =
+    sentTokens["x-openclaw-token"] ?? sentTokens["x-openclaw-auth"] ?? inbound.token ?? inbound.auth ?? undefined;
+  if (raw === undefined || raw === null) return { token: null, lockedFields, invalidToken: false };
+
+  const token = typeof raw === "string" ? raw.trim() : "";
+  if (!GATEWAY_TOKEN_PATTERN.test(token)) return { token: null, lockedFields, invalidToken: true };
+
+  // The adapter prefers a top-level authToken/token or an Authorization header
+  // over x-openclaw-token. If the owner keeps the token there, a header refresh
+  // would silently not take effect, so it has to be changed on the settings page.
+  const ownerToken =
+    nonEmptyText(liveConfig.authToken) ?? nonEmptyText(liveConfig.token) ?? nonEmptyText(headerValueIgnoreCase(liveHeaders, "authorization"));
+  const currentHeaderToken =
+    nonEmptyText(headerValueIgnoreCase(liveHeaders, "x-openclaw-token")) ??
+    nonEmptyText(headerValueIgnoreCase(liveHeaders, "x-openclaw-auth"));
+  if (ownerToken && token !== currentHeaderToken) {
+    lockedFields.push("headers.x-openclaw-token");
+    return { token: null, lockedFields, invalidToken: false };
+  }
+  return { token, lockedFields, invalidToken: false };
+}
+
 /**
- * The adapterConfig an allowed replay writes: the live config plus the
- * refreshable fields this request sent. Header values come from the request
- * (by name, case-insensitively) on top of the live headers.
+ * The adapterConfig an allowed replay writes: the live config, with the gateway
+ * token (if the request sent one) stored under x-openclaw-token.
  */
 export function buildOpenClawReplayAdapterConfig(
   liveConfig: Record<string, unknown>,
-  normalizedReplay: Record<string, unknown>,
-  requestedFields: string[],
-  requestedHeaders: unknown,
+  token: string | null,
 ): Record<string, unknown> {
   const next: Record<string, unknown> = { ...liveConfig };
-  const sentHeaders = asRecord(requestedHeaders);
-  const replayHeaders = asRecord(normalizedReplay.headers) ?? {};
-  if (requestedFields.includes("headers") && sentHeaders) {
-    const headers: Record<string, unknown> = { ...(asRecord(liveConfig.headers) ?? {}) };
-    for (const sentName of Object.keys(sentHeaders)) {
-      const match = Object.keys(replayHeaders).find((name) => name.toLowerCase() === sentName.toLowerCase());
-      if (!match) continue;
-      for (const existing of Object.keys(headers)) {
-        if (existing.toLowerCase() === sentName.toLowerCase()) delete headers[existing];
-      }
-      headers[match] = replayHeaders[match];
-    }
-    next.headers = headers;
+  if (!token) return next;
+  const headers: Record<string, unknown> = {};
+  for (const [name, value] of Object.entries(asRecord(liveConfig.headers) ?? {})) {
+    if (!OPENCLAW_REPLAY_TOKEN_HEADERS.includes(name.toLowerCase())) headers[name] = value;
   }
+  headers["x-openclaw-token"] = token;
+  next.headers = headers;
   return next;
+}
+
+const URL_USERINFO_PATTERN = /([a-z][a-z0-9+.-]*:\/\/)[^\s/?#@"']+@/gi;
+const URL_QUERY_PATTERN = /([a-z][a-z0-9+.-]*:\/\/[^\s?#"']*)\?[^\s#"']*/gi;
+
+/** Masks user:password@ and query strings inside any URL found in strings (deep). */
+export function redactUrlSecrets<T>(value: T): T {
+  if (typeof value === "string") {
+    return value.replace(URL_USERINFO_PATTERN, "$1***@").replace(URL_QUERY_PATTERN, "$1?***") as T;
+  }
+  if (Array.isArray(value)) return value.map((item) => redactUrlSecrets(item)) as T;
+  const record = asRecord(value);
+  if (!record) return value;
+  return Object.fromEntries(Object.entries(record).map(([key, item]) => [key, redactUrlSecrets(item)])) as T;
 }
 
 export function openClawReplayLockedMessage(fields: string[]): string {
