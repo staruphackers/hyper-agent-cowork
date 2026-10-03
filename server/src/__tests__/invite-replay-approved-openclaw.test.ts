@@ -309,6 +309,25 @@ describe("POST /invites/:token/accept replay on an approved OpenClaw join reques
     expect(writes.update).not.toHaveBeenCalled();
   });
 
+  // Fifth review F3: if the owner changes the token source while the replay is
+  // in flight, the replay must fail instead of answering 202 without a change.
+  it("returns 409 and writes nothing to the agent when the owner moved the token meanwhile", async () => {
+    agentServiceMock.getById
+      .mockResolvedValueOnce({
+        id: "agent-1", companyId: "company-1", name: "Dahye", status: "idle",
+        adapterType: "openclaw_gateway", adapterConfig: liveConfig,
+      })
+      .mockResolvedValue({
+        id: "agent-1", companyId: "company-1", name: "Dahye", status: "idle",
+        adapterType: "openclaw_gateway", adapterConfig: { ...liveConfig, authToken: "owner-set-token-1234567890" },
+      });
+    const { db } = createDb();
+    const res = await replay(db, { headers: { "x-openclaw-token": "new-gateway-token-1234567890" } });
+
+    expect(res.status, JSON.stringify(res.body)).toBe(409);
+    expect(agentServiceMock.update).not.toHaveBeenCalled();
+  });
+
   it("does not echo URL credentials or query strings back in diagnostics", async () => {
     const stored = { ...storedJoinPayload, url: "wss://gwuser:gwpass@gw.example/x?token=STOREDQ" };
     agentServiceMock.getById.mockResolvedValue({

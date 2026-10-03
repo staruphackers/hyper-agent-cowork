@@ -4135,16 +4135,16 @@ export function accessRoutes(
         // Write only the gateway token this request sent, taken from the request
         // itself; the stored join payload is stale once the owner edits the agent
         // (zhtw.10 D1-A, fourth review F2). Re-reviewed against the config read
-        // here, so a concurrent owner edit can only cause the token to be skipped.
+        // here; if a concurrent owner edit makes the token unwritable, answer 409.
         const writeReview = reviewOpenClawReplayHeaders(
           existingAdapterConfig,
           replayRequestedHeaders,
           replayInboundTokens,
         );
-        const nextAdapterConfig = buildOpenClawReplayAdapterConfig(
-          existingAdapterConfig,
-          writeReview.invalidToken || writeReview.lockedFields.length > 0 ? null : writeReview.token,
-        );
+        if (writeReview.invalidToken || writeReview.lockedFields.length > 0) {
+          throw conflict("The agent's settings changed during this request. Send the invite again.");
+        }
+        const nextAdapterConfig = buildOpenClawReplayAdapterConfig(existingAdapterConfig, writeReview.token);
         const updatedAgent = await agents.update(created.createdAgentId, {
           adapterType,
           adapterConfig: nextAdapterConfig

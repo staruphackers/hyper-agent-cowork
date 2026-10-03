@@ -179,9 +179,31 @@ describe("invite replay on an approved agent (zhtw.10 D1-A whitelist)", () => {
     });
   });
 
-  it("allows resending an unchanged non-token header but refuses a changed one", () => {
-    expect(reviewOpenClawReplayHeaders(live, { "X-Trace": "kept" }).lockedFields).toEqual([]);
+  // Fifth review: comparing with the live value would tell the invite holder
+  // whether a guess matches a stored header (e.g. Authorization).
+  it("refuses any non-token header, even one equal to the live value", () => {
+    expect(reviewOpenClawReplayHeaders(live, { "X-Trace": "kept" }).lockedFields).toEqual(["headers.X-Trace"]);
     expect(reviewOpenClawReplayHeaders(live, { "x-trace": "other" }).lockedFields).toEqual(["headers.x-trace"]);
+  });
+
+  it("refuses a refresh when the agent has no gateway token header to replace", () => {
+    const noHeaderToken = { ...live, headers: { "x-trace": "kept" }, password: "gateway-password" };
+    expect(reviewOpenClawReplayHeaders(noHeaderToken, { "x-openclaw-token": "new-token" })).toEqual({
+      token: null,
+      lockedFields: ["headers.x-openclaw-token"],
+      invalidToken: false,
+    });
+  });
+
+  it("refuses a refresh when the owner also set Authorization, even with the current token (no guessing)", () => {
+    const withAuthorization = { ...live, headers: { ...live.headers, Authorization: "Bearer owner-token" } };
+    expect(reviewOpenClawReplayHeaders(withAuthorization, { "x-openclaw-token": "old-token" }).lockedFields).toEqual([
+      "headers.x-openclaw-token",
+    ]);
+  });
+
+  it("accepts a legacy 'Bearer <token>' value and stores just the token", () => {
+    expect(reviewOpenClawReplayHeaders(live, { "x-openclaw-auth": "Bearer new-token" }).token).toBe("new-token");
   });
 
   it("flags a token with whitespace or control characters", () => {
@@ -191,6 +213,19 @@ describe("invite replay on an approved agent (zhtw.10 D1-A whitelist)", () => {
 });
 
 describe("redactUrlSecrets", () => {
+  it("masks the whole userinfo even when the password contains @, and the fragment", () => {
+    expect(redactUrlSecrets("wss://user:p@ss@gw.example/x#frag")).toBe("wss://***@gw.example/x#***");
+  });
+
+  it("runs in linear time on hostile input (fifth review ReDoS)", () => {
+    const inputs = ["a".repeat(200_000), `http://${"a".repeat(200_000)}`, "a://".repeat(50_000), `x?${"y".repeat(200_000)}`];
+    for (const input of inputs) {
+      const started = performance.now();
+      redactUrlSecrets({ message: input });
+      expect(performance.now() - started).toBeLessThan(250);
+    }
+  });
+
   it("masks user:password@ and query strings inside URLs, deeply", () => {
     expect(
       redactUrlSecrets({

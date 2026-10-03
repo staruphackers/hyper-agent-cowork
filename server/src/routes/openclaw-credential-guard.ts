@@ -175,6 +175,8 @@ export function reviewOpenClawReplayHeaders(
   const sent = asRecord(requestedHeaders);
   if (requestedHeaders !== undefined && requestedHeaders !== null && !sent) lockedFields.push("headers");
 
+  // Any non-token header is refused outright. Comparing it with the live value
+  // would let the invite holder test guesses against stored headers (fifth review).
   const sentTokens: Record<string, unknown> = {};
   for (const [name, value] of Object.entries(sent ?? {})) {
     const lower = name.toLowerCase();
@@ -182,28 +184,27 @@ export function reviewOpenClawReplayHeaders(
       if (!(lower in sentTokens)) sentTokens[lower] = value;
       continue;
     }
-    const live = headerValueIgnoreCase(liveHeaders, lower);
-    if (JSON.stringify(nonEmptyText(live) ?? live ?? null) !== JSON.stringify(nonEmptyText(value) ?? value ?? null)) {
-      lockedFields.push(`headers.${name}`);
-    }
+    lockedFields.push(`headers.${name}`);
   }
 
   const raw =
     sentTokens["x-openclaw-token"] ?? sentTokens["x-openclaw-auth"] ?? inbound.token ?? inbound.auth ?? undefined;
   if (raw === undefined || raw === null) return { token: null, lockedFields, invalidToken: false };
 
-  const token = typeof raw === "string" ? raw.trim() : "";
+  const token = typeof raw === "string" ? raw.trim().replace(/^bearer\s+/i, "") : "";
   if (!GATEWAY_TOKEN_PATTERN.test(token)) return { token: null, lockedFields, invalidToken: true };
 
-  // The adapter prefers a top-level authToken/token or an Authorization header
-  // over x-openclaw-token. If the owner keeps the token there, a header refresh
-  // would silently not take effect, so it has to be changed on the settings page.
+  // A replay may only replace an existing gateway token header. If the agent has
+  // none (it authenticates another way), or the owner keeps a token in authToken /
+  // token / Authorization (which the adapter prefers or sends as-is), the token
+  // must be changed on the settings page. No equality exception: answering
+  // differently for the current value would let the caller confirm a guess.
   const ownerToken =
     nonEmptyText(liveConfig.authToken) ?? nonEmptyText(liveConfig.token) ?? nonEmptyText(headerValueIgnoreCase(liveHeaders, "authorization"));
   const currentHeaderToken =
     nonEmptyText(headerValueIgnoreCase(liveHeaders, "x-openclaw-token")) ??
     nonEmptyText(headerValueIgnoreCase(liveHeaders, "x-openclaw-auth"));
-  if (ownerToken && token !== currentHeaderToken) {
+  if (ownerToken || !currentHeaderToken) {
     lockedFields.push("headers.x-openclaw-token");
     return { token: null, lockedFields, invalidToken: false };
   }
@@ -229,14 +230,55 @@ export function buildOpenClawReplayAdapterConfig(
   return next;
 }
 
-const URL_USERINFO_PATTERN = /([a-z][a-z0-9+.-]*:\/\/)[^\s/?#@"']+@/gi;
-const URL_QUERY_PATTERN = /([a-z][a-z0-9+.-]*:\/\/[^\s?#"']*)\?[^\s#"']*/gi;
+const URL_SCHEME_CHAR = /[a-z0-9+.-]/i;
+const URL_STOP_CHAR = /[\s"'<>`]/;
 
-/** Masks user:password@ and query strings inside any URL found in strings (deep). */
-export function redactUrlSecrets<T>(value: T): T {
-  if (typeof value === "string") {
-    return value.replace(URL_USERINFO_PATTERN, "$1***@").replace(URL_QUERY_PATTERN, "$1?***") as T;
+function redactOneUrl(url: string): string {
+  const separator = url.indexOf("://");
+  const head = url.slice(0, separator + 3);
+  const rest = url.slice(separator + 3);
+  let authorityEnd = rest.search(/[/?#]/);
+  if (authorityEnd === -1) authorityEnd = rest.length;
+  let authority = rest.slice(0, authorityEnd);
+  let tail = rest.slice(authorityEnd);
+  const at = authority.lastIndexOf("@");
+  if (at !== -1) authority = `***${authority.slice(at)}`;
+  let fragment = "";
+  const hash = tail.indexOf("#");
+  if (hash !== -1) {
+    fragment = "#***";
+    tail = tail.slice(0, hash);
   }
+  const query = tail.indexOf("?");
+  if (query !== -1) tail = `${tail.slice(0, query)}?***`;
+  return head + authority + tail + fragment;
+}
+
+// Linear-time scan (fifth review: the earlier regexes were quadratic on long
+// input, so one long URL from an invite holder could stall the event loop).
+function redactUrlSecretsInText(text: string): string {
+  let out = "";
+  let cursor = 0;
+  let separator = text.indexOf("://", cursor);
+  while (separator !== -1) {
+    let start = separator;
+    while (start > cursor && URL_SCHEME_CHAR.test(text[start - 1] ?? "")) start -= 1;
+    if (start === separator || !/[a-z]/i.test(text[start] ?? "")) {
+      separator = text.indexOf("://", separator + 3);
+      continue;
+    }
+    let end = separator + 3;
+    while (end < text.length && !URL_STOP_CHAR.test(text[end] ?? "")) end += 1;
+    out += text.slice(cursor, start) + redactOneUrl(text.slice(start, end));
+    cursor = end;
+    separator = text.indexOf("://", cursor);
+  }
+  return out + text.slice(cursor);
+}
+
+/** Masks userinfo, query and fragment of any URL found in strings (deep). */
+export function redactUrlSecrets<T>(value: T): T {
+  if (typeof value === "string") return redactUrlSecretsInText(value) as T;
   if (Array.isArray(value)) return value.map((item) => redactUrlSecrets(item)) as T;
   const record = asRecord(value);
   if (!record) return value;

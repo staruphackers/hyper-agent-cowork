@@ -61,7 +61,7 @@
 
 - **執行逾時**：`zhtw.10` 起新代理人預設等 600 秒（10 分鐘）。之前建立的代理人仍是存檔時的 120 秒，請到設定頁把「超時（秒）」改成 600、「等待超時（毫秒）」改成 600000，否則 OpenClaw 做超過 2 分鐘的任務會被記成失敗。
 - **換 Gateway URL 要重填密碼**：把代理人改接到另一台 OpenClaw（主機或路徑不同，或從 `wss://` 改成不加密的 `ws://`）時，gateway token、密碼、headers 都要在同一次存檔重新填入，平台才會送出；沒有重填會被擋下並列出要重填的欄位。裝置金鑰不用重填（它只在平台上簽名，不會送出去），但新的 OpenClaw 要重新核准一次裝置（第 3 節）。
-- **重送邀請能改什麼**：已核准的代理人，OpenClaw 再用同一張邀請時**只能更新 gateway token**；其他設定（平台網址、gateway 網址、金鑰路徑、裝置驗證、`payloadTemplate`、session、scopes…）一改就會被擋下，請到設定頁改（平台網址在「Paperclip API URL 覆寫」欄位）。平台網址也鎖住，是因為代理人會帶著平台 API 金鑰呼叫這個網址，不能讓只拿到邀請連結的人改。送來的平台網址和現在的一樣（差一個結尾斜線也算一樣）不會被擋。token 只能放在 `x-openclaw-token`（或舊名 `x-openclaw-auth`）header，也可以用同名 HTTP header 帶；值不能有空白或換行；其他 header（Host、Cookie、Authorization…）一改就擋。如果你在設定頁把 token 放在「Auth Token」欄位或 Authorization header，重送不能換它，請到設定頁改。重送只會寫入這次送來的 token，存成 `x-openclaw-token`，不會把你在設定頁改過的值蓋回去；裝置金鑰不會被換掉；回應也不會帶出已存的 token、金鑰，或網址裡的帳密與參數。邀請用完仍建議撤銷。
+- **重送邀請能改什麼**：已核准的代理人，OpenClaw 再用同一張邀請時**只能更新 gateway token**；其他設定（平台網址、gateway 網址、金鑰路徑、裝置驗證、`payloadTemplate`、session、scopes…）一改就會被擋下，請到設定頁改（平台網址在「Paperclip API URL 覆寫」欄位）。平台網址也鎖住，是因為代理人會帶著平台 API 金鑰呼叫這個網址，不能讓只拿到邀請連結的人改。送來的平台網址和現在的一樣（差一個結尾斜線也算一樣）不會被擋。token 只能放在 `x-openclaw-token`（或舊名 `x-openclaw-auth`）header，也可以用同名 HTTP header 帶；值不能有空白或換行（可帶 `Bearer ` 前綴）；只要帶了其他 header（Host、Cookie、Authorization…）就擋，不管值跟現在一不一樣。重送只能「替換」既有的 `x-openclaw-token`：如果代理人原本沒有這個 header（用密碼等其他方式認證），或你在設定頁把 token 放在「Auth Token」欄位或 Authorization header，重送不能換，請到設定頁改。重送只會寫入這次送來的 token，存成 `x-openclaw-token`，不會把你在設定頁改過的值蓋回去；裝置金鑰不會被換掉；回應也不會帶出已存的 token、金鑰，或網址裡的帳密與參數。邀請用完仍建議撤銷。
 - **語言與行為規則放哪裡**：OpenClaw 代理人不能用平台的「指令」頁（只給本機轉接器用）。兩種做法：
   1. 寫在 OpenClaw：「設定 → 代理程式 → 代理程式預設值 → 檔案 → AGENTS」（這台 OpenClaw 的所有代理人共用）。
   2. 寫在平台：代理人設定頁的「負載範本 JSON」填 `{"message": "請一律用繁體中文回覆。"}`，這段文字會放在每次喚醒訊息的最前面（只套用在這個代理人）。
