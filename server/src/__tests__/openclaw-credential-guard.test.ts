@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildOpenClawReplayAdapterConfig,
   findOpenClawCredentialsCarriedToNewGateway,
   findOpenClawReplayLockedChanges,
 } from "../routes/openclaw-credential-guard.js";
@@ -109,39 +110,50 @@ describe("findOpenClawCredentialsCarriedToNewGateway", () => {
   });
 });
 
-describe("findOpenClawReplayLockedChanges (invite replay on an approved agent)", () => {
+describe("invite replay on an approved agent (zhtw.10 D1-A whitelist)", () => {
   const live = {
     url: "wss://gateway.example/ws",
-    headers: { "x-openclaw-token": "old-token" },
+    headers: { "x-openclaw-token": "old-token", "x-trace": "kept" },
     claimedApiKeyPath: "/data/.openclaw/workspace/paperclip-claimed-api-key.json",
     paperclipApiUrl: "https://cowork.example",
+    timeoutSec: 600,
   };
 
-  it("allows the upstream uses: a new gateway token and a new Paperclip URL", () => {
-    expect(
-      findOpenClawReplayLockedChanges(live, {
-        ...live,
-        headers: { "x-openclaw-token": "new-token" },
-        paperclipApiUrl: "https://cowork-2.example",
-        url: "wss://GATEWAY.example/ws/",
-      }),
-    ).toEqual([]);
+  it("allows the gateway token and Paperclip URL, and ignores fields the request did not send", () => {
+    const normalized = { ...live, url: "wss://stale-from-first-join.example/ws", headers: { "x-openclaw-token": "new-token" } };
+    expect(findOpenClawReplayLockedChanges(live, normalized, ["headers", "paperclipApiUrl"])).toEqual([]);
   });
 
-  it("refuses a new gateway URL, a wss→ws downgrade, a new key path and turning device auth off", () => {
+  it("refuses every other field the request changes, including payloadTemplate and scopes", () => {
+    const normalized = {
+      ...live,
+      url: "ws://gateway.example/ws",
+      claimedApiKeyPath: "~/.openclaw/x.json",
+      disableDeviceAuth: true,
+      payloadTemplate: { agentId: "other" },
+      scopes: ["operator.admin"],
+    };
     expect(
-      findOpenClawReplayLockedChanges(live, {
-        ...live,
-        url: "wss://attacker.example/ws",
-        claimedApiKeyPath: "~/.openclaw/x.json",
-        disableDeviceAuth: true,
-      }),
-    ).toEqual(["url", "claimedApiKeyPath", "disableDeviceAuth"]);
-    expect(findOpenClawReplayLockedChanges(live, { ...live, url: "ws://gateway.example/ws" })).toEqual(["url"]);
+      findOpenClawReplayLockedChanges(live, normalized, [
+        "url", "claimedApiKeyPath", "disableDeviceAuth", "payloadTemplate", "scopes",
+      ]),
+    ).toEqual(["url", "claimedApiKeyPath", "disableDeviceAuth", "payloadTemplate", "scopes"]);
   });
 
-  it("treats a removed key path as a change", () => {
-    const { claimedApiKeyPath: _gone, ...withoutPath } = live;
-    expect(findOpenClawReplayLockedChanges(live, withoutPath)).toEqual(["claimedApiKeyPath"]);
+  it("does not refuse a sent field whose value is unchanged (case, trailing slash, false vs unset)", () => {
+    const normalized = { ...live, url: "wss://GATEWAY.example/ws/", disableDeviceAuth: false };
+    expect(findOpenClawReplayLockedChanges(live, normalized, ["url", "disableDeviceAuth"])).toEqual([]);
+  });
+
+  it("writes only the sent refreshable fields on top of the live config", () => {
+    const normalized = {
+      url: "wss://stale-from-first-join.example/ws",
+      headers: { "X-OpenClaw-Token": "new-token", "x-trace": "stale" },
+      devicePrivateKeyPem: "stale-key",
+      paperclipApiUrl: "https://cowork-2.example",
+    };
+    expect(
+      buildOpenClawReplayAdapterConfig(live, normalized, ["headers"], { "x-openclaw-token": "new-token" }),
+    ).toEqual({ ...live, headers: { "X-OpenClaw-Token": "new-token", "x-trace": "kept" } });
   });
 });

@@ -89,28 +89,78 @@ export function openClawCredentialReentryMessage(paths: string[]): string {
 
 /**
  * zhtw.10 (D1-A). Replaying an OpenClaw invite on an already-approved join
- * request updates the live agent without a new approval. Upstream uses this to
- * refresh the gateway token and the Paperclip URL; anyone holding the invite
- * link could also redirect the agent. These settings may only be changed from
- * the agent's settings page, so a replay that changes them is refused.
+ * request updates the live agent without a new approval, and anyone holding the
+ * invite link can send one. Upstream uses it to refresh the gateway token and
+ * the Paperclip URL, so only those fields may change this way; every other
+ * setting must be changed from the agent's settings page.
+ *
+ * Only fields the replay request actually sends are considered. The stored join
+ * payload is stale once the owner edits the agent, so it must neither trigger a
+ * refusal nor be written back over the live config.
  */
+export const OPENCLAW_REPLAY_REFRESHABLE_FIELDS: ReadonlySet<string> = new Set(["headers", "paperclipApiUrl"]);
+
+export function openClawReplayRequestedFields(body: unknown): string[] {
+  const record = asRecord(body);
+  if (!record) return [];
+  const fields = new Set(Object.keys(asRecord(record.agentDefaultsPayload) ?? {}));
+  if (typeof record.paperclipApiUrl === "string" && record.paperclipApiUrl.trim()) fields.add("paperclipApiUrl");
+  return [...fields];
+}
+
+function sameSetting(field: string, live: unknown, next: unknown): boolean {
+  if (field === "url") {
+    return gatewayDestination(live) === gatewayDestination(next) && !downgradesTransport(live, next);
+  }
+  if (field === "disableDeviceAuth") {
+    const off = (value: unknown) => value === true || value === "true";
+    return off(live) === off(next);
+  }
+  const text = (value: unknown) => (typeof value === "string" ? value.trim() : value);
+  return JSON.stringify(text(live) ?? null) === JSON.stringify(text(next) ?? null);
+}
+
 export function findOpenClawReplayLockedChanges(
-  existingConfig: Record<string, unknown>,
-  nextConfig: Record<string, unknown>,
+  liveConfig: Record<string, unknown>,
+  normalizedReplay: Record<string, unknown>,
+  requestedFields: string[],
 ): string[] {
-  const locked: string[] = [];
-  const before = gatewayDestination(existingConfig.url);
-  const after = gatewayDestination(nextConfig.url);
-  if (before !== after || downgradesTransport(existingConfig.url, nextConfig.url)) locked.push("url");
-  const keyPath = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim() : null);
-  if (keyPath(existingConfig.claimedApiKeyPath) !== keyPath(nextConfig.claimedApiKeyPath)) {
-    locked.push("claimedApiKeyPath");
+  return requestedFields.filter((field) =>
+    !OPENCLAW_REPLAY_REFRESHABLE_FIELDS.has(field)
+    && Object.prototype.hasOwnProperty.call(normalizedReplay, field)
+    && !sameSetting(field, liveConfig[field], normalizedReplay[field]));
+}
+
+/**
+ * The adapterConfig an allowed replay writes: the live config plus the
+ * refreshable fields this request sent. Header values come from the request
+ * (by name, case-insensitively) on top of the live headers.
+ */
+export function buildOpenClawReplayAdapterConfig(
+  liveConfig: Record<string, unknown>,
+  normalizedReplay: Record<string, unknown>,
+  requestedFields: string[],
+  requestedHeaders: unknown,
+): Record<string, unknown> {
+  const next: Record<string, unknown> = { ...liveConfig };
+  if (requestedFields.includes("paperclipApiUrl") && normalizedReplay.paperclipApiUrl !== undefined) {
+    next.paperclipApiUrl = normalizedReplay.paperclipApiUrl;
   }
-  const deviceAuthOff = (value: unknown) => value === true || value === "true";
-  if (deviceAuthOff(existingConfig.disableDeviceAuth) !== deviceAuthOff(nextConfig.disableDeviceAuth)) {
-    locked.push("disableDeviceAuth");
+  const sentHeaders = asRecord(requestedHeaders);
+  const replayHeaders = asRecord(normalizedReplay.headers) ?? {};
+  if (requestedFields.includes("headers") && sentHeaders) {
+    const headers: Record<string, unknown> = { ...(asRecord(liveConfig.headers) ?? {}) };
+    for (const sentName of Object.keys(sentHeaders)) {
+      const match = Object.keys(replayHeaders).find((name) => name.toLowerCase() === sentName.toLowerCase());
+      if (!match) continue;
+      for (const existing of Object.keys(headers)) {
+        if (existing.toLowerCase() === sentName.toLowerCase()) delete headers[existing];
+      }
+      headers[match] = replayHeaders[match];
+    }
+    next.headers = headers;
   }
-  return locked;
+  return next;
 }
 
 export function openClawReplayLockedMessage(fields: string[]): string {

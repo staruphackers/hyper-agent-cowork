@@ -107,8 +107,14 @@ import {
 import { claimFirstInstanceAdmin } from "../first-admin-claim.js";
 import { getStorageService } from "../storage/index.js";
 import { secretService } from "../services/secrets.js";
+import { redactEventPayload } from "../redaction.js";
 import { DEFAULT_CLAIMED_API_KEY_PATH, isSafeClaimedApiKeyPath } from "@paperclipai/adapter-openclaw-gateway";
-import { findOpenClawReplayLockedChanges, openClawReplayLockedMessage } from "./openclaw-credential-guard.js";
+import {
+  buildOpenClawReplayAdapterConfig,
+  findOpenClawReplayLockedChanges,
+  openClawReplayLockedMessage,
+  openClawReplayRequestedFields,
+} from "./openclaw-credential-guard.js";
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -3923,9 +3929,10 @@ export function accessRoutes(
       }
 
       // zhtw.10 D1-A: an invite replay on an approved OpenClaw join request
-      // updates the live agent without a new approval. Let it refresh the token
-      // and Paperclip URL as upstream intends, but refuse redirecting the agent,
-      // and never swap out the device key that OpenClaw already approved.
+      // updates the live agent without a new approval. Only the gateway token
+      // and Paperclip URL may be refreshed this way; refuse anything else the
+      // request tries to change, before anything is written.
+      const replayRequestedFields = openClawReplayRequestedFields(req.body);
       if (
         inviteAlreadyAccepted &&
         requestType === "agent" &&
@@ -3935,22 +3942,21 @@ export function accessRoutes(
         joinDefaults.normalized
       ) {
         const replayAgent = await agents.getById(existingJoinRequestForInvite.createdAgentId);
-        const liveConfig = isPlainObject(replayAgent?.adapterConfig)
-          ? (replayAgent!.adapterConfig as Record<string, unknown>)
-          : {};
-        const lockedFields = findOpenClawReplayLockedChanges(liveConfig, {
-          ...liveConfig,
-          ...joinDefaults.normalized,
-        });
-        if (lockedFields.length > 0) {
-          throw unprocessable(openClawReplayLockedMessage(lockedFields), {
-            code: "openclaw_gateway_replay_locked_fields",
-            fields: lockedFields,
-          });
-        }
-        const liveDeviceKey = liveConfig.devicePrivateKeyPem;
-        if (typeof liveDeviceKey === "string" && liveDeviceKey.trim()) {
-          joinDefaults.normalized.devicePrivateKeyPem = liveDeviceKey;
+        if (replayAgent) {
+          const liveConfig = isPlainObject(replayAgent.adapterConfig)
+            ? (replayAgent.adapterConfig as Record<string, unknown>)
+            : {};
+          const lockedFields = findOpenClawReplayLockedChanges(
+            liveConfig,
+            joinDefaults.normalized,
+            replayRequestedFields,
+          );
+          if (lockedFields.length > 0) {
+            throw unprocessable(openClawReplayLockedMessage(lockedFields), {
+              code: "openclaw_gateway_replay_locked_fields",
+              fields: lockedFields,
+            });
+          }
         }
       }
 
@@ -4112,10 +4118,16 @@ export function accessRoutes(
         const existingAdapterConfig = isPlainObject(existingAgent.adapterConfig)
           ? (existingAgent.adapterConfig as Record<string, unknown>)
           : {};
-        const nextAdapterConfig = {
-          ...existingAdapterConfig,
-          ...(joinDefaults.normalized ?? {})
-        };
+        // Write only the refreshable fields this request sent; the stored join
+        // payload is stale once the owner edits the agent (zhtw.10 D1-A).
+        const nextAdapterConfig = buildOpenClawReplayAdapterConfig(
+          existingAdapterConfig,
+          joinDefaults.normalized ?? {},
+          replayRequestedFields,
+          isPlainObject(req.body.agentDefaultsPayload)
+            ? (req.body.agentDefaultsPayload as Record<string, unknown>).headers
+            : undefined,
+        );
         const updatedAgent = await agents.update(created.createdAgentId, {
           adapterType,
           adapterConfig: nextAdapterConfig
@@ -4230,7 +4242,16 @@ export function accessRoutes(
         });
       }
 
-      const response = toJoinRequestResponse(created);
+      // The caller only holds the invite link; never echo stored gateway tokens
+      // or the device key back (zhtw.10).
+      const response = {
+        ...toJoinRequestResponse(created),
+        agentDefaultsPayload: redactEventPayload(
+          isPlainObject(created.agentDefaultsPayload)
+            ? (created.agentDefaultsPayload as Record<string, unknown>)
+            : null,
+        ),
+      };
       if (claimSecret) {
         const companyBranding = await getInviteCompanyBranding(invite.companyId);
         const onboardingManifest = buildInviteOnboardingManifest(

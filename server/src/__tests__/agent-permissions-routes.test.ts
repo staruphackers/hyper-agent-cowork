@@ -841,10 +841,10 @@ describe.sequential("agent permission routes", () => {
         });
       }, 20_000);
 
-      it("cannot move a masked header token under a renamed header while changing the URL", async () => {
-        // Review finding (10-01): the re-entry rule checks credential paths. A
-        // masked value can only be restored at its own path, so renaming the
-        // header never carries the stored token to the new gateway.
+      it("drops a masked header token moved under a renamed header instead of restoring it", async () => {
+        // Review finding (10-01): the re-entry rule checks credential paths. This
+        // pins the layer that makes that safe: a masked value is only restored at
+        // its own path, so renaming the header drops it (zhtw.9 restore rule).
         const { app } = await readRedactedGatewayConfig();
         const patchRes = await requestApp(app, (baseUrl) =>
           request(baseUrl).patch(`/api/agents/${agentId}`).send({
@@ -856,10 +856,9 @@ describe.sequential("agent permission routes", () => {
             },
           }),
         );
-        expect([200, 422]).toContain(patchRes.status);
-        const persisted = JSON.stringify(mockAgentService.update.mock.calls[0]?.[1] ?? {});
-        expect(persisted).not.toContain("stored-header-token");
-        expect(persisted).not.toContain("***REDACTED***");
+        expect(patchRes.status, JSON.stringify(patchRes.body)).toBe(200);
+        expect(persistedAdapterConfig().headers).toEqual({ "x-trace": "visible" });
+        expect(JSON.stringify(persistedAdapterConfig())).not.toContain("stored-header-token");
       }, 20_000);
 
       it("still saves the redacted config unchanged when the gateway URL stays the same", async () => {
