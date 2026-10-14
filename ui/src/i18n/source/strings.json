@@ -1197,7 +1197,7 @@
   " is signed in. Click Connect to use this account.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:520"
+    "first": "src/components/AdapterLoginChrome.tsx:567"
   },
   " is the audience new cards get when the requester does not ask for one;": {
     "count": 1,
@@ -1922,7 +1922,7 @@
   " sign-in…": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:493"
+    "first": "src/components/AdapterLoginChrome.tsx:546"
   },
   " simplified flow.": {
     "count": 1,
@@ -5247,7 +5247,7 @@
   "Advanced: sign in from a terminal instead": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:510"
+    "first": "src/components/AdapterLoginChrome.tsx:557"
   },
   "Affected: ": {
     "count": 1,
@@ -7223,11 +7223,6 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:803"
-  },
-  "Approve this sign-in in your browser, then come back here. Check that the code below matches the one shown there.": {
-    "count": 1,
-    "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:501"
   },
   "Approve tool action": {
     "count": 1,
@@ -10457,7 +10452,7 @@
   "Check again": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AdapterLoginChrome.tsx:529"
+    "first": "src/components/AdapterLoginChrome.tsx:576"
   },
   "Check an agent's access": {
     "count": 2,
@@ -10523,6 +10518,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/components/IssueRecoveryActionCard.tsx:773"
+  },
+  "Check that the authorization page shows the same code as below, then choose Allow": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:525"
   },
   "Check that the endpoint is running and reachable from Paperclip, then try again. Your draft is still here.": {
     "count": 1,
@@ -10697,7 +10697,7 @@
   "Checking local ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:493"
+    "first": "src/components/AdapterLoginChrome.tsx:546"
   },
   "Checking memory": {
     "count": 1,
@@ -11773,6 +11773,11 @@
     "count": 22,
     "kind": "obj",
     "first": "src/components/task-chat/task-chat-attachments.ts:69"
+  },
+  "Code copied": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:518"
   },
   "Code review": {
     "count": 2,
@@ -14042,7 +14047,7 @@
   "Copy sign-in command": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AdapterLoginChrome.tsx:497"
+    "first": "src/components/AdapterLoginChrome.tsx:550"
   },
   "Copy source path": {
     "count": 6,
@@ -19054,6 +19059,11 @@
     "kind": "attr",
     "first": "src/pages/apps/Browse.tsx:1114"
   },
+  "Enter this code on the authorization page": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:526"
+  },
   "Enter those values below, then use the generated install link to add the bot to that server.": {
     "count": 1,
     "kind": "jsx",
@@ -22562,7 +22572,7 @@
   "Go to OpenAI to approve": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:505"
+    "first": "src/components/AdapterLoginChrome.tsx:515"
   },
   "Go to Permissions": {
     "count": 1,
@@ -22572,7 +22582,7 @@
   "Go to x.ai to approve": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:505"
+    "first": "src/components/AdapterLoginChrome.tsx:515"
   },
   "Goal": {
     "count": 6,
@@ -22727,7 +22737,7 @@
   "Grok CLI": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AdapterLoginChrome.tsx:490"
+    "first": "src/components/AdapterLoginChrome.tsx:543"
   },
   "Grok subscription": {
     "count": 2,
@@ -33280,9 +33290,9 @@
     "first": "src/components/AgentConfigForm.tsx:2826"
   },
   "Open the authorization page": {
-    "count": 4,
-    "kind": "attr",
-    "first": "src/components/AgentConfigForm.tsx:3600"
+    "count": 5,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:499"
   },
   "Open the authorization page, then enter the browser code it shows.": {
     "count": 1,
@@ -42767,12 +42777,12 @@
   "Run this in a terminal on that machine and finish signing in in your browser. We’ll check automatically when you return.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:525"
+    "first": "src/components/AdapterLoginChrome.tsx:572"
   },
   "Run this in a terminal on the machine running Paperclip, as the same user that runs Paperclip.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:512"
+    "first": "src/components/AdapterLoginChrome.tsx:559"
   },
   "Run this routine on a schedule or when another app sends a webhook.": {
     "count": 1,
@@ -47847,7 +47857,7 @@
   "Start sign-in again": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:516"
+    "first": "src/components/AdapterLoginChrome.tsx:563"
   },
   "Start streaming": {
     "count": 1,
@@ -50577,7 +50587,7 @@
   "The sign-in did not finish. The code may have expired or the request was declined. Start sign-in again to get a new code.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:523"
+    "first": "src/components/AdapterLoginChrome.tsx:570"
   },
   "The sign-in window closed. If authorization did not finish, try again.": {
     "count": 1,
@@ -54642,7 +54652,7 @@
   "Use a different account": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:521"
+    "first": "src/components/AdapterLoginChrome.tsx:568"
   },
   "Use a Gemini API key, or an existing supported Gemini CLI login on the selected environment's host.": {
     "count": 1,
@@ -55907,7 +55917,7 @@
   "Waiting for you to choose Allow in your browser… We’ll detect it automatically when you’re done.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:508"
+    "first": "src/components/AdapterLoginChrome.tsx:555"
   },
   "Waiting for your connect command…": {
     "count": 1,

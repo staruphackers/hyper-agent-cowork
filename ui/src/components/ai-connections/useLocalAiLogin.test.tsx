@@ -8,10 +8,13 @@ import { LocalProviderLoginInstructions } from "../AdapterLoginChrome";
 
 const api = vi.hoisted(() => ({ startLocalLogin: vi.fn(), checkLocalLogin: vi.fn(), cancelLocalLogin: vi.fn(), connectLocal: vi.fn() }));
 vi.mock("@/api/ai-connections", () => ({ aiConnectionsApi: api }));
+const clipboard = vi.hoisted(() => ({ copyTextToClipboard: vi.fn() }));
+vi.mock("../../lib/clipboard", () => clipboard);
 let root: ReturnType<typeof createRoot>;
 let host: HTMLDivElement;
 beforeEach(() => {
   vi.resetAllMocks();
+  clipboard.copyTextToClipboard.mockResolvedValue(undefined);
   api.startLocalLogin.mockImplementation(async () => ({ sessionId: "attempt-1", command: "isolated codex login", expiresAt: "2099-01-01T00:00:00Z" }));
   api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required" });
   api.cancelLocalLogin.mockResolvedValue({});
@@ -122,6 +125,62 @@ it("offers a fresh sign-in when the server-run sign-in failed, and stops polling
   await vi.waitFor(() => expect(host.querySelector('[data-testid="device-login-code"]')).not.toBeNull());
 });
 
+const CODEX_DEVICE = { url: "https://auth.openai.com/codex/device", code: "WXYZ-98765" };
+function stepTexts() {
+  return Array.from(host.querySelectorAll("ol > li")).map(li => li.textContent ?? "");
+}
+it("U5: shows two numbered steps with the approval button above the code, worded per provider", async () => {
+  api.startLocalLogin.mockResolvedValue({ sessionId: "attempt-1", command: "isolated grok login", expiresAt: "2099-01-01T00:00:00Z", deviceLogin: DEVICE });
+  api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required", deviceLogin: DEVICE });
+  flushSync(() => root.render(<Harness provider="xai" />));
+  await vi.waitFor(() => expect(stepTexts()).toHaveLength(2));
+  const [first, second] = stepTexts();
+  expect(first).toContain("Open the authorization page");
+  expect(first).toContain("Go to x.ai to approve");
+  expect(first).not.toContain(DEVICE.code);
+  expect(second).toContain("Check that the authorization page shows the same code as below, then choose Allow");
+  expect(second).toContain(DEVICE.code);
+  // The approval button comes before the code in the document.
+  const link = Array.from(host.querySelectorAll("a")).find(a => a.textContent === "Go to x.ai to approve")!;
+  const code = host.querySelector('[data-testid="device-login-code"]')!;
+  expect(link.compareDocumentPosition(code) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(host.querySelector("details")?.open).toBe(false);
+  expect(host.textContent).toContain("Waiting for you to choose Allow");
+});
+it("U5: OpenAI asks the user to enter the code", async () => {
+  api.startLocalLogin.mockResolvedValue({ sessionId: "attempt-1", command: "isolated codex login", expiresAt: "2099-01-01T00:00:00Z", deviceLogin: CODEX_DEVICE });
+  api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required", deviceLogin: CODEX_DEVICE });
+  flushSync(() => root.render(<Harness provider="openai" />));
+  await vi.waitFor(() => expect(stepTexts()).toHaveLength(2));
+  expect(stepTexts()[0]).toContain("Go to OpenAI to approve");
+  expect(stepTexts()[1]).toContain("Enter this code on the authorization page");
+  expect(stepTexts()[1]).not.toContain("choose Allow");
+});
+it("U5: opening the authorization page also copies the code", async () => {
+  api.startLocalLogin.mockResolvedValue({ sessionId: "attempt-1", command: "isolated codex login", expiresAt: "2099-01-01T00:00:00Z", deviceLogin: CODEX_DEVICE });
+  api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required", deviceLogin: CODEX_DEVICE });
+  flushSync(() => root.render(<Harness provider="openai" />));
+  await vi.waitFor(() => expect(stepTexts()).toHaveLength(2));
+  const link = Array.from(host.querySelectorAll("a")).find(a => a.textContent === "Go to OpenAI to approve")!;
+  link.addEventListener("click", event => event.preventDefault()); // keep jsdom from navigating
+  flushSync(() => link.click());
+  expect(clipboard.copyTextToClipboard).toHaveBeenCalledWith(CODEX_DEVICE.code);
+  await vi.waitFor(() => expect(host.textContent).toContain("Code copied"));
+});
+it("U5: a refused clipboard write never blocks the approval link", async () => {
+  clipboard.copyTextToClipboard.mockRejectedValue(new Error("denied"));
+  api.startLocalLogin.mockResolvedValue({ sessionId: "attempt-1", command: "isolated codex login", expiresAt: "2099-01-01T00:00:00Z", deviceLogin: CODEX_DEVICE });
+  api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required", deviceLogin: CODEX_DEVICE });
+  flushSync(() => root.render(<Harness provider="openai" />));
+  await vi.waitFor(() => expect(stepTexts()).toHaveLength(2));
+  const link = Array.from(host.querySelectorAll("a")).find(a => a.textContent === "Go to OpenAI to approve")!;
+  let defaultPrevented: boolean | undefined;
+  link.addEventListener("click", event => { defaultPrevented = event.defaultPrevented; event.preventDefault(); });
+  flushSync(() => link.click());
+  expect(defaultPrevented).toBe(false);
+  await new Promise(resolve => setTimeout(resolve, 10));
+  expect(host.textContent).not.toContain("Code copied");
+});
 it("B1: once the server answers, a code from the original attempt is not shown again", async () => {
   api.startLocalLogin.mockResolvedValue({ sessionId: "attempt-1", command: "isolated grok login", expiresAt: "2099-01-01T00:00:00Z", deviceLogin: DEVICE });
   api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required" });

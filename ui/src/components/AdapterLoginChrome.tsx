@@ -478,6 +478,59 @@ function DeviceLoginCode({ code }: { code: string }) {
   );
 }
 
+function DeviceLoginStepNumber({ children }: { children: ReactNode }) {
+  return <span aria-hidden className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background">{children}</span>;
+}
+
+/**
+ * Two numbered steps for a server-run device sign-in: open the provider's
+ * authorization page (the code is copied on the way), then enter or confirm the
+ * code there. OpenAI asks the user to type the code; x.ai shows it and asks
+ * the user to confirm it matches.
+ */
+function DeviceLoginSteps({ adapterType, device }: { adapterType: string; device: { url: string; code: string } }) {
+  const [copied, setCopied] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
+  const grok = adapterType === "grok_local";
+  return (
+    <ol className="space-y-4">
+      <li className="space-y-2">
+        <p className="flex items-center gap-2 font-medium text-foreground"><DeviceLoginStepNumber>1</DeviceLoginStepNumber>Open the authorization page</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button asChild>
+            <a
+              href={device.url}
+              target="_blank"
+              rel="noreferrer noopener"
+              onClick={() => {
+                // The link always opens; copying is a convenience that may be refused.
+                void copyTextToClipboard(device.code).then(() => {
+                  setCopied(true);
+                  if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                  timeoutRef.current = setTimeout(() => setCopied(false), 3000);
+                }).catch(() => {});
+              }}
+            >
+              {grok ? <>Go to x.ai to approve</> : <>Go to OpenAI to approve</>}
+            </a>
+          </Button>
+          {copied && <span role="status" className="flex items-center gap-1 text-sm text-muted-foreground"><Check className="size-4" aria-hidden />Code copied</span>}
+        </div>
+      </li>
+      <li className="space-y-2">
+        <p className="flex items-center gap-2 font-medium text-foreground">
+          <DeviceLoginStepNumber>2</DeviceLoginStepNumber>
+          {grok
+            ? <>Check that the authorization page shows the same code as below, then choose Allow</>
+            : <>Enter this code on the authorization page</>}
+        </p>
+        <DeviceLoginCode code={device.code} />
+      </li>
+    </ol>
+  );
+}
+
 /** Shared instructions for local subscription setup in every authentication host. */
 export function LocalProviderLoginInstructions({ adapterType, login }: {
   adapterType: string;
@@ -498,13 +551,7 @@ export function LocalProviderLoginInstructions({ adapterType, login }: {
   </div>;
   const device = !ready && !login?.error && !login?.loginFailed ? login?.deviceLogin : null;
   if (device) return <div className="min-w-0 max-w-full space-y-3 text-sm text-muted-foreground">
-    <p className="text-foreground">Approve this sign-in in your browser, then come back here. Check that the code below matches the one shown there.</p>
-    <DeviceLoginCode code={device.code} />
-    <Button asChild size="sm">
-      <a href={device.url} target="_blank" rel="noreferrer noopener">
-        {adapterType === "grok_local" ? <>Go to x.ai to approve</> : <>Go to OpenAI to approve</>}
-      </a>
-    </Button>
+    <DeviceLoginSteps adapterType={adapterType} device={device} />
     <p role="status" className="flex items-center gap-2"><Loader2 className="size-4 shrink-0 animate-spin" />Waiting for you to choose Allow in your browser… We’ll detect it automatically when you’re done.</p>
     <details className="min-w-0 max-w-full">
       <summary className="cursor-pointer underline-offset-4 hover:underline">Advanced: sign in from a terminal instead</summary>
