@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { parseDeviceLoginPrompt } from "@paperclipai/adapter-codex-local/server";
 import { parseGrokDeviceLoginPrompt } from "@paperclipai/adapter-grok-local/server";
+import { unprocessable } from "../errors.js";
 
 /**
  * Server-side device-code sign-in for local subscription attempts.
@@ -25,11 +26,14 @@ export interface LocalAiDeviceLoginOptions {
   resolveCommand?: (provider: DeviceLoginProvider) => DeviceLoginCommand;
   /** How long start() waits for the CLI to print the prompt. */
   promptTimeoutMs?: number;
+  /** Server-wide cap on simultaneously running sign-in processes. */
+  maxConcurrent?: number;
 }
 
 const MAX_OUTPUT_BYTES = 16 * 1024;
 const DEFAULT_PROMPT_TIMEOUT_MS = 10_000;
 const KILL_GRACE_MS = 2_000;
+const DEFAULT_MAX_CONCURRENT = 20;
 
 interface Runner {
   provider: DeviceLoginProvider;
@@ -98,15 +102,24 @@ function installExitHook() {
   process.once("exit", () => stopAllDeviceLogins());
 }
 
+// The CLI runs as the leader of its own process group (`detached`), so a
+// wrapper such as the npm `codex` launcher and the native binary it starts are
+// signalled together. Signalling only the wrapper orphaned the native CLI.
+function signalGroup(runner: Runner, signal: NodeJS.Signals) {
+  const pid = runner.child.pid;
+  if (!pid) return;
+  try { process.kill(-pid, signal); } catch { /* group already gone */ }
+}
+
 function stopRunner(runner: Runner) {
+  const wasStopped = runner.stopped;
   runner.stopped = true;
   if (runner.expiryTimer) clearTimeout(runner.expiryTimer);
   notify(runner);
-  if (runner.exited) return;
-  try { runner.child.kill("SIGTERM"); } catch { /* already gone */ }
-  const force = setTimeout(() => {
-    if (!runner.exited) try { runner.child.kill("SIGKILL"); } catch { /* already gone */ }
-  }, KILL_GRACE_MS);
+  if (wasStopped) return;
+  // Even after the leader exits, helpers it started may still hold the group.
+  signalGroup(runner, "SIGTERM");
+  const force = setTimeout(() => signalGroup(runner, "SIGKILL"), KILL_GRACE_MS);
   force.unref();
 }
 
@@ -129,7 +142,17 @@ export function deviceLoginState(id: string): { running: boolean; failed: boolea
   return { running: !runner.exited, failed: runner.failed, prompt: runner.prompt, pid: runner.child.pid };
 }
 
+function runningCount() {
+  let count = 0;
+  for (const runner of runners.values()) if (!runner.exited && !runner.stopped) count++;
+  return count;
+}
+
 function launch(id: string, provider: DeviceLoginProvider, home: string, expiresAt: Date, options: LocalAiDeviceLoginOptions): Runner {
+  if (runningCount() >= (options.maxConcurrent ?? DEFAULT_MAX_CONCURRENT))
+    throw unprocessable("Too many sign-ins are in progress on this server. Wait a few minutes, then start sign-in again.", {
+      code: "ai_local_login_busy",
+    });
   installExitHook();
   const { command, args } = (options.resolveCommand ?? defaultDeviceLoginCommand)(provider);
   const child = spawn(command, args, {
@@ -137,6 +160,7 @@ function launch(id: string, provider: DeviceLoginProvider, home: string, expires
     env: deviceLoginEnvironment(provider, home),
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
+    detached: true,
   });
   const runner: Runner = {
     provider, child, output: "", prompt: null, exited: false, failed: false, stopped: false, waiters: new Set(),

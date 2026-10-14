@@ -32,6 +32,13 @@ beforeAll(async () => {
   script = path.join(home, "fake-cli.mjs");
   await writeFile(script, `
 const mode = process.argv[2];
+const fs0 = await import("node:fs");
+fs0.appendFileSync(process.cwd() + "/fake-runs.log", "run\\n");
+if (mode === "tree") {
+  const { spawn } = await import("node:child_process");
+  const helper = spawn(process.execPath, ["-e", "setInterval(() => {}, 1000)"], { stdio: "ignore" });
+  fs0.writeFileSync(process.cwd() + "/helper.pid", String(helper.pid));
+}
 const env = { home: process.env.HOME, codex: process.env.CODEX_HOME, grok: process.env.GROK_HOME, key: process.env.OPENAI_API_KEY ?? null, all: process.env };
 await import("node:fs").then((fs) => fs.writeFileSync(process.cwd() + "/fake-env.json", JSON.stringify(env)));
 if (mode === "fail") { process.stderr.write("Error: device authorization failed\\n"); process.exit(1); }
@@ -44,16 +51,16 @@ else {
   database = await startEmbeddedPostgresTestDatabase("ai-device-login-db-");
   db = createDb(database.connectionString);
   await db.insert(companies).values({ id: companyId, name: "Device", issuePrefix: "DEV" });
-  await db.insert(companyMemberships).values({ companyId, principalId: owner, principalType: "user", status: "active", membershipRole: "owner" });
+  await db.insert(companyMemberships).values(["device-owner", "device-owner-2"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "owner" })));
   await db.insert(environments).values({ name: "Local device", driver: "local" }).onConflictDoNothing();
 }, 90000);
 afterEach(() => { stopAllDeviceLogins(); vi.unstubAllGlobals(); });
 afterAll(async () => { await database?.cleanup(); vi.unstubAllEnvs(); if (home) await rm(home, { recursive: true, force: true }); });
 
-function service(mode: string, promptTimeoutMs = 5000) {
+function service(mode: string, promptTimeoutMs = 5000, maxConcurrent?: number) {
   return localAiLoginService(db, {
-    promptTimeoutMs,
-    resolveCommand: (provider) => ({ command: process.execPath, args: [script, mode === "auto" ? (provider === "openai" ? "codex" : "grok") : mode] }),
+    promptTimeoutMs, maxConcurrent,
+    resolveCommand: (provider) => ({ command: process.execPath, args: [script, mode === "auto" ? (provider === "openai" ? "codex" : "grok") : mode === "tree" ? "tree" : mode] }),
   });
 }
 const alive = (pid?: number) => { if (!pid) return false; try { process.kill(pid, 0); return true; } catch { return false; } };
@@ -95,12 +102,36 @@ it("runs codex sign-in with file credential storage and parses its colored promp
   await expectExited(pid);
 });
 
+const homeOf = (id: string) => path.join(resolvePaperclipInstanceRoot(), "ai-local-logins", id);
+const runsOf = async (id: string) => (await readFileText(path.join(homeOf(id), "fake-runs.log"))).trim().split("\n").length;
+async function readFileText(file: string) { const { readFile } = await import("node:fs/promises"); return readFile(file, "utf8"); }
+
 it("reports a failed CLI run so the UI can offer a fresh sign-in", async () => {
   const login = service("fail");
   const attempt = await login.start(companyId, owner, intent("xai"));
   expect(attempt.deviceLogin).toBeNull();
   expect(await login.check(companyId, owner, intent("xai"), attempt.sessionId)).toEqual({ status: "sign_in_required", loginFailed: true });
   await login.cancel(companyId, owner, attempt.sessionId);
+});
+
+it("B2: stops helper processes the CLI started, not just the CLI itself", async () => {
+  const login = service("tree");
+  const attempt = await login.start(companyId, owner, intent("xai"));
+  const helperPid = Number(await readFileText(path.join(homeOf(attempt.sessionId), "helper.pid")));
+  expect(alive(helperPid)).toBe(true);
+  await login.cancel(companyId, owner, attempt.sessionId);
+  await expectExited(deviceLoginState(attempt.sessionId)?.pid);
+  await expectExited(helperPid);
+});
+
+it("B2: caps simultaneous sign-in processes across the server", async () => {
+  const login = service("auto", 5000, 1);
+  const first = await login.start(companyId, owner, intent("xai"));
+  await expect(login.start(companyId, "device-owner-2", intent("xai"))).rejects.toThrow("Too many sign-ins");
+  await login.cancel(companyId, owner, first.sessionId);
+  const second = await login.start(companyId, "device-owner-2", intent("xai"));
+  expect(second.deviceLogin?.code).toBe(GROK_CODE);
+  await login.cancel(companyId, "device-owner-2", second.sessionId);
 });
 
 it("falls back to the terminal command when no prompt appears in time", async () => {
