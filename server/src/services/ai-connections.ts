@@ -748,7 +748,11 @@ export function aiConnectionService(db: Db) {
         .from(toolConnections)
         .where(eq(toolConnections.id, id));
       await syncConnectionCredentialBindings(tx, savedConnection, refs);
-      if (!reconnect) {
+      // Install targets: a new connection gets exactly the chosen targets. A
+      // same-account sign-in also adds the targets chosen this time (never
+      // removing existing ones). An explicit reconnect keeps its installs: the
+      // reconnect flow does not ask for access again.
+      if (!reconnect || implicitReconnect) {
         const installs = input.allAgents
           ? [{ targetType: "company" as const, targetId: companyId }]
           : input.agentIds.map((targetId) => ({

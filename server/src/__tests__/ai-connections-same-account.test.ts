@@ -201,3 +201,16 @@ it("M1d: a working API-key default is not taken over by a subscription sign-in",
   expect((await defaults("m1d", "xai")).provider).toBe(sub.grantId);
 });
 
+it("M2: a same-account sign-in adds this time's install targets without removing existing ones", async () => {
+  const service = aiConnectionService(db);
+  const first = await service.save(companyId, "m2", grokIntent([agentId]), grokAuth("m2@example.com", "1"));
+  const again = await service.save(companyId, "m2", grokIntent([agentB]), grokAuth("m2@example.com", "2"));
+  expect(again.connectionId).toBe(first.connectionId);
+  expect(await installsOf(first.connectionId)).toEqual([`agent:${agentId}`, `agent:${agentB}`].sort());
+  // Repeating a target is skipped, not duplicated.
+  await service.save(companyId, "m2", grokIntent([agentB]), grokAuth("m2@example.com", "3"));
+  expect(await installsOf(first.connectionId)).toEqual([`agent:${agentId}`, `agent:${agentB}`].sort());
+  // An explicit reconnect (which skips the access step) does not widen access.
+  await service.save(companyId, "m2", grokIntent([], true, first.connectionId), grokAuth("m2@example.com", "4"));
+  expect(await installsOf(first.connectionId)).toEqual([`agent:${agentId}`, `agent:${agentB}`].sort());
+});
