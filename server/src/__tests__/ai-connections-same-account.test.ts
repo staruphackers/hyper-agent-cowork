@@ -1,12 +1,13 @@
 import { afterAll, beforeAll, expect, it, vi } from "vitest";
 import { randomUUID } from "node:crypto";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { and, eq } from "drizzle-orm";
 import { agents, aiConnectionDefaults, aiProviderDefaults, companies, companyMemberships, createDb, toolConnections } from "@paperclipai/db";
 import { startEmbeddedPostgresTestDatabase } from "@paperclipai/db/test-embedded-postgres";
 import { aiConnectionService, subscriptionAccountLabel } from "../services/ai-connections.js";
+import { AI_SIGN_IN_EXPIRED_MESSAGE, prepareManagedAiRuntime } from "../services/ai-connection-runtime.js";
 
 let database: Awaited<ReturnType<typeof startEmbeddedPostgresTestDatabase>>;
 let db: ReturnType<typeof createDb>;
@@ -30,7 +31,7 @@ beforeAll(async () => {
   db = createDb(database.connectionString);
   await db.insert(companies).values({ id: companyId, name: "Same account", issuePrefix: "SAM" });
   await db.insert(agents).values({ id: agentId, companyId, name: "Grok agent", adapterType: "grok_local" });
-  await db.insert(companyMemberships).values(["kimi", "other"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "member" })));
+  await db.insert(companyMemberships).values(["kimi", "other", "expired-user"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "member" })));
 }, 90000);
 afterAll(async () => { await database?.cleanup(); vi.unstubAllEnvs(); if (home) await rm(home, { recursive: true, force: true }); });
 
@@ -99,4 +100,35 @@ it("matches Codex accounts by email and never merges other users or labelless lo
   expect((await service.list(companyId, "kimi")).filter(x => x.provider === "openai")).toHaveLength(3);
   // The most recent sign-in is the default.
   expect(await defaults("kimi", "openai")).toEqual({ method: d.grantId, provider: d.grantId });
+});
+
+it("flags an account whose CLI discarded its login instead of failing run cleanup", async () => {
+  const service = aiConnectionService(db);
+  const saved = await service.save(companyId, "expired-user", intent("xai"), grokAuth("expired@example.com", "old"));
+  const runInput = {
+    companyId, agentId, adapterType: "grok_local", responsibleUserId: "expired-user",
+    binding: { provider: "xai", method: "subscription", mode: "responsible_user" } as const, config: { model: "m" },
+  };
+  const run = await prepareManagedAiRuntime(db, runInput);
+  const before = await service.credential(await service.select({ ...runInput, userId: "expired-user" }));
+  // grok: "auth: cleared credentials after permanent refresh failure" removes auth.json.
+  await rm(path.join(String(run.config.env.GROK_HOME), "auth.json"));
+  await expect(run.cleanup()).resolves.toBeUndefined();
+  const [row] = await db.select().from(toolConnections).where(eq(toolConnections.id, saved.connectionId));
+  expect(row).toMatchObject({ healthStatus: "error", healthMessage: AI_SIGN_IN_EXPIRED_MESSAGE });
+  expect((await service.list(companyId, "expired-user")).find(a => a.id === saved.connectionId)?.status).toBe("needs_attention");
+  // Nothing was written back, and the run home is gone.
+  await db.update(toolConnections).set({ healthStatus: "ok" }).where(eq(toolConnections.id, saved.connectionId));
+  expect(await service.credential(await service.select({ ...runInput, userId: "expired-user" }))).toBe(before);
+  // Signing in again to the same account clears the warning.
+  await db.update(toolConnections).set({ healthStatus: "error", healthMessage: AI_SIGN_IN_EXPIRED_MESSAGE }).where(eq(toolConnections.id, saved.connectionId));
+  await service.save(companyId, "expired-user", intent("xai"), grokAuth("expired@example.com", "new"));
+  const [healed] = await db.select().from(toolConnections).where(eq(toolConnections.id, saved.connectionId));
+  expect(healed).toMatchObject({ healthStatus: "ok", healthMessage: null });
+  // Other read failures keep their original behavior.
+  const other = await prepareManagedAiRuntime(db, runInput);
+  const authFile = path.join(String(other.config.env.GROK_HOME), "auth.json");
+  await rm(authFile);
+  await mkdir(authFile);
+  await expect(other.cleanup()).rejects.toHaveProperty("code", "EISDIR");
 });

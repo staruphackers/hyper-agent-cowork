@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, writeFile, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { and, eq } from "drizzle-orm";
-import { type Db, companySecrets, connectionGrants } from "@paperclipai/db";
+import { type Db, companySecrets, connectionGrants, toolConnections } from "@paperclipai/db";
 import {
   AI_CONNECTION_CAPABILITIES,
   type AiConnectionBinding,
@@ -15,6 +15,9 @@ import { decideCodexAuthMerge } from "@paperclipai/adapter-codex-local/server";
 import type { AdapterExecutionTarget } from "@paperclipai/adapter-utils/execution-target";
 import { runAdapterExecutionTargetProcess } from "@paperclipai/adapter-utils/execution-target";
 import { decideGrokAuthMerge } from "@paperclipai/adapter-grok-local/server";
+
+/** Shown when a subscription CLI discarded its login during a run. */
+export const AI_SIGN_IN_EXPIRED_MESSAGE = "Sign-in expired. Sign in again to keep using this account.";
 
 export function isAiConnectionBusy(error: unknown): error is HttpError {
   return error instanceof HttpError && error.status === 422 &&
@@ -312,7 +315,21 @@ export async function prepareManagedAiRuntime(
       cleanup: async () => {
         try {
           if (subscriptionFile) {
-            const refreshed = await readFile(authFile, "utf8");
+            let refreshed: string;
+            try {
+              refreshed = await readFile(authFile, "utf8");
+            } catch (error) {
+              if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+              // The CLI deletes its auth file after a permanent refresh failure
+              // ("cleared credentials"). The stored login is no longer usable:
+              // flag the account for re-sign-in instead of failing the run's
+              // cleanup, and never write anything back.
+              await db
+                .update(toolConnections)
+                .set({ healthStatus: "error", healthMessage: AI_SIGN_IN_EXPIRED_MESSAGE, updatedAt: new Date() })
+                .where(and(eq(toolConnections.id, selection.connection.id), eq(toolConnections.companyId, input.companyId)));
+              return;
+            }
             if (refreshed !== value)
               await db.transaction(async (tx) => {
                 const [grant] = await tx
