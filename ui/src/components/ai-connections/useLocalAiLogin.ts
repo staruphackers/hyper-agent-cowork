@@ -87,8 +87,10 @@ export function useLocalAiLogin(companyId: string | null, intent: AiConnectionLo
     };
   }, [companyId, active, isolated, target, generation]);
   const loginFailed = checked?.loginFailed === true;
+  // Once the server has answered a check, only its live prompt counts: a code
+  // from the original attempt may belong to a sign-in process that is gone.
   const deviceLogin: LocalAiDeviceLogin | null =
-    status === "ready" || loginFailed ? null : checked?.deviceLogin ?? attempt?.deviceLogin ?? null;
+    status === "ready" || loginFailed ? null : checked ? checked.deviceLogin ?? null : attempt?.deviceLogin ?? null;
   return {
     isolated,
     command: attempt?.command,

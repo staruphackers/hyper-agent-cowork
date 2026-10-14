@@ -121,3 +121,12 @@ it("offers a fresh sign-in when the server-run sign-in failed, and stops polling
   await vi.waitFor(() => expect(api.startLocalLogin).toHaveBeenLastCalledWith("company", expect.objectContaining({ restart: true })));
   await vi.waitFor(() => expect(host.querySelector('[data-testid="device-login-code"]')).not.toBeNull());
 });
+
+it("B1: once the server answers, a code from the original attempt is not shown again", async () => {
+  api.startLocalLogin.mockResolvedValue({ sessionId: "attempt-1", command: "isolated grok login", expiresAt: "2099-01-01T00:00:00Z", deviceLogin: DEVICE });
+  api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required" });
+  flushSync(() => root.render(<Harness provider="xai" />));
+  await vi.waitFor(() => expect(api.checkLocalLogin).toHaveBeenCalled());
+  await vi.waitFor(() => expect(host.textContent).toContain("isolated grok login"));
+  expect(host.querySelector('[data-testid="device-login-code"]')).toBeNull();
+});
