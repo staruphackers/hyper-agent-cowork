@@ -1197,7 +1197,7 @@
   " is signed in. Click Connect to use this account.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:482"
+    "first": "src/components/AdapterLoginChrome.tsx:520"
   },
   " is the audience new cards get when the requester does not ask for one;": {
     "count": 1,
@@ -1922,7 +1922,7 @@
   " sign-in…": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:478"
+    "first": "src/components/AdapterLoginChrome.tsx:493"
   },
   " simplified flow.": {
     "count": 1,
@@ -1997,7 +1997,7 @@
   " tasks": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:39"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:60"
   },
   " tasks. Refine filters or search to reveal the rest.": {
     "count": 2,
@@ -5244,6 +5244,11 @@
     "kind": "jsx",
     "first": "src/pages/tools/AdvancedToolsRoute.tsx:41"
   },
+  "Advanced: sign in from a terminal instead": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:510"
+  },
   "Affected: ": {
     "count": 1,
     "kind": "jsx",
@@ -5654,6 +5659,16 @@
     "kind": "dyn",
     "first": "src/pages/apps/Browse.tsx:181"
   },
+  "Agents can’t use this account until you reconnect it. Their settings stay the same.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:40"
+  },
+  "Agents can’t use this account until you sign in again. Their settings stay the same.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:39"
+  },
   "Agents cannot run this action.": {
     "count": 2,
     "kind": "obj",
@@ -5747,7 +5762,7 @@
   "AI account settings": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:29"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:31"
   },
   "AI connection": {
     "count": 3,
@@ -7208,6 +7223,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/fixtures/issueThreadInteractionFixtures.ts:803"
+  },
+  "Approve this sign-in in your browser, then come back here. Check that the code below matches the one shown there.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:501"
   },
   "Approve tool action": {
     "count": 1,
@@ -10437,7 +10457,7 @@
   "Check again": {
     "count": 2,
     "kind": "dyn",
-    "first": "src/components/AdapterLoginChrome.tsx:493"
+    "first": "src/components/AdapterLoginChrome.tsx:529"
   },
   "Check an agent's access": {
     "count": 2,
@@ -10677,7 +10697,7 @@
   "Checking local ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:478"
+    "first": "src/components/AdapterLoginChrome.tsx:493"
   },
   "Checking memory": {
     "count": 1,
@@ -14022,7 +14042,7 @@
   "Copy sign-in command": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/AdapterLoginChrome.tsx:489"
+    "first": "src/components/AdapterLoginChrome.tsx:497"
   },
   "Copy source path": {
     "count": 6,
@@ -14045,7 +14065,7 @@
     "first": "src/pages/apps/chat/GitHubChatSetup.tsx:842"
   },
   "Copy the code": {
-    "count": 2,
+    "count": 4,
     "kind": "attr",
     "first": "src/components/AdapterLoginChrome.tsx:313"
   },
@@ -14212,7 +14232,7 @@
   "Could not check local sign-in.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/ai-connections/useLocalAiLogin.ts:62"
+    "first": "src/components/ai-connections/useLocalAiLogin.ts:72"
   },
   "Could not check OpenCode plans.": {
     "count": 2,
@@ -14632,7 +14652,7 @@
   "Could not revoke this account. Retry.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:66"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:87"
   },
   "Could not run the card.": {
     "count": 2,
@@ -16607,7 +16627,7 @@
   "Default unavailable": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:45"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:66"
   },
   "Default update failed": {
     "count": 2,
@@ -21802,7 +21822,7 @@
   "For your ": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:39"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:60"
   },
   "Forbidden: action not permitted": {
     "count": 1,
@@ -22539,10 +22559,20 @@
     "kind": "obj",
     "first": "src/components/KeyboardShortcutsCheatsheet.tsx:37"
   },
+  "Go to OpenAI to approve": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:505"
+  },
   "Go to Permissions": {
     "count": 1,
     "kind": "jsx",
     "first": "src/pages/apps/app-detail/TestPanel.tsx:489"
+  },
+  "Go to x.ai to approve": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:505"
   },
   "Goal": {
     "count": 6,
@@ -22697,7 +22727,7 @@
   "Grok CLI": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/AdapterLoginChrome.tsx:475"
+    "first": "src/components/AdapterLoginChrome.tsx:490"
   },
   "Grok subscription": {
     "count": 2,
@@ -27837,7 +27867,7 @@
   "Make default": {
     "count": 2,
     "kind": "jsx",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:48"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:69"
   },
   "Make primary": {
     "count": 1,
@@ -29537,7 +29567,7 @@
   "New runs using this account will be blocked. Existing runs may retain credentials already issued to them. No other account will be selected automatically.": {
     "count": 2,
     "kind": "attr",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:65"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:86"
   },
   "New runs will not start until the agent is resumed. ": {
     "count": 1,
@@ -32157,7 +32187,7 @@
   "Not your default": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:49"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:70"
   },
   "Note": {
     "count": 1,
@@ -35912,7 +35942,7 @@
   "Personal default": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:38"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:59"
   },
   "Personal GitHub token": {
     "count": 3,
@@ -38902,7 +38932,7 @@
   "Reconnect": {
     "count": 13,
     "kind": "jsx",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:59"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:80"
   },
   "Reconnect account": {
     "count": 1,
@@ -38948,6 +38978,11 @@
     "count": 1,
     "kind": "dyn",
     "first": "src/pages/apps/chat/ChatEndpointSetup.tsx:1279"
+  },
+  "Reconnect now": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:46"
   },
   "Reconnect Photon": {
     "count": 1,
@@ -42032,7 +42067,7 @@
   "Revoke identity": {
     "count": 3,
     "kind": "jsx",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:60"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:81"
   },
   "Revoke the organization identity?": {
     "count": 1,
@@ -42732,7 +42767,12 @@
   "Run this in a terminal on that machine and finish signing in in your browser. We’ll check automatically when you return.": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:486"
+    "first": "src/components/AdapterLoginChrome.tsx:525"
+  },
+  "Run this in a terminal on the machine running Paperclip, as the same user that runs Paperclip.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:512"
   },
   "Run this routine on a schedule or when another app sends a webhook.": {
     "count": 1,
@@ -46309,6 +46349,11 @@
     "kind": "jsx",
     "first": "src/components/BootstrapPendingPage.tsx:130"
   },
+  "Sign in again": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:46"
+  },
   "Sign in again to restore access.": {
     "count": 1,
     "kind": "dyn",
@@ -46598,6 +46643,11 @@
     "count": 4,
     "kind": "attr",
     "first": "src/components/ai-connections/AiConnectionCredentialStep.tsx:79"
+  },
+  "Sign-in expired": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:37"
   },
   "Sign-in expired — reconnect to restore access.": {
     "count": 1,
@@ -47795,9 +47845,9 @@
     "first": "src/components/ProjectWorkspaceSummaryCard.tsx:129"
   },
   "Start sign-in again": {
-    "count": 1,
-    "kind": "dyn",
-    "first": "src/components/AdapterLoginChrome.tsx:493"
+    "count": 2,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:516"
   },
   "Start streaming": {
     "count": 1,
@@ -50524,6 +50574,11 @@
     "kind": "dyn",
     "first": "src/features/connections/ConnectionSetupFlow.tsx:3284"
   },
+  "The sign-in did not finish. The code may have expired or the request was declined. Start sign-in again to get a new code.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:523"
+  },
   "The sign-in window closed. If authorization did not finish, try again.": {
     "count": 1,
     "kind": "dyn",
@@ -50808,6 +50863,11 @@
     "count": 1,
     "kind": "jsx",
     "first": "src/components/CloudAccessGate.tsx:17"
+  },
+  "This account needs attention": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:37"
   },
   "This action": {
     "count": 1,
@@ -51892,7 +51952,7 @@
   "This sign-in attempt expired. Start sign-in again.": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/ai-connections/useLocalAiLogin.ts:57"
+    "first": "src/components/ai-connections/useLocalAiLogin.ts:64"
   },
   "This sign-in expired. Return to Paperclip and start the connection again.": {
     "count": 1,
@@ -54582,7 +54642,7 @@
   "Use a different account": {
     "count": 1,
     "kind": "jsx",
-    "first": "src/components/AdapterLoginChrome.tsx:483"
+    "first": "src/components/AdapterLoginChrome.tsx:521"
   },
   "Use a Gemini API key, or an existing supported Gemini CLI login on the selected environment's host.": {
     "count": 1,
@@ -55843,6 +55903,11 @@
     "count": 5,
     "kind": "dyn",
     "first": "src/components/IssueMonitorBanner.tsx:73"
+  },
+  "Waiting for you to choose Allow in your browser… We’ll detect it automatically when you’re done.": {
+    "count": 1,
+    "kind": "jsx",
+    "first": "src/components/AdapterLoginChrome.tsx:508"
   },
   "Waiting for your connect command…": {
     "count": 1,
@@ -57742,7 +57807,7 @@
   "Your default": {
     "count": 1,
     "kind": "dyn",
-    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:45"
+    "first": "src/components/ai-connections/AiConnectionAccountControls.tsx:66"
   },
   "Your draft is kept; retrying here reuses the same request identity.": {
     "count": 1,
