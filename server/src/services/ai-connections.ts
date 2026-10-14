@@ -29,6 +29,7 @@ import {
   type CreateAiConnection,
   type AiConnectionLoginIntent,
 } from "@paperclipai/shared";
+import { parseGrokAuthPayload } from "@paperclipai/adapter-grok-local/server";
 import { forbidden, notFound, unprocessable } from "../errors.js";
 import { logActivity } from "./activity-log.js";
 import { secretService } from "./secrets.js";
@@ -44,6 +45,32 @@ function canUseCredential(
   return grant.kind === "organization" && (
     audience.length === 0 || audience.some((member) => member.subjectType === "user" && member.subjectId === userId)
   );
+}
+
+const SAFE_EMAIL = /^[^\s@/\\]{1,100}@[^\s@/\\]{1,100}\.[^\s@/\\]{2,40}$/;
+
+/**
+ * The account email shown next to a subscription connection, read from the
+ * verified credential. Codex keeps it in the id_token claims; Grok keeps it
+ * under its single `<issuer>::<uuid>` scope. Never throws; identity is optional.
+ */
+export function subscriptionAccountLabel(provider: string, verifiedCredential: string): string | undefined {
+  if (provider === "anthropic") return undefined;
+  try {
+    const credential = JSON.parse(verifiedCredential);
+    let email: unknown;
+    if (provider === "xai") {
+      email = parseGrokAuthPayload(credential)?.value.email;
+    } else {
+      const claims = credential.tokens?.id_token
+        ? JSON.parse(Buffer.from(credential.tokens.id_token.split(".")[1], "base64url").toString())
+        : credential;
+      email = claims.email ?? claims.user?.email;
+    }
+    return typeof email === "string" && SAFE_EMAIL.test(email) ? email : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export function aiConnectionService(db: Db) {
@@ -437,11 +464,38 @@ export function aiConnectionService(db: Db) {
   ) {
     if (!(await membership(companyId, userId)))
       throw forbidden("An active company member must own this connection");
+    const accountLabel =
+      input.method === "subscription"
+        ? subscriptionAccountLabel(input.provider, verifiedCredential)
+        : undefined;
+    // A personal device sign-in to an account this user already connected
+    // (same provider, method and email) refreshes that connection instead of
+    // adding a duplicate. Shared, API-key and Claude connections are unchanged.
+    const personalDeviceLogin =
+      input.ownership === "personal" &&
+      input.method === "subscription" &&
+      (input.provider === "xai" || input.provider === "openai");
+    const implicitReconnect = personalDeviceLogin && !input.connectionId && accountLabel
+      ? (await rows(companyId))
+          .filter((r) => {
+            const metadata = aiConnectionMetadataSchema.safeParse(r.connection.config.ai);
+            return metadata.success &&
+              metadata.data.provider === input.provider &&
+              metadata.data.method === input.method &&
+              r.grant.kind === "user" &&
+              r.grant.subjectUserId === userId &&
+              r.grant.createdByUserId === userId &&
+              r.grant.status === "active" &&
+              r.connection.status === "active" &&
+              r.grant.providerTenant?.name === accountLabel;
+          })
+          .sort((a, b) => b.connection.updatedAt.getTime() - a.connection.updatedAt.getTime())[0]
+      : undefined;
     const reconnect = input.connectionId
       ? (await rows(companyId)).find(
           (r) => r.connection.id === input.connectionId,
         )
-      : undefined;
+      : implicitReconnect;
     if (input.connectionId && !reconnect)
       throw notFound("AI connection not found");
     if (
@@ -517,10 +571,13 @@ export function aiConnectionService(db: Db) {
           .from(connectionGrants)
           .where(eq(connectionGrants.id, grantId))
           .for("update");
+        // An explicit reconnect must not overwrite a newer change. A same-account
+        // sign-in only needs the row lock: it never targeted a specific version.
         if (
           !current ||
-          current.updatedAt.getTime() !== reconnect.grant.updatedAt.getTime() ||
-          current.updatedAt.getTime() > attemptStartedAt.getTime()
+          (!implicitReconnect &&
+            (current.updatedAt.getTime() !== reconnect.grant.updatedAt.getTime() ||
+              current.updatedAt.getTime() > attemptStartedAt.getTime()))
         )
           throw unprocessable("The connection changed. Start reconnect again.");
       }
@@ -653,28 +710,6 @@ export function aiConnectionService(db: Db) {
             },
             createdByUserId: userId,
           });
-      let accountLabel: string | undefined;
-      if (input.method === "subscription" && input.provider !== "anthropic") {
-        try {
-          const credential = JSON.parse(verifiedCredential);
-          const claims = credential.tokens?.id_token
-            ? JSON.parse(
-                Buffer.from(
-                  credential.tokens.id_token.split(".")[1],
-                  "base64url",
-                ).toString(),
-              )
-            : credential;
-          const email = claims.email ?? claims.user?.email;
-          if (
-            typeof email === "string" &&
-            /^[^\s@/\\]{1,100}@[^\s@/\\]{1,100}\.[^\s@/\\]{2,40}$/.test(email)
-          )
-            accountLabel = email;
-        } catch {
-          /* Safe account identity is optional. */
-        }
-      }
       const refs = [
         {
           secretId: secretId!,
@@ -713,7 +748,22 @@ export function aiConnectionService(db: Db) {
         .from(toolConnections)
         .where(eq(toolConnections.id, id));
       await syncConnectionCredentialBindings(tx, savedConnection, refs);
-      if (input.ownership === "personal") {
+      if (personalDeviceLogin) {
+        // The account the user just signed in to becomes their default, so a
+        // fresh sign-in replaces an older, expired default.
+        await tx.insert(aiConnectionDefaults)
+          .values({ companyId, userId, provider: input.provider, method: input.method, grantId })
+          .onConflictDoUpdate({
+            target: [aiConnectionDefaults.companyId, aiConnectionDefaults.userId, aiConnectionDefaults.provider, aiConnectionDefaults.method],
+            set: { grantId, updatedAt: new Date() },
+          });
+        await tx.insert(aiProviderDefaults)
+          .values({ companyId, userId, provider: input.provider, grantId })
+          .onConflictDoUpdate({
+            target: [aiProviderDefaults.companyId, aiProviderDefaults.userId, aiProviderDefaults.provider],
+            set: { grantId, updatedAt: new Date() },
+          });
+      } else if (input.ownership === "personal") {
         await tx
           .insert(aiConnectionDefaults)
           .values({
