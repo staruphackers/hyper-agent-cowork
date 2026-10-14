@@ -150,7 +150,9 @@ function launch(id: string, provider: DeviceLoginProvider, home: string, expires
     runner.failed = !runner.stopped;
     notify(runner);
   });
-  child.on("exit", (code) => {
+  // `close` fires after stdout/stderr are drained, so a fast-exiting CLI's
+  // last output is parsed before the run is marked finished.
+  child.on("close", (code) => {
     runner.exited = true;
     runner.failed = !runner.stopped && code !== 0;
     // Output is no longer needed once the CLI is gone.
