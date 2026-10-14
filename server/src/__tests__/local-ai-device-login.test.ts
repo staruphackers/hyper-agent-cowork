@@ -32,7 +32,7 @@ beforeAll(async () => {
   script = path.join(home, "fake-cli.mjs");
   await writeFile(script, `
 const mode = process.argv[2];
-const env = { home: process.env.HOME, codex: process.env.CODEX_HOME, grok: process.env.GROK_HOME, key: process.env.OPENAI_API_KEY ?? null };
+const env = { home: process.env.HOME, codex: process.env.CODEX_HOME, grok: process.env.GROK_HOME, key: process.env.OPENAI_API_KEY ?? null, all: process.env };
 await import("node:fs").then((fs) => fs.writeFileSync(process.cwd() + "/fake-env.json", JSON.stringify(env)));
 if (mode === "fail") { process.stderr.write("Error: device authorization failed\\n"); process.exit(1); }
 if (mode === "silent") { setInterval(() => {}, 1000); }
@@ -76,7 +76,7 @@ it("runs grok sign-in on the server and returns the authorization link and code"
   const directory = path.join(resolvePaperclipInstanceRoot(), "ai-local-logins", attempt.sessionId);
   const { readFile } = await import("node:fs/promises");
   const env = JSON.parse(await readFile(path.join(directory, "fake-env.json"), "utf8"));
-  expect(env).toEqual({ home: directory, grok: directory, key: null });
+  expect(env).toMatchObject({ home: directory, grok: directory, key: null });
   // Never written to the activity log.
   const events = await db.select().from(activityLog).where(eq(activityLog.entityId, attempt.sessionId));
   expect(JSON.stringify(events)).not.toContain(GROK_CODE);
@@ -160,4 +160,37 @@ it("kills a waiting sign-in at the attempt deadline on its own", async () => {
   const pid = deviceLoginState(id)!.pid;
   await expectExited(pid);
   expect(deviceLoginState(id)).toBeNull();
+});
+
+it("passes only an allow-listed environment to the sign-in CLI", async () => {
+  const leaked = {
+    DATABASE_URL: "postgres://user:secret@db/paperclip", BETTER_AUTH_SECRET: "auth-secret",
+    PAPERCLIP_AGENT_JWT_SECRET: "jwt-secret", PAPERCLIP_HOME_EXTRA: "x", MY_CUSTOM_TOKEN: "custom",
+    OPENAI_API_KEY: "operator-key", XAI_API_KEY: "operator-xai", CODEX_HOME: "/operator/codex", GROK_HOME: "/operator/grok",
+  };
+  const kept = {
+    LANG: "zh_TW.UTF-8", LC_ALL: "zh_TW.UTF-8", TZ: "Asia/Taipei", TMPDIR: "/tmp/x",
+    HTTPS_PROXY: "http://proxy:1", https_proxy: "http://proxy:2", NO_PROXY: "localhost", NODE_EXTRA_CA_CERTS: "/ca.pem", SSL_CERT_FILE: "/cert.pem",
+  };
+  for (const [key, value] of Object.entries({ ...leaked, ...kept })) vi.stubEnv(key, value);
+  try {
+    const login = service("auto");
+    const attempt = await login.start(companyId, owner, intent("openai"));
+    const directory = path.join(resolvePaperclipInstanceRoot(), "ai-local-logins", attempt.sessionId);
+    const { readFile } = await import("node:fs/promises");
+    const all: Record<string, string> = JSON.parse(await readFile(path.join(directory, "fake-env.json"), "utf8")).all;
+    for (const key of Object.keys(leaked)) expect(Object.hasOwn(all, key) && all[key] === leaked[key as keyof typeof leaked]).toBe(false);
+    expect(Object.keys(all).filter(key => key.startsWith("PAPERCLIP_"))).toEqual([]);
+    expect(all).toMatchObject({ ...kept, HOME: directory, CODEX_HOME: directory, NO_COLOR: "1" });
+    expect(all.PATH).toBe(process.env.PATH);
+    const allowed = new Set([...Object.keys(kept), "PATH", "HOME", "CODEX_HOME", "NO_COLOR"]);
+    // Node may add a few variables of its own on some platforms; nothing from the server's env may appear.
+    // macOS adds __CF_USER_TEXT_ENCODING to every child process.
+    const unexpected = Object.keys(all).filter(key => !allowed.has(key) && !key.startsWith("__CF_") && process.env[key] !== undefined);
+    expect(unexpected).toEqual([]);
+    await login.cancel(companyId, owner, attempt.sessionId);
+  } finally {
+    vi.unstubAllEnvs();
+    vi.stubEnv("PAPERCLIP_HOME", home);
+  }
 });

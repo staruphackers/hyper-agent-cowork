@@ -1,7 +1,6 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { parseDeviceLoginPrompt } from "@paperclipai/adapter-codex-local/server";
 import { parseGrokDeviceLoginPrompt } from "@paperclipai/adapter-grok-local/server";
-import { AI_AUTH_ENV_KEYS } from "./ai-connection-runtime.js";
 
 /**
  * Server-side device-code sign-in for local subscription attempts.
@@ -66,12 +65,20 @@ function parsePrompt(provider: DeviceLoginProvider, output: string): DeviceLogin
   return parsed ? { url: parsed.url, code: parsed.code } : null;
 }
 
-function childEnvironment(provider: DeviceLoginProvider, home: string): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...process.env };
-  // Never let the operator's API keys or CLI homes leak into a user's sign-in.
-  for (const key of AI_AUTH_ENV_KEYS) delete env[key];
-  delete env.CODEX_HOME;
-  delete env.GROK_HOME;
+// Only what a CLI needs to find itself, reach the network and print text. Every
+// other server variable (database URL, auth secrets, PAPERCLIP_*, operator API
+// keys) stays out of a user's sign-in process.
+const PASSTHROUGH_ENV = new Set([
+  "PATH", "LANG", "TZ", "TMPDIR", "TMP", "TEMP",
+  "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "http_proxy", "https_proxy", "no_proxy",
+  "SSL_CERT_FILE", "SSL_CERT_DIR", "NODE_EXTRA_CA_CERTS",
+]);
+const isPassthrough = (key: string) => PASSTHROUGH_ENV.has(key) || key.startsWith("LC_");
+
+export function deviceLoginEnvironment(provider: DeviceLoginProvider, home: string, source: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const [key, value] of Object.entries(source))
+    if (value !== undefined && isPassthrough(key)) env[key] = value;
   env.HOME = home;
   env.NO_COLOR = "1";
   if (provider === "openai") env.CODEX_HOME = home;
@@ -127,7 +134,7 @@ function launch(id: string, provider: DeviceLoginProvider, home: string, expires
   const { command, args } = (options.resolveCommand ?? defaultDeviceLoginCommand)(provider);
   const child = spawn(command, args, {
     cwd: home,
-    env: childEnvironment(provider, home),
+    env: deviceLoginEnvironment(provider, home),
     stdio: ["ignore", "pipe", "pipe"],
     windowsHide: true,
   });
