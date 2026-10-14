@@ -489,7 +489,7 @@ function DeviceLoginStepNumber({ children }: { children: ReactNode }) {
  * the user to confirm it matches.
  */
 function DeviceLoginSteps({ adapterType, device }: { adapterType: string; device: { url: string; code: string } }) {
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"copied" | "failed" | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
   const grok = adapterType === "grok_local";
@@ -505,17 +505,21 @@ function DeviceLoginSteps({ adapterType, device }: { adapterType: string; device
               rel="noreferrer noopener"
               onClick={() => {
                 // The link always opens; copying is a convenience that may be refused.
-                void copyTextToClipboard(device.code).then(() => {
-                  setCopied(true);
+                void copyTextToClipboard(device.code).then(
+                  () => setCopied("copied"),
+                  // A refused copy is reported, never shown as a success.
+                  () => setCopied("failed"),
+                ).finally(() => {
                   if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                  timeoutRef.current = setTimeout(() => setCopied(false), 3000);
-                }).catch(() => {});
+                  timeoutRef.current = setTimeout(() => setCopied(null), 4000);
+                });
               }}
             >
               {grok ? <>Go to x.ai to approve</> : <>Go to OpenAI to approve</>}
             </a>
           </Button>
-          {copied && <span role="status" className="flex items-center gap-1 text-sm text-muted-foreground"><Check className="size-4" aria-hidden />Code copied</span>}
+          {copied === "copied" && <span role="status" className="flex items-center gap-1 text-sm text-muted-foreground"><Check className="size-4" aria-hidden />Code copied</span>}
+          {copied === "failed" && <span role="status" className="text-sm text-muted-foreground">Could not copy the code. Copy it from below.</span>}
         </div>
       </li>
       <li className="space-y-2">

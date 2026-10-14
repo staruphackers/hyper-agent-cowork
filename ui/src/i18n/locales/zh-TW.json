@@ -2664,6 +2664,7 @@
   "Could not connect. Please try again.": "無法連線。請再試一次。",
   "Could not copy automatically. Select and copy the setup prompt below.": "無法自動複製。請選取並複製下方的設定提示。",
   "Could not copy document": "無法複製文件",
+  "Could not copy the code. Copy it from below.": "無法自動複製驗證碼，請從下方手動複製。",
   "Could not copy the link.": "無法複製連結。",
   "Could not copy the link. Open account linking and copy the address.": "無法複製連結。請開啟帳號連結並複製網址。",
   "Could not copy the number. Select and copy it manually.": "無法複製號碼。請手動選取並複製。",
