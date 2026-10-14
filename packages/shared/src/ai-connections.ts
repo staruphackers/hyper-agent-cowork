@@ -242,13 +242,25 @@ export const localAiConnectionSchema = aiConnectionLoginIntentSchema.extend({
   localSessionId: z.string().uuid().optional(),
 });
 export const localAiLoginStartSchema = aiConnectionLoginIntentSchema.extend({ restart: z.boolean().optional() });
+/** Authorization link and one-time code printed by a server-run device sign-in. */
+export interface LocalAiDeviceLogin {
+  url: string;
+  code: string;
+}
 export interface LocalAiLoginStatus {
   status: "ready" | "sign_in_required" | "expired";
+  /** Present while the server-run sign-in is waiting for browser approval. */
+  deviceLogin?: LocalAiDeviceLogin | null;
+  /** The server-run sign-in exited without producing a usable login. */
+  loginFailed?: boolean;
 }
 export interface LocalAiLoginAttempt {
   sessionId: string;
+  /** Terminal fallback; the UI prefers {@link deviceLogin} when present. */
   command: string;
   expiresAt: string;
+  /** Server-run device sign-in prompt (OpenAI/xAI). Null when it could not be read in time. */
+  deviceLogin?: LocalAiDeviceLogin | null;
 }
 
 /** Preview-era copies of rotating local credentials must be reconnected. */

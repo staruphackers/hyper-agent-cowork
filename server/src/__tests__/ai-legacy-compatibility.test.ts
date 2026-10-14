@@ -10,6 +10,7 @@ import { secretService } from "../services/secrets.js";
 import { aiConnectionService } from "../services/ai-connections.js";
 import { prepareManagedAiRuntime } from "../services/ai-connection-runtime.js";
 import { localAiLoginService } from "../services/local-ai-login.js";
+import { stopAllDeviceLogins } from "../services/local-ai-device-login.js";
 import { readVerifiedLocalAiCredential } from "../services/local-ai-credentials.js";
 import { resolvePaperclipInstanceRoot } from "../home-paths.js";
 
@@ -20,6 +21,10 @@ const companyId = randomUUID(), agentId = randomUUID(), owner = "audit-owner";
 beforeAll(async () => {
   home = await mkdtemp(path.join(os.tmpdir(), "ai-legacy-audit-"));
   vi.stubEnv("PAPERCLIP_HOME", home);
+  // Server-run device sign-in must never reach OpenAI from tests: use a fake CLI.
+  const fakeCodex = path.join(home, "fake-codex");
+  await writeFile(fakeCodex, "#!/bin/sh\nprintf 'Open https://auth.openai.com/codex/device\\n\\nEnter this one-time code\\n   ABCD-12345\\n'\nexec sleep 600\n", { mode: 0o755 });
+  vi.stubEnv("PAPERCLIP_LOCAL_LOGIN_CODEX_COMMAND", fakeCodex);
   database = await startEmbeddedPostgresTestDatabase("ai-legacy-audit-db-");
   db = createDb(database.connectionString);
   await db.insert(companies).values({ id: companyId, name: "Audit", issuePrefix: "AUD" });
@@ -27,7 +32,7 @@ beforeAll(async () => {
   await db.insert(environments).values({ name: "Local audit", driver: "local" }).onConflictDoNothing();
   await db.insert(agents).values({ id: agentId, companyId, name: "Unadopted legacy agent", adapterType: "claude_local" });
 }, 90000);
-afterAll(async () => { await database?.cleanup(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); if (home) await rm(home, { recursive: true, force: true }); });
+afterAll(async () => { stopAllDeviceLogins(); await database?.cleanup(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); if (home) await rm(home, { recursive: true, force: true }); });
 
 it("reconnect detaches an indexed credential without changing unadopted legacy agents", async () => {
   const vault = secretService(db), service = aiConnectionService(db);
@@ -71,7 +76,8 @@ it("isolates sign-in and refresh from the host, survives restart, and completes 
   expect(await localAiLoginService(db).start(companyId, owner, loginIntent())).toEqual(attempt);
   expect(attempt.command).toContain(`(export CODEX_HOME='${directory}' && mkdir -p "$CODEX_HOME" && codex`);
   expect(await readFile(path.join(directory, "config.toml"), "utf8")).toContain('cli_auth_credentials_store = "file"');
-  expect(await login.check(companyId, owner, loginIntent(), attempt.sessionId)).toEqual({ status: "sign_in_required" });
+  expect(attempt.deviceLogin).toEqual({ url: "https://auth.openai.com/codex/device", code: "ABCD-12345" });
+  expect(await login.check(companyId, owner, loginIntent(), attempt.sessionId)).toEqual({ status: "sign_in_required", deviceLogin: attempt.deviceLogin });
   // Resuming a valid attempt also repairs a missing directory without changing its ID.
   await rm(directory, { recursive: true });
   expect(await login.start(companyId, owner, loginIntent())).toEqual(attempt);

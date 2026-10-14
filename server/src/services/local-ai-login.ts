@@ -9,6 +9,9 @@ import { notFound, unprocessable } from "../errors.js";
 import { aiConnectionService } from "./ai-connections.js";
 import { readVerifiedLocalAiCredential } from "./local-ai-credentials.js";
 import { logActivity } from "./activity-log.js";
+import {
+  deviceLoginStatus, ensureDeviceLogin, stopDeviceLogin, type LocalAiDeviceLoginOptions,
+} from "./local-ai-device-login.js";
 
 const LOCAL_LOGIN_METHOD = "local_subscription";
 const ATTEMPT_DURATION_MS = 30 * 60 * 1000;
@@ -43,7 +46,13 @@ function sameTarget(a: AiConnectionLoginIntent, b: AiConnectionLoginIntent) {
 
 /** Local terminal sign-ins share the durable attempt/credential lifecycle, but
  * never seed their home from the operator's rotating CLI credential. */
-export function localAiLoginService(db: Db) {
+export function localAiLoginService(db: Db, options: LocalAiDeviceLoginOptions = {}) {
+  /** Server-side device-code sign-in (openai/xai only). Runs after the attempt row commits. */
+  async function withDeviceLogin(attempt: LocalAiLoginAttempt, provider: string, expiresAt: Date): Promise<LocalAiLoginAttempt> {
+    if (provider !== "openai" && provider !== "xai") return attempt;
+    const deviceLogin = await ensureDeviceLogin(attempt.sessionId, provider, loginHome(attempt.sessionId), expiresAt, options);
+    return { ...attempt, deviceLogin };
+  }
   async function reapExpired() {
     // Bounded batches use the existing expires-at index. Replaying is safe.
     const rows = await db.select({ id: adapterAuthSessions.id }).from(adapterAuthSessions)
@@ -55,6 +64,7 @@ export function localAiLoginService(db: Db) {
         const [session] = await tx.select().from(adapterAuthSessions)
           .where(eq(adapterAuthSessions.id, row.id)).for("update");
         if (!session || !session.expiresAt || session.expiresAt.getTime() > Date.now()) return;
+        stopDeviceLogin(row.id);
         await rm(loginHome(row.id), { recursive: true, force: true });
         await tx.update(adapterAuthSessions).set({
           status: session.connectionId ? "authenticated" : "timed_out",
@@ -68,7 +78,7 @@ export function localAiLoginService(db: Db) {
     if (intent.provider !== "openai" && intent.provider !== "xai" && intent.provider !== "anthropic")
       throw unprocessable("This provider does not use a separate local login home.");
     await reapExpired();
-    return db.transaction(async (tx) => {
+    const attempt = await db.transaction(async (tx) => {
       await tx.execute(sql`select pg_advisory_xact_lock(hashtextextended(${`ai-local-login:${companyId}:${userId}:${intent.provider}`}, 0))`);
       const adapterType = intent.provider === "openai" ? "codex_local" : intent.provider === "anthropic" ? "claude_local" : "grok_local";
       const [existing] = await tx.select().from(adapterAuthSessions).where(and(
@@ -81,10 +91,11 @@ export function localAiLoginService(db: Db) {
             existing.aiConnection && sameTarget(existing.aiConnection, intent) &&
             existing.expiresAt && existing.expiresAt.getTime() > Date.now()) {
           await prepareHome(existing.id, intent.provider);
-          return presentAttempt(existing.id, existing.expiresAt, intent.provider);
+          return { attempt: presentAttempt(existing.id, existing.expiresAt, intent.provider), expiresAt: existing.expiresAt };
         }
         if (!restart || existing.connectionMethod !== LOCAL_LOGIN_METHOD)
           throw unprocessable("Another sign-in is still open. Finish it, or choose Start sign-in again to replace a local attempt.");
+        stopDeviceLogin(existing.id);
         await rm(loginHome(existing.id), { recursive: true, force: true });
         await tx.update(adapterAuthSessions).set({ status: "cancelled", finishedAt: new Date(), updatedAt: new Date() })
           .where(eq(adapterAuthSessions.id, existing.id));
@@ -118,8 +129,9 @@ export function localAiLoginService(db: Db) {
           throw unprocessable("Another sign-in is still open. Finish or cancel it before starting again.");
         throw error;
       }
-      return presentAttempt(id, expiresAt, intent.provider);
+      return { attempt: presentAttempt(id, expiresAt, intent.provider), expiresAt };
     });
+    return withDeviceLogin(attempt.attempt, intent.provider, attempt.expiresAt);
   }
 
   // Read-only credential detection: never saves a connection or refreshes another
@@ -135,14 +147,20 @@ export function localAiLoginService(db: Db) {
       ));
       if (!session?.aiConnection || !sameTarget(session.aiConnection, intent))
         throw notFound("Local sign-in attempt not found for this connection.");
-      if (session.status !== "waiting_for_user" || !session.expiresAt || session.expiresAt.getTime() <= Date.now())
+      if (session.status !== "waiting_for_user" || !session.expiresAt || session.expiresAt.getTime() <= Date.now()) {
+        stopDeviceLogin(id);
         return { status: "expired" };
+      }
       directory = loginHome(id);
     }
     try {
       await readVerifiedLocalAiCredential(intent.provider, directory);
       return { status: "ready" };
     } catch {
+      if (id && (intent.provider === "openai" || intent.provider === "xai")) {
+        const { deviceLogin, loginFailed } = deviceLoginStatus(id);
+        return { status: "sign_in_required", ...(deviceLogin ? { deviceLogin } : {}), ...(loginFailed ? { loginFailed: true } : {}) };
+      }
       return { status: "sign_in_required" };
     }
   }
@@ -176,6 +194,7 @@ export function localAiLoginService(db: Db) {
       return saved;
     });
     // Failed cleanup can be retried by the same completed attempt or reaper.
+    stopDeviceLogin(id);
     await rm(loginHome(id), { recursive: true, force: true });
     return result;
   }
@@ -188,6 +207,7 @@ export function localAiLoginService(db: Db) {
         eq(adapterAuthSessions.connectionMethod, LOCAL_LOGIN_METHOD),
       )).for("update");
       if (!session) throw notFound("Local sign-in attempt not found.");
+      stopDeviceLogin(id);
       await rm(loginHome(id), { recursive: true, force: true });
       if (!session.connectionId && session.status !== "cancelled") {
         await tx.update(adapterAuthSessions).set({
