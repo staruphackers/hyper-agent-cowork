@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { useLocalAiLogin } from "./useLocalAiLogin";
+import { DEVICE_LOGIN_POLL_MS, useLocalAiLogin } from "./useLocalAiLogin";
 import { LocalProviderLoginInstructions } from "../AdapterLoginChrome";
 
 const api = vi.hoisted(() => ({ startLocalLogin: vi.fn(), checkLocalLogin: vi.fn(), cancelLocalLogin: vi.fn(), connectLocal: vi.fn() }));
@@ -19,9 +19,9 @@ beforeEach(() => {
   host = document.createElement("div"); document.body.append(host); root = createRoot(host);
 });
 afterEach(() => { flushSync(() => root.unmount()); host.remove(); });
-function Harness({ name = "Account", provider = "openai", enabled = true }: { name?: string; provider?: "anthropic" | "openai"; enabled?: boolean }) {
+function Harness({ name = "Account", provider = "openai", enabled = true }: { name?: string; provider?: "anthropic" | "openai" | "xai"; enabled?: boolean }) {
   const login = useLocalAiLogin("company", { provider, method: "subscription", name, ownership: "personal", agentIds: [], allAgents: true }, enabled, { allowHostClaude: true });
-  return <><LocalProviderLoginInstructions adapterType={provider === "anthropic" ? "claude_local" : "codex_local"} login={login} /><button onClick={() => void login.connect()}>Connect</button></>;
+  return <><LocalProviderLoginInstructions adapterType={provider === "anthropic" ? "claude_local" : provider === "xai" ? "grok_local" : "codex_local"} login={login} /><button onClick={() => void login.connect()}>Connect</button></>;
 }
 it("checks once under StrictMode, preserves renaming and navigation, and cancels only on explicit retry", async () => {
   flushSync(() => root.render(<StrictMode><Harness name="First name" /></StrictMode>));
@@ -78,4 +78,46 @@ it("explicit retry can replace an attempt opened in another authentication host"
   flushSync(() => Array.from(host.querySelectorAll('button')).find(b => b.textContent === 'Start sign-in again')!.click());
   await vi.waitFor(() => expect(host.textContent).toContain("isolated codex login"));
   expect(api.startLocalLogin).toHaveBeenLastCalledWith("company", expect.objectContaining({ restart: true }));
+});
+
+const DEVICE = { url: "https://accounts.x.ai/oauth2/device?user_code=AB12-CD34", code: "AB12-CD34" };
+it("shows the server-run sign-in code and approval link, with the terminal command tucked away", async () => {
+  const timeouts = vi.spyOn(window, "setTimeout");
+  api.startLocalLogin.mockResolvedValue({ sessionId: "attempt-1", command: "isolated grok login", expiresAt: "2099-01-01T00:00:00Z", deviceLogin: DEVICE });
+  api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required", deviceLogin: DEVICE });
+  flushSync(() => root.render(<Harness provider="xai" />));
+  await vi.waitFor(() => expect(host.querySelector('[data-testid="device-login-code"]')?.textContent).toBe("AB12-CD34"));
+  const link = Array.from(host.querySelectorAll("a")).find(a => a.textContent === "Go to x.ai to approve")!;
+  expect(link.getAttribute("href")).toBe(DEVICE.url);
+  expect(link.getAttribute("target")).toBe("_blank");
+  expect(link.getAttribute("rel")).toContain("noopener");
+  expect(host.textContent).toContain("Waiting for you to choose Allow");
+  const details = host.querySelector("details")!;
+  expect(details.open).toBe(false);
+  expect(details.textContent).toContain("isolated grok login");
+  expect(details.querySelector("summary")?.textContent).toBe("Advanced: sign in from a terminal instead");
+  // While the user approves in another tab, polling is faster.
+  await vi.waitFor(() => expect(timeouts.mock.calls.some(([, delay]) => delay === DEVICE_LOGIN_POLL_MS)).toBe(true));
+  expect(timeouts.mock.calls.some(([, delay]) => delay === 5000)).toBe(false);
+  // Approval is detected automatically.
+  api.checkLocalLogin.mockResolvedValue({ status: "ready" });
+  window.dispatchEvent(new Event("focus"));
+  await vi.waitFor(() => expect(host.textContent).toContain("is signed in"));
+  expect(host.querySelector('[data-testid="device-login-code"]')).toBeNull();
+  timeouts.mockRestore();
+});
+it("offers a fresh sign-in when the server-run sign-in failed, and stops polling", async () => {
+  api.startLocalLogin.mockResolvedValue({ sessionId: "attempt-1", command: "isolated grok login", expiresAt: "2099-01-01T00:00:00Z", deviceLogin: DEVICE });
+  api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required", loginFailed: true });
+  const timeouts = vi.spyOn(window, "setTimeout");
+  flushSync(() => root.render(<Harness provider="xai" />));
+  await vi.waitFor(() => expect(host.querySelector('[role="alert"]')?.textContent).toContain("The sign-in did not finish"));
+  expect(host.querySelector('[data-testid="device-login-code"]')).toBeNull();
+  expect(host.textContent).not.toContain("isolated grok login");
+  expect(timeouts.mock.calls.some(([, delay]) => delay === DEVICE_LOGIN_POLL_MS || delay === 5000)).toBe(false);
+  timeouts.mockRestore();
+  api.checkLocalLogin.mockResolvedValue({ status: "sign_in_required", deviceLogin: DEVICE });
+  flushSync(() => Array.from(host.querySelectorAll("button")).find(b => b.textContent === "Start sign-in again")!.click());
+  await vi.waitFor(() => expect(api.startLocalLogin).toHaveBeenLastCalledWith("company", expect.objectContaining({ restart: true })));
+  await vi.waitFor(() => expect(host.querySelector('[data-testid="device-login-code"]')).not.toBeNull());
 });

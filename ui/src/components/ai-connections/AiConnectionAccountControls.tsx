@@ -25,8 +25,29 @@ export function AiConnectionAccountControls({
   const ownPersonal = account.ownership === "personal" && account.ownerUserId === currentUserId;
   const available = account.status === "connected";
   const activeDefault = account.isDefault && available;
+  const canReconnect = !readOnly && Boolean(grant.capabilities?.canRevoke);
+  const subscription = account.method === "subscription";
   return (
     <section className="space-y-4" aria-label="AI account settings">
+      {account.status === "needs_attention" && (
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+          <div className="flex items-start gap-3">
+            <TriangleAlert aria-hidden className="mt-0.5 size-5 shrink-0 text-destructive" />
+            <div>
+              <h3 className="text-sm font-semibold text-destructive">{subscription ? <>Sign-in expired</> : <>This account needs attention</>}</h3>
+              <p className="text-xs text-muted-foreground">{subscription
+                ? <>Agents can’t use this account until you sign in again. Their settings stay the same.</>
+                : <>Agents can’t use this account until you reconnect it. Their settings stay the same.</>}</p>
+            </div>
+          </div>
+          {canReconnect && (
+            <Button size="sm" onClick={onReconnect}>
+              <RefreshCw className="size-4" aria-hidden />
+              {subscription ? <>Sign in again</> : <>Reconnect now</>}
+            </Button>
+          )}
+        </div>
+      )}
       {ownPersonal && (
         <div className={cn(
           "flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border p-3",
@@ -54,7 +75,7 @@ export function AiConnectionAccountControls({
           <p className="font-medium">{aiMethodLabel(account.provider, account.method)}</p>
           {account.accountLabel && <p className="break-words text-xs text-muted-foreground">{account.accountLabel}</p>}
         </div>
-        {!readOnly && grant.capabilities?.canRevoke && (
+        {canReconnect && (
           <div className="flex flex-wrap items-center gap-2">
             {<Button variant="outline" size="sm" onClick={onReconnect}><RefreshCw className="size-4" aria-hidden />Reconnect</Button>}
             {account.status !== "revoked" && <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setRevoking(true)}><Unplug className="size-4" aria-hidden />Revoke identity</Button>}

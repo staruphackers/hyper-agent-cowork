@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import type { AiConnectionLoginIntent, LocalAiLoginAttempt, LocalAiLoginStatus } from "@paperclipai/shared";
+import type { AiConnectionLoginIntent, LocalAiDeviceLogin, LocalAiLoginAttempt, LocalAiLoginStatus } from "@paperclipai/shared";
+
+/** Poll faster while the user is approving a server-run device sign-in in another tab. */
+export const DEVICE_LOGIN_POLL_MS = 3000;
+const TERMINAL_LOGIN_POLL_MS = 5000;
 import { aiConnectionsApi } from "@/api/ai-connections";
 
 /** Every authentication host uses the same local credential check and login lifecycle. */
@@ -8,6 +12,7 @@ export function useLocalAiLogin(companyId: string | null, intent: AiConnectionLo
   const active = Boolean(companyId && enabled);
   const [attempt, setAttempt] = useState<LocalAiLoginAttempt | null>(null);
   const [status, setStatus] = useState<LocalAiLoginStatus["status"] | null>(null);
+  const [checked, setChecked] = useState<LocalAiLoginStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generation, setGeneration] = useState(0);
   const latestIntent = useRef(intent);
@@ -27,6 +32,7 @@ export function useLocalAiLogin(companyId: string | null, intent: AiConnectionLo
     setAttempt(null);
     setError(null);
     setStatus(null);
+    setChecked(null);
     if (!active || !companyId) return;
     let cancelled = false;
     let checking = false;
@@ -54,10 +60,14 @@ export function useLocalAiLogin(companyId: string | null, intent: AiConnectionLo
         });
         if (cancelled) return;
         setStatus(next.status);
+        setChecked(next);
         setError(next.status === "expired" ? "This sign-in attempt expired. Start sign-in again." : null);
-        // Stop polling a verified account. Focus still rechecks after a terminal
-        // visit; awaiting terminal login never requires repeated Connect clicks.
-        if (next.status === "sign_in_required") timer = setTimeout(() => void check(), 5000);
+        // Stop polling a verified account or a failed server-run sign-in. Focus
+        // still rechecks after a terminal visit; awaiting login never requires
+        // repeated Connect clicks.
+        const awaitingDevice = Boolean(next.deviceLogin ?? result?.deviceLogin);
+        if (next.status === "sign_in_required" && !next.loginFailed)
+          timer = setTimeout(() => void check(), awaitingDevice ? DEVICE_LOGIN_POLL_MS : TERMINAL_LOGIN_POLL_MS);
       } catch (cause) {
         if (!cancelled) setError(cause instanceof Error ? cause.message : "Could not check local sign-in.");
       } finally { checking = false; }
@@ -76,9 +86,14 @@ export function useLocalAiLogin(companyId: string | null, intent: AiConnectionLo
       // here made copied CODEX_HOME commands point at nonexistent directories.
     };
   }, [companyId, active, isolated, target, generation]);
+  const loginFailed = checked?.loginFailed === true;
+  const deviceLogin: LocalAiDeviceLogin | null =
+    status === "ready" || loginFailed ? null : checked?.deviceLogin ?? attempt?.deviceLogin ?? null;
   return {
     isolated,
     command: attempt?.command,
+    deviceLogin,
+    loginFailed,
     status,
     preparing: active && !status && !error,
     error,
