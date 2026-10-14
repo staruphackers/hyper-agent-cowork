@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { and, eq } from "drizzle-orm";
-import { agents, aiConnectionDefaults, aiProviderDefaults, companies, companyMemberships, createDb, toolConnections } from "@paperclipai/db";
+import { agents, aiConnectionDefaults, aiProviderDefaults, companies, toolConnectionInstalls, companyMemberships, createDb, toolConnections } from "@paperclipai/db";
 import { startEmbeddedPostgresTestDatabase } from "@paperclipai/db/test-embedded-postgres";
 import { aiConnectionService, subscriptionAccountLabel } from "../services/ai-connections.js";
 import { AI_SIGN_IN_EXPIRED_MESSAGE, prepareManagedAiRuntime } from "../services/ai-connection-runtime.js";
@@ -12,7 +12,7 @@ import { AI_SIGN_IN_EXPIRED_MESSAGE, prepareManagedAiRuntime } from "../services
 let database: Awaited<ReturnType<typeof startEmbeddedPostgresTestDatabase>>;
 let db: ReturnType<typeof createDb>;
 let home: string;
-const companyId = randomUUID(), agentId = randomUUID();
+const companyId = randomUUID(), agentId = randomUUID(), agentB = randomUUID();
 const grokAuth = (email: string, marker: string) => JSON.stringify({
   [`https://auth.x.ai::${randomUUID()}`]: { key: `key-${marker}`, refresh_token: `refresh-${marker}`, email },
 });
@@ -30,8 +30,11 @@ beforeAll(async () => {
   database = await startEmbeddedPostgresTestDatabase("ai-same-account-db-");
   db = createDb(database.connectionString);
   await db.insert(companies).values({ id: companyId, name: "Same account", issuePrefix: "SAM" });
-  await db.insert(agents).values({ id: agentId, companyId, name: "Grok agent", adapterType: "grok_local" });
-  await db.insert(companyMemberships).values(["kimi", "other", "expired-user"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "member" })));
+  await db.insert(agents).values([
+    { id: agentId, companyId, name: "Grok agent", adapterType: "grok_local" },
+    { id: agentB, companyId, name: "Grok agent B", adapterType: "grok_local" },
+  ]);
+  await db.insert(companyMemberships).values(["kimi", "other", "expired-user", "m1a", "m1b", "m1c", "m1d", "m2"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "member" })));
 }, 90000);
 afterAll(async () => { await database?.cleanup(); vi.unstubAllEnvs(); if (home) await rm(home, { recursive: true, force: true }); });
 
@@ -80,10 +83,11 @@ it("a new account becomes the default, replacing an older expired default", asyn
   expect(await defaults("kimi", "xai")).toEqual({ method: fresh.grantId, provider: fresh.grantId });
   const accounts = (await service.list(companyId, "kimi")).filter(a => a.provider === "xai");
   expect(accounts.filter(a => a.isDefault).map(a => a.id)).toEqual([fresh.connectionId]);
-  // Signing in to the first account again restores it and moves the default back.
+  // Signing in to the first account again restores it, but the working
+  // default chosen in the meantime stays (M1).
   const back = await service.save(companyId, "kimi", intent("xai"), grokAuth("kimi@example.com", "third"));
   expect(back.connectionId).toBe(old.id);
-  expect(await defaults("kimi", "xai")).toEqual({ method: old.grantId, provider: old.grantId });
+  expect(await defaults("kimi", "xai")).toEqual({ method: fresh.grantId, provider: fresh.grantId });
 });
 
 it("matches Codex accounts by email and never merges other users or labelless logins", async () => {
@@ -98,8 +102,8 @@ it("matches Codex accounts by email and never merges other users or labelless lo
   const d = await service.save(companyId, "kimi", intent("openai"), noEmail);
   expect(c.connectionId).not.toBe(d.connectionId);
   expect((await service.list(companyId, "kimi")).filter(x => x.provider === "openai")).toHaveLength(3);
-  // The most recent sign-in is the default.
-  expect(await defaults("kimi", "openai")).toEqual({ method: d.grantId, provider: d.grantId });
+  // A working default is never taken over by a later sign-in to another account.
+  expect(await defaults("kimi", "openai")).toEqual({ method: a.grantId, provider: a.grantId });
 });
 
 it("flags an account whose CLI discarded its login instead of failing run cleanup", async () => {
@@ -132,3 +136,68 @@ it("flags an account whose CLI discarded its login instead of failing run cleanu
   await mkdir(authFile);
   await expect(other.cleanup()).rejects.toHaveProperty("code", "EISDIR");
 });
+
+const grokIntent = (agentIds: string[] = [], allAgents = agentIds.length === 0, connectionId?: string) => ({
+  ...intent("xai"), agentIds, allAgents, ...(connectionId ? { connectionId } : {}),
+});
+const selectFor = (userId: string, forAgent: string) => aiConnectionService(db).select({
+  companyId, agentId: forAgent, userId, adapterType: "grok_local", binding: { provider: "xai", method: "subscription", mode: "responsible_user" },
+});
+async function installsOf(connectionId: string) {
+  return (await db.select().from(toolConnectionInstalls).where(eq(toolConnectionInstalls.connectionId, connectionId)))
+    .map(i => `${i.targetType}:${i.targetId}`).sort();
+}
+
+it("M1a: a new account installed only on agent A does not take over a working default", async () => {
+  const service = aiConnectionService(db);
+  const original = await service.save(companyId, "m1a", grokIntent(), grokAuth("m1a-old@example.com", "o"));
+  const narrow = await service.save(companyId, "m1a", grokIntent([agentId]), grokAuth("m1a-new@example.com", "n"));
+  expect(narrow.connectionId).not.toBe(original.connectionId);
+  expect(await defaults("m1a", "xai")).toEqual({ method: original.grantId, provider: original.grantId });
+  expect((await selectFor("m1a", agentB)).grant.id).toBe(original.grantId);
+});
+
+it("M1b: a new sign-in replaces a broken default and is installed where the old default was", async () => {
+  const service = aiConnectionService(db);
+  const old = await service.save(companyId, "m1b", grokIntent([agentB]), grokAuth("m1b-old@example.com", "o"));
+  await db.update(toolConnections).set({ healthStatus: "error" }).where(eq(toolConnections.id, old.connectionId));
+  await expect(selectFor("m1b", agentB)).rejects.toThrow();
+  const fresh = await service.save(companyId, "m1b", grokIntent([agentId]), grokAuth("m1b-new@example.com", "n"));
+  expect(await defaults("m1b", "xai")).toEqual({ method: fresh.grantId, provider: fresh.grantId });
+  expect(await installsOf(fresh.connectionId)).toEqual([`agent:${agentId}`, `agent:${agentB}`].sort());
+  expect((await selectFor("m1b", agentB)).grant.id).toBe(fresh.grantId);
+  // The old connection keeps its own installs.
+  expect(await installsOf(old.connectionId)).toEqual([`agent:${agentB}`]);
+});
+
+it("M1c: reconnecting a secondary account leaves the default alone", async () => {
+  const service = aiConnectionService(db);
+  const main = await service.save(companyId, "m1c", grokIntent(), grokAuth("m1c-main@example.com", "m"));
+  const second = await service.save(companyId, "m1c", grokIntent(), grokAuth("m1c-second@example.com", "s"));
+  expect(await defaults("m1c", "xai")).toEqual({ method: main.grantId, provider: main.grantId });
+  await db.update(toolConnections).set({ healthStatus: "error" }).where(eq(toolConnections.id, second.connectionId));
+  // Explicit reconnect and same-account sign-in both refresh the secondary only.
+  await service.save(companyId, "m1c", grokIntent([], true, second.connectionId), grokAuth("m1c-second@example.com", "s2"));
+  await service.save(companyId, "m1c", grokIntent(), grokAuth("m1c-second@example.com", "s3"));
+  expect(await defaults("m1c", "xai")).toEqual({ method: main.grantId, provider: main.grantId });
+  // Reconnecting the default itself keeps it the default.
+  await service.save(companyId, "m1c", grokIntent([], true, main.connectionId), grokAuth("m1c-main@example.com", "m2"));
+  expect(await defaults("m1c", "xai")).toEqual({ method: main.grantId, provider: main.grantId });
+});
+
+it("M1d: a working API-key default is not taken over by a subscription sign-in", async () => {
+  const service = aiConnectionService(db);
+  const api = await service.save(companyId, "m1d", { provider: "xai", method: "api_key", ownership: "personal", name: "Grok API", apiKey: "xai-key", agentIds: [], allAgents: true }, "xai-key");
+  const sub = await service.save(companyId, "m1d", grokIntent(), grokAuth("m1d@example.com", "s"));
+  expect((await defaults("m1d", "xai")).provider).toBe(api.grantId);
+  expect((await service.list(companyId, "m1d")).filter(a => a.isDefault).map(a => a.grantId)).toEqual([api.grantId]);
+  // Signing in to the same subscription again (in-place update) still leaves the API key as default.
+  await service.save(companyId, "m1d", grokIntent(), grokAuth("m1d@example.com", "s1"));
+  expect((await defaults("m1d", "xai")).provider).toBe(api.grantId);
+  // Only when the API key stops working does the subscription take over.
+  await db.update(toolConnections).set({ enabled: false }).where(eq(toolConnections.id, api.connectionId));
+  expect((await defaults("m1d", "xai")).provider).toBe(api.grantId);
+  await service.save(companyId, "m1d", grokIntent(), grokAuth("m1d@example.com", "s2"));
+  expect((await defaults("m1d", "xai")).provider).toBe(sub.grantId);
+});
+

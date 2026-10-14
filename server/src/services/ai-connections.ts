@@ -748,34 +748,6 @@ export function aiConnectionService(db: Db) {
         .from(toolConnections)
         .where(eq(toolConnections.id, id));
       await syncConnectionCredentialBindings(tx, savedConnection, refs);
-      if (personalDeviceLogin) {
-        // The account the user just signed in to becomes their default, so a
-        // fresh sign-in replaces an older, expired default.
-        await tx.insert(aiConnectionDefaults)
-          .values({ companyId, userId, provider: input.provider, method: input.method, grantId })
-          .onConflictDoUpdate({
-            target: [aiConnectionDefaults.companyId, aiConnectionDefaults.userId, aiConnectionDefaults.provider, aiConnectionDefaults.method],
-            set: { grantId, updatedAt: new Date() },
-          });
-        await tx.insert(aiProviderDefaults)
-          .values({ companyId, userId, provider: input.provider, grantId })
-          .onConflictDoUpdate({
-            target: [aiProviderDefaults.companyId, aiProviderDefaults.userId, aiProviderDefaults.provider],
-            set: { grantId, updatedAt: new Date() },
-          });
-      } else if (input.ownership === "personal") {
-        await tx
-          .insert(aiConnectionDefaults)
-          .values({
-            companyId,
-            userId,
-            provider: input.provider,
-            method: input.method,
-            grantId,
-          })
-          .onConflictDoNothing();
-        await tx.insert(aiProviderDefaults).values({ companyId, userId, provider: input.provider, grantId }).onConflictDoNothing();
-      }
       if (!reconnect) {
         const installs = input.allAgents
           ? [{ targetType: "company" as const, targetId: companyId }]
@@ -793,7 +765,84 @@ export function aiConnectionService(db: Db) {
                 connectionId: id,
                 createdByUserId: userId,
               })),
-            );
+            )
+            .onConflictDoNothing();
+      }
+      if (personalDeviceLogin) {
+        // A personal Grok/Codex sign-in becomes the default only when that does
+        // not take a working default away from anyone: there is no default yet,
+        // this sign-in refreshed the default itself, or the current default can
+        // no longer be used. A working default (including an API key) is kept.
+        const replacedConnections = new Set<string>();
+        const takesOver = async (currentGrantId: string | null | undefined) => {
+          if (!currentGrantId || currentGrantId === grantId) return true;
+          const [current] = await tx
+            .select({ connection: toolConnections, grant: connectionGrants })
+            .from(connectionGrants)
+            .innerJoin(toolConnections, eq(toolConnections.id, connectionGrants.connectionId))
+            .where(and(eq(connectionGrants.companyId, companyId), eq(connectionGrants.id, currentGrantId)));
+          const usable = Boolean(current) &&
+            current.grant.status === "active" &&
+            current.connection.enabled &&
+            current.connection.status === "active" &&
+            current.connection.healthStatus === "ok" &&
+            !aiSubscriptionNeedsIsolatedLogin(current.connection.config);
+          if (usable) return false;
+          if (current) replacedConnections.add(current.connection.id);
+          return true;
+        };
+        const [providerDefault] = await tx.select().from(aiProviderDefaults).where(and(
+          eq(aiProviderDefaults.companyId, companyId),
+          eq(aiProviderDefaults.userId, userId),
+          eq(aiProviderDefaults.provider, input.provider),
+        )).for("update");
+        const takeover = await takesOver(providerDefault?.grantId);
+        // Agents that used the retired default keep working: install the new
+        // account everywhere the old one was installed (existing rows skipped).
+        for (const replaced of replacedConnections) {
+          if (replaced === id) continue;
+          const previous = await tx
+            .select({ targetType: toolConnectionInstalls.targetType, targetId: toolConnectionInstalls.targetId })
+            .from(toolConnectionInstalls)
+            .where(and(eq(toolConnectionInstalls.companyId, companyId), eq(toolConnectionInstalls.connectionId, replaced)));
+          if (previous.length)
+            await tx
+              .insert(toolConnectionInstalls)
+              .values(previous.map((p) => ({ ...p, companyId, connectionId: id, createdByUserId: userId })))
+              .onConflictDoNothing();
+        }
+        // Runs read the provider default. The method row is kept in step for
+        // older servers; any UPDATE of it re-points the provider default via the
+        // sync trigger (migration 0277), so it is only updated on a takeover.
+        const methodRow = tx.insert(aiConnectionDefaults)
+          .values({ companyId, userId, provider: input.provider, method: input.method, grantId });
+        const providerRow = tx.insert(aiProviderDefaults)
+          .values({ companyId, userId, provider: input.provider, grantId });
+        if (takeover) {
+          await methodRow.onConflictDoUpdate({
+            target: [aiConnectionDefaults.companyId, aiConnectionDefaults.userId, aiConnectionDefaults.provider, aiConnectionDefaults.method],
+            set: { grantId, updatedAt: new Date() },
+          });
+          await providerRow.onConflictDoUpdate({
+            target: [aiProviderDefaults.companyId, aiProviderDefaults.userId, aiProviderDefaults.provider],
+            set: { grantId, updatedAt: new Date() },
+          });
+        } else {
+          await methodRow.onConflictDoNothing();
+          await providerRow.onConflictDoNothing();
+        }
+      } else if (input.ownership === "personal") {
+        await tx
+          .insert(aiConnectionDefaults)
+          .values({
+            companyId,
+            userId,
+            provider: input.provider,
+            method: input.method,
+            grantId,
+          })
+          .onConflictDoNothing();
+        await tx.insert(aiProviderDefaults).values({ companyId, userId, provider: input.provider, grantId }).onConflictDoNothing();
       }
       if (sessionId)
         await tx
