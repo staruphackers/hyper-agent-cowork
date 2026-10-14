@@ -580,6 +580,10 @@ export function aiConnectionService(db: Db) {
               current.updatedAt.getTime() > attemptStartedAt.getTime()))
         )
           throw unprocessable("The connection changed. Start reconnect again.");
+        // The same-account match was read before this lock: confirm the account
+        // was not revoked or retired in between.
+        if (implicitReconnect && current.status !== "active")
+          throw unprocessable("This account was changed while you signed in. Start sign-in again.");
       }
       let secretId = reconnect?.grant.credentialSecretRefs.find(
         (r) => r.configPath === "ai.credential",

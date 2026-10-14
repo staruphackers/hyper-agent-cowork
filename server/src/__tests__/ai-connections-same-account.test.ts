@@ -4,7 +4,7 @@ import { mkdir, mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { and, eq } from "drizzle-orm";
-import { agents, aiConnectionDefaults, aiProviderDefaults, companies, toolConnectionInstalls, companyMemberships, createDb, toolConnections } from "@paperclipai/db";
+import { agents, aiConnectionDefaults, aiProviderDefaults, companies, connectionGrants, toolConnectionInstalls, companyMemberships, createDb, toolConnections } from "@paperclipai/db";
 import { startEmbeddedPostgresTestDatabase } from "@paperclipai/db/test-embedded-postgres";
 import { aiConnectionService, subscriptionAccountLabel } from "../services/ai-connections.js";
 import { AI_SIGN_IN_EXPIRED_MESSAGE, prepareManagedAiRuntime } from "../services/ai-connection-runtime.js";
@@ -34,7 +34,7 @@ beforeAll(async () => {
     { id: agentId, companyId, name: "Grok agent", adapterType: "grok_local" },
     { id: agentB, companyId, name: "Grok agent B", adapterType: "grok_local" },
   ]);
-  await db.insert(companyMemberships).values(["kimi", "other", "expired-user", "m1a", "m1b", "m1c", "m1d", "m2"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "member" })));
+  await db.insert(companyMemberships).values(["kimi", "other", "expired-user", "m1a", "m1b", "m1c", "m1d", "m2", "b4"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "member" })));
 }, 90000);
 afterAll(async () => { await database?.cleanup(); vi.unstubAllEnvs(); if (home) await rm(home, { recursive: true, force: true }); });
 
@@ -213,4 +213,22 @@ it("M2: a same-account sign-in adds this time's install targets without removing
   // An explicit reconnect (which skips the access step) does not widen access.
   await service.save(companyId, "m2", grokIntent([], true, first.connectionId), grokAuth("m2@example.com", "4"));
   expect(await installsOf(first.connectionId)).toEqual([`agent:${agentId}`, `agent:${agentB}`].sort());
+});
+
+it("B4: a same-account sign-in never revives an account revoked while the sign-in was saving", async () => {
+  const first = await aiConnectionService(db).save(companyId, "b4", grokIntent(), grokAuth("b4@example.com", "1"));
+  // Revoke between the same-account lookup and the row lock.
+  const racing = new Proxy(db, {
+    get(target, prop, receiver) {
+      if (prop !== "transaction") return Reflect.get(target, prop, receiver);
+      return async (...args: Parameters<typeof db.transaction>) => {
+        await db.update(connectionGrants).set({ status: "revoked" }).where(eq(connectionGrants.id, first.grantId));
+        return db.transaction(...args);
+      };
+    },
+  });
+  await expect(aiConnectionService(racing).save(companyId, "b4", grokIntent(), grokAuth("b4@example.com", "2")))
+    .rejects.toThrow("changed while you signed in");
+  const [grant] = await db.select().from(connectionGrants).where(eq(connectionGrants.id, first.grantId));
+  expect(grant.status).toBe("revoked");
 });
