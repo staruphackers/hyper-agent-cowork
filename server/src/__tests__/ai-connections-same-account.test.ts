@@ -34,7 +34,7 @@ beforeAll(async () => {
     { id: agentId, companyId, name: "Grok agent", adapterType: "grok_local" },
     { id: agentB, companyId, name: "Grok agent B", adapterType: "grok_local" },
   ]);
-  await db.insert(companyMemberships).values(["kimi", "other", "expired-user", "m1a", "m1b", "m1c", "m1d", "m2", "b4"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "member" })));
+  await db.insert(companyMemberships).values(["kimi", "other", "expired-user", "m1a", "m1b", "m1c", "m1d", "m2", "b4", "b3"].map(principalId => ({ companyId, principalId, principalType: "user", status: "active", membershipRole: "member" })));
 }, 90000);
 afterAll(async () => { await database?.cleanup(); vi.unstubAllEnvs(); if (home) await rm(home, { recursive: true, force: true }); });
 
@@ -231,4 +231,21 @@ it("B4: a same-account sign-in never revives an account revoked while the sign-i
     .rejects.toThrow("changed while you signed in");
   const [grant] = await db.select().from(connectionGrants).where(eq(connectionGrants.id, first.grantId));
   expect(grant.status).toBe("revoked");
+});
+
+it("B3: does not flag an account that was signed in again while the run was open", async () => {
+  const service = aiConnectionService(db);
+  const saved = await service.save(companyId, "b3", grokIntent(), grokAuth("b3@example.com", "old"));
+  const runInput = {
+    companyId, agentId, adapterType: "grok_local", responsibleUserId: "b3",
+    binding: { provider: "xai", method: "subscription", mode: "responsible_user" } as const, config: { model: "m" },
+  };
+  const run = await prepareManagedAiRuntime(db, runInput);
+  // The user signs in again (same account) while the old run is still open.
+  await service.save(companyId, "b3", grokIntent(), grokAuth("b3@example.com", "new"));
+  await rm(path.join(String(run.config.env.GROK_HOME), "auth.json"));
+  await expect(run.cleanup()).resolves.toBeUndefined();
+  const [row] = await db.select().from(toolConnections).where(eq(toolConnections.id, saved.connectionId));
+  expect(row).toMatchObject({ healthStatus: "ok", healthMessage: null });
+  expect(await service.credential(await service.select({ ...runInput, userId: "b3" }))).toContain("refresh-new");
 });

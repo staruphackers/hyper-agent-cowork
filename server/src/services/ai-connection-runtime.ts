@@ -324,10 +324,23 @@ export async function prepareManagedAiRuntime(
               // ("cleared credentials"). The stored login is no longer usable:
               // flag the account for re-sign-in instead of failing the run's
               // cleanup, and never write anything back.
-              await db
-                .update(toolConnections)
-                .set({ healthStatus: "error", healthMessage: AI_SIGN_IN_EXPIRED_MESSAGE, updatedAt: new Date() })
-                .where(and(eq(toolConnections.id, selection.connection.id), eq(toolConnections.companyId, input.companyId)));
+              // Only flag the login this run started with: if the account was
+              // signed in again (or refreshed by another run) meanwhile, the
+              // stored credential is newer and still usable.
+              await db.transaction(async (tx) => {
+                const [grant] = await tx
+                  .select()
+                  .from(connectionGrants)
+                  .where(and(eq(connectionGrants.id, selection.grant.id), eq(connectionGrants.companyId, input.companyId)))
+                  .for("update");
+                if (!grant || grant.updatedAt.getTime() !== selection.grant.updatedAt.getTime()) return;
+                const current = await aiConnectionService(tx as unknown as Db).credential({ ...selection, grant });
+                if (current !== value) return;
+                await tx
+                  .update(toolConnections)
+                  .set({ healthStatus: "error", healthMessage: AI_SIGN_IN_EXPIRED_MESSAGE, updatedAt: new Date() })
+                  .where(and(eq(toolConnections.id, selection.connection.id), eq(toolConnections.companyId, input.companyId)));
+              });
               return;
             }
             if (refreshed !== value)
