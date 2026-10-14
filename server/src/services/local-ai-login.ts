@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { and, eq, inArray, lte, sql } from "drizzle-orm";
 import { adapterAuthSessions, ADAPTER_AUTH_SESSION_ACTIVE_STATES, environments, type Db } from "@paperclipai/db";
@@ -50,6 +50,9 @@ export function localAiLoginService(db: Db, options: LocalAiDeviceLoginOptions =
   /** Server-side device-code sign-in (openai/xai only). Runs after the attempt row commits. */
   async function withDeviceLogin(attempt: LocalAiLoginAttempt, provider: string, expiresAt: Date): Promise<LocalAiLoginAttempt> {
     if (provider !== "openai" && provider !== "xai") return attempt;
+    // Already signed in and waiting for Connect: never start another sign-in.
+    if (await access(path.join(loginHome(attempt.sessionId), "auth.json")).then(() => true, () => false))
+      return { ...attempt, deviceLogin: null };
     const deviceLogin = await ensureDeviceLogin(attempt.sessionId, provider, loginHome(attempt.sessionId), expiresAt, options);
     return { ...attempt, deviceLogin };
   }
@@ -138,6 +141,7 @@ export function localAiLoginService(db: Db, options: LocalAiDeviceLoginOptions =
   // login. Scope and intent are checked before touching an attempt's directory.
   async function check(companyId: string, userId: string, intent: AiConnectionLoginIntent, id?: string): Promise<LocalAiLoginStatus> {
     let directory: string | undefined;
+    let attemptExpiresAt: Date | undefined;
     if (id || intent.provider !== "anthropic") {
       if (!id) throw unprocessable("Start local sign-in before checking this account.");
       const [session] = await db.select().from(adapterAuthSessions).where(and(
@@ -152,12 +156,18 @@ export function localAiLoginService(db: Db, options: LocalAiDeviceLoginOptions =
         return { status: "expired" };
       }
       directory = loginHome(id);
+      attemptExpiresAt = session.expiresAt;
     }
     try {
       await readVerifiedLocalAiCredential(intent.provider, directory);
       return { status: "ready" };
     } catch {
-      if (id && (intent.provider === "openai" || intent.provider === "xai")) {
+      if (id && directory && attemptExpiresAt && (intent.provider === "openai" || intent.provider === "xai")) {
+        // No live sign-in process (server restarted, or the CLI died): relaunch
+        // it once so the user gets a fresh code instead of a stale one.
+        await ensureDeviceLogin(id, intent.provider, directory, attemptExpiresAt, {
+          ...options, promptTimeoutMs: Math.min(options.promptTimeoutMs ?? 3000, 3000),
+        }).catch(() => null);
         const { deviceLogin, loginFailed } = deviceLoginStatus(id);
         return { status: "sign_in_required", ...(deviceLogin ? { deviceLogin } : {}), ...(loginFailed ? { loginFailed: true } : {}) };
       }

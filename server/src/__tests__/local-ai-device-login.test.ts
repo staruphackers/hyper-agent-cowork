@@ -106,11 +106,43 @@ const homeOf = (id: string) => path.join(resolvePaperclipInstanceRoot(), "ai-loc
 const runsOf = async (id: string) => (await readFileText(path.join(homeOf(id), "fake-runs.log"))).trim().split("\n").length;
 async function readFileText(file: string) { const { readFile } = await import("node:fs/promises"); return readFile(file, "utf8"); }
 
-it("reports a failed CLI run so the UI can offer a fresh sign-in", async () => {
+it("reports a failed CLI run after one automatic retry so the UI can offer a fresh sign-in", async () => {
   const login = service("fail");
   const attempt = await login.start(companyId, owner, intent("xai"));
   expect(attempt.deviceLogin).toBeNull();
   expect(await login.check(companyId, owner, intent("xai"), attempt.sessionId)).toEqual({ status: "sign_in_required", loginFailed: true });
+  expect(await runsOf(attempt.sessionId)).toBe(2);
+  // No endless relaunching: later checks report the failure without running the CLI again.
+  expect(await login.check(companyId, owner, intent("xai"), attempt.sessionId)).toEqual({ status: "sign_in_required", loginFailed: true });
+  expect(await runsOf(attempt.sessionId)).toBe(2);
+  await login.cancel(companyId, owner, attempt.sessionId);
+});
+
+it("B1: relaunches the sign-in when the server lost its process, instead of showing a stale code", async () => {
+  const login = service("auto");
+  const attempt = await login.start(companyId, owner, intent("xai"));
+  const firstPid = deviceLoginState(attempt.sessionId)!.pid;
+  // Simulates a server restart: the attempt row survives, the process does not.
+  stopAllDeviceLogins();
+  await expectExited(firstPid);
+  const status = await login.check(companyId, owner, intent("xai"), attempt.sessionId);
+  expect(status).toEqual({ status: "sign_in_required", deviceLogin: attempt.deviceLogin });
+  const relaunched = deviceLoginState(attempt.sessionId)!;
+  expect(relaunched.running).toBe(true);
+  expect(relaunched.pid).not.toBe(firstPid);
+  expect(await runsOf(attempt.sessionId)).toBe(2);
+  await login.cancel(companyId, owner, attempt.sessionId);
+});
+
+it("does not start another sign-in for an attempt that is already signed in", async () => {
+  const login = service("auto");
+  const attempt = await login.start(companyId, owner, intent("xai"));
+  await writeFile(path.join(homeOf(attempt.sessionId), "auth.json"), "{}");
+  stopAllDeviceLogins();
+  const resumed = await login.start(companyId, owner, intent("xai"));
+  expect(resumed.sessionId).toBe(attempt.sessionId);
+  expect(resumed.deviceLogin).toBeNull();
+  expect(deviceLoginState(attempt.sessionId)).toBeNull();
   await login.cancel(companyId, owner, attempt.sessionId);
 });
 

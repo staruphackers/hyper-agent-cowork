@@ -34,6 +34,8 @@ const MAX_OUTPUT_BYTES = 16 * 1024;
 const DEFAULT_PROMPT_TIMEOUT_MS = 10_000;
 const KILL_GRACE_MS = 2_000;
 const DEFAULT_MAX_CONCURRENT = 20;
+/** A dead sign-in process is relaunched automatically once per attempt. */
+const MAX_AUTOMATIC_RESTARTS = 1;
 
 interface Runner {
   provider: DeviceLoginProvider;
@@ -42,7 +44,10 @@ interface Runner {
   prompt: DeviceLoginPromptValue | null;
   exited: boolean;
   failed: boolean;
+  /** Exit code 0: the CLI finished signing in. */
+  succeeded: boolean;
   stopped: boolean;
+  restarts: number;
   expiryTimer?: ReturnType<typeof setTimeout>;
   waiters: Set<() => void>;
 }
@@ -148,7 +153,7 @@ function runningCount() {
   return count;
 }
 
-function launch(id: string, provider: DeviceLoginProvider, home: string, expiresAt: Date, options: LocalAiDeviceLoginOptions): Runner {
+function launch(id: string, provider: DeviceLoginProvider, home: string, expiresAt: Date, options: LocalAiDeviceLoginOptions, restarts = 0): Runner {
   if (runningCount() >= (options.maxConcurrent ?? DEFAULT_MAX_CONCURRENT))
     throw unprocessable("Too many sign-ins are in progress on this server. Wait a few minutes, then start sign-in again.", {
       code: "ai_local_login_busy",
@@ -163,7 +168,7 @@ function launch(id: string, provider: DeviceLoginProvider, home: string, expires
     detached: true,
   });
   const runner: Runner = {
-    provider, child, output: "", prompt: null, exited: false, failed: false, stopped: false, waiters: new Set(),
+    provider, child, output: "", prompt: null, exited: false, failed: false, succeeded: false, stopped: false, restarts, waiters: new Set(),
   };
   const onData = (chunk: Buffer) => {
     if (runner.output.length < MAX_OUTPUT_BYTES)
@@ -186,6 +191,7 @@ function launch(id: string, provider: DeviceLoginProvider, home: string, expires
   child.on("close", (code) => {
     runner.exited = true;
     runner.failed = !runner.stopped && code !== 0;
+    runner.succeeded = code === 0;
     // Output is no longer needed once the CLI is gone.
     runner.output = "";
     notify(runner);
@@ -196,10 +202,13 @@ function launch(id: string, provider: DeviceLoginProvider, home: string, expires
   return runner;
 }
 
+// A prompt is only useful while its process is still waiting for approval.
+const livePrompt = (runner: Runner) => (runner.exited || runner.stopped ? null : runner.prompt);
+
 function waitForPrompt(runner: Runner, timeoutMs: number): Promise<DeviceLoginPromptValue | null> {
-  if (runner.prompt || runner.exited || runner.stopped) return Promise.resolve(runner.prompt);
+  if (runner.prompt || runner.exited || runner.stopped) return Promise.resolve(livePrompt(runner));
   return new Promise((resolve) => {
-    const done = () => { clearTimeout(timer); runner.waiters.delete(done); resolve(runner.prompt); };
+    const done = () => { clearTimeout(timer); runner.waiters.delete(done); resolve(livePrompt(runner)); };
     const timer = setTimeout(done, timeoutMs);
     timer.unref();
     runner.waiters.add(done);
@@ -207,24 +216,34 @@ function waitForPrompt(runner: Runner, timeoutMs: number): Promise<DeviceLoginPr
 }
 
 /**
- * Make sure the attempt has a running sign-in process (spawning one when the
- * server has none for it, e.g. after a restart) and wait briefly for its
- * prompt. An exited process is reported as-is; restarting is an explicit user
- * action that creates a new attempt.
+ * Make sure the attempt has a running sign-in process and wait briefly for its
+ * prompt. A server restart leaves no process: one is launched. A process that
+ * died without signing in is relaunched once; after that the attempt reports a
+ * failure and the user starts sign-in again. A process that finished signing in
+ * is never relaunched.
  */
 export async function ensureDeviceLogin(
   id: string, provider: DeviceLoginProvider, home: string, expiresAt: Date, options: LocalAiDeviceLoginOptions = {},
 ): Promise<DeviceLoginPromptValue | null> {
   let runner = runners.get(id);
-  if (!runner) {
+  if (runner?.exited && !runner.succeeded && runner.restarts < MAX_AUTOMATIC_RESTARTS) {
+    const restarts = runner.restarts + 1;
+    stopRunner(runner);
+    runners.delete(id);
+    runner = launch(id, provider, home, expiresAt, options, restarts);
+    runners.set(id, runner);
+  } else if (!runner) {
     runner = launch(id, provider, home, expiresAt, options);
     runners.set(id, runner);
   }
   return waitForPrompt(runner, options.promptTimeoutMs ?? DEFAULT_PROMPT_TIMEOUT_MS);
 }
 
-/** Current prompt and failure state for check(). */
+/** Current prompt and failure state (only meaningful while no usable login exists). */
 export function deviceLoginStatus(id: string): { deviceLogin: DeviceLoginPromptValue | null; loginFailed: boolean } {
   const runner = runners.get(id);
-  return { deviceLogin: runner && !runner.exited ? runner.prompt : null, loginFailed: runner?.failed === true };
+  return {
+    deviceLogin: runner ? livePrompt(runner) : null,
+    loginFailed: Boolean(runner && runner.exited && !runner.stopped),
+  };
 }
