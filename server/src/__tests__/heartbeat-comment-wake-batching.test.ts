@@ -31,6 +31,7 @@ import {
 } from "@paperclipai/db";
 import { runningProcesses } from "../adapters/index.js";
 import { heartbeatService } from "../services/heartbeat.ts";
+import { legacyExecutionNeedsReconciliation } from "../services/legacy-execution-recovery.js";
 import { issueThreadInteractionService } from "../services/issue-thread-interactions.js";
 import { isRetiredExternalChatQuestionSource, questionResponseDeliveryService } from "../services/question-response-delivery.js";
 import { SUCCESSFUL_RUN_HANDOFF_REQUIRED_NOTICE_BODY } from "../services/recovery/index.ts";
@@ -3922,6 +3923,132 @@ describeEmbeddedPostgres("heartbeat comment wake batching", () => {
     expect(validWake?.status).toBe("claimed");
     expect(validWake?.runId).not.toBeNull();
     expect(issueRow?.executionRunId).toBe(validWake?.runId);
+  });
+
+  async function seedLegacyFailureDrainFixture(input: { finishingAgentIsAssignee: boolean }) {
+    const companyId = randomUUID();
+    const assigneeAgentId = randomUUID();
+    const mentionedAId = randomUUID();
+    const mentionedBId = randomUUID();
+    const issueId = randomUUID();
+    const runId = randomUUID();
+    const issuePrefix = `T${companyId.replace(/-/g, "").slice(0, 6).toUpperCase()}`;
+    const finishingAgentId = input.finishingAgentIsAssignee ? assigneeAgentId : mentionedAId;
+
+    await db.insert(companies).values({
+      id: companyId,
+      name: "Paperclip",
+      issuePrefix,
+      requireBoardApprovalForNewAgents: false,
+      defaultResponsibleUserId: "responsible-user",
+    });
+    await db.insert(agents).values(
+      [
+        { id: assigneeAgentId, name: "Assignee Agent" },
+        { id: mentionedAId, name: "Mentioned Agent A" },
+        { id: mentionedBId, name: "Mentioned Agent B" },
+      ].map((agent) => ({
+        ...agent,
+        companyId,
+        role: "engineer",
+        status: "idle",
+        adapterType: "process",
+        adapterConfig: {},
+        runtimeConfig: {},
+        permissions: {},
+      })),
+    );
+    await db.insert(heartbeatRuns).values({
+      id: runId,
+      companyId,
+      agentId: finishingAgentId,
+      invocationSource: "automation",
+      triggerDetail: "system",
+      status: "running",
+      runtimeMode: "legacy",
+      startedAt: new Date(),
+      contextSnapshot: { issueId },
+      responsibleUserId: "responsible-user",
+    });
+    await db.insert(issues).values({
+      id: issueId,
+      companyId,
+      title: "Mentioned agents take turns on one issue",
+      status: "in_progress",
+      priority: "medium",
+      responsibleUserId: "responsible-user",
+      assigneeAgentId,
+      issueNumber: 1,
+      identifier: `${issuePrefix}-1`,
+      // A promoted non-assignee run never takes the issue execution lock.
+      executionRunId: input.finishingAgentIsAssignee ? runId : null,
+    });
+
+    const deferredWakeId = randomUUID();
+    await db.insert(agentWakeupRequests).values({
+      id: deferredWakeId,
+      companyId,
+      agentId: mentionedBId,
+      source: "automation",
+      reason: "issue_commented",
+      status: "deferred_issue_execution",
+      requestedByActorType: "system",
+      requestedByActorId: "test",
+      requestedAt: new Date("2026-10-13T06:11:49.000Z"),
+      payload: { issueId },
+    });
+
+    return { companyId, issueId, runId, mentionedBId, deferredWakeId };
+  }
+
+  // A provider that started and then failed (for example a CLI that reports
+  // "Not signed in") leaves no bootstrap evidence, so the legacy run needs
+  // board reconciliation. Cancel without a live process: no acknowledged
+  // execution cancellation is recorded, so the legacy reconciliation gate is
+  // the only pre-drain check this shape reaches.
+  const failStartedLegacyProvider = (heartbeat: ReturnType<typeof heartbeatService>, runId: string) =>
+    heartbeat.cancelRun(runId, "Provider started, then reported: Not signed in", {
+      errorCode: "adapter_failed",
+    });
+
+  it("promotes the next mentioned agent when a promoted mentioned agent's legacy run fails after its provider started", async () => {
+    const heartbeat = heartbeatService(db, { runtimeEnv: {} });
+    const { issueId, runId, mentionedBId, deferredWakeId } = await seedLegacyFailureDrainFixture({
+      finishingAgentIsAssignee: false,
+    });
+
+    await failStartedLegacyProvider(heartbeat, runId);
+
+    const [finishedRun] = await db.select().from(heartbeatRuns).where(eq(heartbeatRuns.id, runId));
+    // Guard the fixture: this run must reach the legacy reconciliation gate.
+    expect(legacyExecutionNeedsReconciliation(finishedRun!)).toBe(true);
+    expect((finishedRun?.resultJson as Record<string, unknown> | null)?.executionCancellation).toBeUndefined();
+
+    const [deferredWake] = await db.select().from(agentWakeupRequests).where(eq(agentWakeupRequests.id, deferredWakeId));
+    expect(["queued", "claimed"]).toContain(deferredWake?.status);
+    expect(deferredWake?.runId).not.toBeNull();
+    const [promotedRun] = await db.select().from(heartbeatRuns).where(eq(heartbeatRuns.id, deferredWake!.runId!));
+    expect(promotedRun?.agentId).toBe(mentionedBId);
+
+    // A non-owner's failure records no board reconciliation, which is why the
+    // queue must not wait for one.
+    const actions = await db.select().from(issueRecoveryActions).where(eq(issueRecoveryActions.sourceIssueId, issueId));
+    expect(actions).toHaveLength(0);
+  });
+
+  it("keeps the deferred queue for board reconciliation when the assignee's legacy run fails after its provider started", async () => {
+    const heartbeat = heartbeatService(db, { runtimeEnv: {} });
+    const { issueId, runId, deferredWakeId } = await seedLegacyFailureDrainFixture({
+      finishingAgentIsAssignee: true,
+    });
+
+    await failStartedLegacyProvider(heartbeat, runId);
+
+    const [deferredWake] = await db.select().from(agentWakeupRequests).where(eq(agentWakeupRequests.id, deferredWakeId));
+    expect(deferredWake?.status).toBe("deferred_issue_execution");
+    expect(deferredWake?.runId).toBeNull();
+    const [action] = await db.select().from(issueRecoveryActions).where(eq(issueRecoveryActions.sourceIssueId, issueId));
+    expect(action).toMatchObject({ cause: "legacy_execution_requires_reconciliation", ownerType: "board" });
   });
 
   it("fails a deferred wake with the same status and error text when its agent belongs to another company", async () => {

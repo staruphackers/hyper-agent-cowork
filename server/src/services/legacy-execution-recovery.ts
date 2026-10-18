@@ -48,6 +48,23 @@ export function legacyExecutionNeedsReconciliation(
   );
 }
 
+/**
+ * Whether a finishing run's agent owns the issue's legacy reconciliation:
+ * the assignee, or the current agent participant of a pending review. Only
+ * these runs get a board reconciliation decision; every other run (for
+ * example a mentioned agent's promoted deferred wake) has nobody to resume
+ * it, so it must not hold back the issue's deferred-wake queue.
+ */
+export function runOwnsLegacyReconciliation(
+  task: Pick<typeof issues.$inferSelect, "assigneeAgentId" | "status" | "executionState">,
+  agentId: string,
+): { owns: boolean; isCurrentReviewer: boolean } {
+  const review = task.status === "in_review" ? parseIssueExecutionState(task.executionState) : null;
+  const isCurrentReviewer = review?.status === "pending" &&
+    review.currentParticipant?.type === "agent" && review.currentParticipant.agentId === agentId;
+  return { owns: task.assigneeAgentId === agentId || isCurrentReviewer, isCurrentReviewer };
+}
+
 /** Persist the failed legacy run, owned lock release and operator decision together. */
 export async function terminalizeLegacyExecution(input: {
   db: Db;
@@ -106,13 +123,12 @@ export async function terminalizeLegacyExecution(input: {
         .update(issues)
         .set({ checkoutRunId: null })
         .where(eq(issues.id, task.id));
-    const review = task?.status === "in_review" ? parseIssueExecutionState(task.executionState) : null;
-    const isCurrentReviewer = review?.status === "pending" &&
-      review.currentParticipant?.type === "agent" && review.currentParticipant.agentId === run.agentId;
+    const ownership = task ? runOwnsLegacyReconciliation(task, run.agentId) : null;
+    const isCurrentReviewer = ownership?.isCurrentReviewer ?? false;
     if (
       task &&
       !isSupersededConversationRun(task, updated) &&
-      (task.assigneeAgentId === run.agentId || isCurrentReviewer) &&
+      ownership?.owns &&
       !["done", "cancelled"].includes(task.status)
     ) {
       // Periodic stranded-work checks may revisit this terminal run before its

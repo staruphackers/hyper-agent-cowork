@@ -72,6 +72,12 @@ export type PreDrainFacts = {
   hasAssigneeUser: boolean;
   assigneeAgentMatchesRunAgent: boolean;
   legacyExecutionNeedsReconciliation: boolean;
+  /**
+   * True when the finishing run's agent owns the issue's legacy reconciliation
+   * (assignee, or current agent review participant). Only owners get a board
+   * reconciliation decision, so only owners may hold back the deferred queue.
+   */
+  runOwnsLegacyReconciliation: boolean;
   /** True when the finishing run is cancelled and its stored result carries an acknowledged execution cancellation. */
   executionCancellationAcknowledged: boolean;
 };
@@ -108,7 +114,11 @@ export function decidePreDrain(facts: PreDrainFacts): PreDrainDecision {
     };
   }
 
-  if (facts.legacyExecutionNeedsReconciliation) {
+  // A failed legacy session waits for board reconciliation, but that decision
+  // only exists for the issue's owner. A non-owner's failed run (for example a
+  // mentioned agent promoted from the deferred queue) must still drain, or
+  // every later deferred wake on the issue is stranded with nobody to wake it.
+  if (facts.legacyExecutionNeedsReconciliation && facts.runOwnsLegacyReconciliation) {
     return { kind: "released" };
   }
 

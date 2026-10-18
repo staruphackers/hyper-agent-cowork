@@ -18,7 +18,7 @@ import {
   nativeRunFinalizations,
 } from "@paperclipai/db";
 import { hasConversationContinuationPolicy } from "../../../services/conversation-continuation.js";
-import { legacyExecutionNeedsReconciliation } from "../../../services/legacy-execution-recovery.js";
+import { legacyExecutionNeedsReconciliation, runOwnsLegacyReconciliation } from "../../../services/legacy-execution-recovery.js";
 import {
   authorizeFailedChatRunRetryWake,
   FailedChatRunRetryAuthorizationError,
@@ -1100,6 +1100,7 @@ export function createPostgresWakeQueueAdapter(db: Db, deps: WakeQueuePostgresAd
           hasAssigneeUser: Boolean(issueRow?.assigneeUserId),
           assigneeAgentMatchesRunAgent: issueRow?.assigneeAgentId === run.agentId,
           legacyExecutionNeedsReconciliation: legacyExecutionNeedsReconciliation(run),
+          runOwnsLegacyReconciliation: issueRow ? runOwnsLegacyReconciliation(issueRow, run.agentId).owns : false,
           // An operator stop never promotes old queued work by itself. The
           // next explicit wake adopts those messages atomically when it
           // queues a run.

@@ -29,6 +29,7 @@ const basePreDrainFacts: PreDrainFacts = {
   hasAssigneeUser: false,
   assigneeAgentMatchesRunAgent: true,
   legacyExecutionNeedsReconciliation: false,
+  runOwnsLegacyReconciliation: true,
   executionCancellationAcknowledged: false,
 };
 
@@ -86,6 +87,40 @@ describe("decidePreDrain", () => {
     {
       name: "released: legacy execution needs reconciliation",
       facts: { ...basePreDrainFacts, legacyExecutionNeedsReconciliation: true },
+      expected: { kind: "released" },
+    },
+    {
+      name: "released: legacy reconciliation for a current agent review participant that is not the assignee",
+      facts: {
+        ...basePreDrainFacts,
+        legacyExecutionNeedsReconciliation: true,
+        assigneeAgentMatchesRunAgent: false,
+        runOwnsLegacyReconciliation: true,
+      },
+      expected: { kind: "released" },
+    },
+    {
+      name: "proceed: legacy reconciliation is not this run's to hold when its agent does not own the issue",
+      facts: {
+        ...basePreDrainFacts,
+        legacyExecutionNeedsReconciliation: true,
+        assigneeAgentMatchesRunAgent: false,
+        // A mentioned agent's promoted wake failed after its provider started.
+        // No board reconciliation is recorded for a non-owner, so holding the
+        // queue here would strand every later deferred wake on the issue.
+        runOwnsLegacyReconciliation: false,
+      },
+      expected: { kind: "proceed" },
+    },
+    {
+      name: "released: a non-owner run still releases on an acknowledged execution cancellation",
+      facts: {
+        ...basePreDrainFacts,
+        legacyExecutionNeedsReconciliation: true,
+        assigneeAgentMatchesRunAgent: false,
+        runOwnsLegacyReconciliation: false,
+        executionCancellationAcknowledged: true,
+      },
       expected: { kind: "released" },
     },
     {
