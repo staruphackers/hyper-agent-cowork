@@ -15,6 +15,7 @@ const api = vi.hoisted(() => ({
   list: vi.fn(),
   hire: vi.fn(),
   testEnvironment: vi.fn(),
+  probeOpenCodePlans: vi.fn(),
   getAdapterAuthSignal: vi.fn(),
   getClaudeOAuthTokenStatus: vi.fn(),
 }));
@@ -127,6 +128,20 @@ async function fill(label: string, value: string) {
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
 }
+async function choose(label: string, value: string) {
+  const select = container.querySelector(
+    `[aria-label="${label}"]`,
+  ) as HTMLSelectElement;
+  expect(select instanceof HTMLSelectElement, `Missing select ${label}`).toBe(true);
+  await act(async () => {
+    Object.getOwnPropertyDescriptor(
+      HTMLSelectElement.prototype,
+      "value",
+    )!.set!.call(select, value);
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await settle();
+}
 async function render(adapter = "pi_local", runnerProvider = "codex") {
   state.params = new URLSearchParams({
     name: "Atlas",
@@ -221,4 +236,4 @@ afterEach(async () => {
   container.remove();
 });
 
-export { api, envApi, settings, secrets, state, managedApi, adapterApi, root, container, cache, settle, click, fill, render, connect, pass, renderCurrentParams };
+export { api, envApi, settings, secrets, state, managedApi, adapterApi, root, container, cache, settle, click, fill, choose, render, connect, pass, renderCurrentParams };

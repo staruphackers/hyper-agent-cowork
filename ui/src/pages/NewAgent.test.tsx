@@ -5,11 +5,87 @@ import { queryKeys } from "@/lib/queryKeys";
 import { ApiError } from "@/api/client";
 import {
   api, envApi, settings, secrets, state, managedApi, adapterApi,
-  root, container, cache, settle, click, fill, render, connect, pass,
+  root, container, cache, settle, click, fill, choose, render, connect, pass,
   renderCurrentParams,
 } from "./NewAgent.test-support";
 
 describe("New agent setup", () => {
+  it("runs OpenCode on a provider API key when the OpenRouter connection is switched off", async () => {
+    await render("opencode_local");
+    expect(container.querySelector('[aria-label="API key provider"]')).toBeNull();
+    await choose("Sign-in method", "api_key");
+    const providerSelect = container.querySelector('[aria-label="API key provider"]') as HTMLSelectElement;
+    expect(providerSelect.value).toBe("opencode");
+    // Switching back restores the OpenRouter connection and hides the key fields.
+    await choose("Sign-in method", "openrouter");
+    expect(container.querySelector('[aria-label="API key provider"]')).toBeNull();
+    await choose("Sign-in method", "api_key");
+    await fill("Model", "opencode/example-model");
+    await fill("OPENCODE_API_KEY", "example-test-secret");
+    await click("Finish setup");
+    const hire = api.hire.mock.calls[0][1];
+    expect(hire.adapterType).toBe("opencode_local");
+    expect(hire.runtimeConfig.aiConnection).toBeUndefined();
+    expect(hire.adapterConfig.env.OPENCODE_API_KEY).toEqual({
+      type: "secret_ref",
+      secretId: "org-secret-1",
+      version: "latest",
+    });
+    expect(secrets.create).toHaveBeenCalledWith(
+      "company-1", expect.objectContaining({ key: expect.stringContaining("OPENCODE_API_KEY"), value: "example-test-secret" }),
+    );
+    expect(managedApi.create).not.toHaveBeenCalled();
+    expect(JSON.stringify(api.hire.mock.calls)).not.toContain("example-test-secret");
+  });
+  it("checks OpenCode plans for the typed key and warns about a model the key cannot use", async () => {
+    api.adapterModels.mockResolvedValue([
+      { id: "opencode/claude-sonnet-5", label: "opencode/claude-sonnet-5" },
+      { id: "opencode/big-pickle", label: "opencode/big-pickle" },
+    ]);
+    api.probeOpenCodePlans.mockResolvedValue({
+      zen: { status: "active", models: ["big-pickle"], httpStatus: 200 },
+      go: { status: "active", models: ["glm-5.2", "kimi-k3"], httpStatus: 200 },
+      checkedAt: "2026-09-25T10:00:00Z",
+    });
+    await render("opencode_local");
+    await choose("Sign-in method", "api_key");
+    const checkButton = [...container.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Check plans")!;
+    expect(checkButton.disabled).toBe(true);
+    await fill("OPENCODE_API_KEY", "example-test-secret");
+    await click("Check plans");
+    expect(api.probeOpenCodePlans).toHaveBeenCalledWith("company-1", { apiKey: "example-test-secret" });
+    expect(container.textContent).toContain("Free models only");
+    expect(container.textContent).toContain("1 hidden");
+    await fill("Model", "opencode/claude-sonnet-5");
+    expect(container.textContent).toContain("cannot use the selected model");
+    await fill("Model", "opencode-go/glm-5.2");
+    expect(container.textContent).not.toContain("cannot use the selected model");
+    // Typing a Go model id switches the key provider to OpenCode Go and keeps the shared key.
+    expect((container.querySelector('[aria-label="API key provider"]') as HTMLSelectElement).value).toBe("opencode-go");
+    expect((container.querySelector('[aria-label="OPENCODE_API_KEY"]') as HTMLInputElement).value).toBe("example-test-secret");
+  });
+  it("defaults the role to CEO while the company has none and lets the board pick role, title and manager", async () => {
+    api.list.mockResolvedValue([{ id: "cto-1", role: "cto", status: "idle", name: "Dahye" }]);
+    await render("pi_local");
+    const roleSelect = container.querySelector('[aria-label="Role"]') as HTMLSelectElement;
+    expect(roleSelect.value).toBe("ceo");
+    expect(container.textContent).toContain("This company has no CEO yet");
+    await fill("Model", "openrouter/anthropic/claude-sonnet-4.6");
+    await click("Finish setup");
+    expect(api.hire.mock.calls[0][1]).toEqual(expect.objectContaining({ role: "ceo", reportsTo: null }));
+    expect(api.hire.mock.calls[0][1].title).toBeUndefined();
+  });
+  it("reports a non-CEO agent to the existing CEO and sends the chosen role and title", async () => {
+    await render("pi_local");
+    const roleSelect = container.querySelector('[aria-label="Role"]') as HTMLSelectElement;
+    expect(roleSelect.value).toBe("general");
+    expect(container.textContent).not.toContain("This company has no CEO yet");
+    await choose("Role", "cto");
+    await fill("Title", "Head of Content");
+    await fill("Model", "openrouter/anthropic/claude-sonnet-4.6");
+    await click("Finish setup");
+    expect(api.hire.mock.calls[0][1]).toEqual(expect.objectContaining({ role: "cto", title: "Head of Content", reportsTo: "ceo" }));
+  });
   it("creates an inactive record before connecting and finishes that same agent", async () => {
     await render("codex_local");
     expect(api.create).toHaveBeenCalledTimes(1);

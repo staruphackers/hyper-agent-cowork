@@ -19,7 +19,7 @@ import { testAgentSetup } from "@/lib/test-agent-setup";
 import { needsClaudeSetupQualification, qualifyClaudeSetup } from "@/lib/qualify-claude-setup";
 import { useCloudInstance } from "@/hooks/useCloudInstance";
 import { isNewAgentAdapterAllowed } from "@/lib/new-agent-adapters";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { hashKey, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { ArrowLeft, ArrowRight, Check, Settings2 } from "lucide-react";
@@ -57,7 +57,17 @@ import {
 } from "@/lib/provider-credential";
 import { defaultCreateValues } from "../agent-config-defaults";
 import { ModelDropdown } from "../AgentConfigForm";
-import { Field, ToggleField } from "../agent-config-primitives";
+import { Field, ToggleField, roleLabels } from "../agent-config-primitives";
+import { ReportsToPicker } from "../ReportsToPicker";
+import { AGENT_ROLES, type OpenCodePlansResult } from "@paperclipai/shared";
+import { OpenCodePlansPanel } from "../opencode/OpenCodePlansPanel";
+import {
+  filterOpenCodeModels,
+  isOpenCodeFreeModel,
+  mergeOpenCodeModels,
+  openCodeModelCoverage,
+  openCodePlanForModel,
+} from "@/lib/opencode-plans";
 import { SecretPicker } from "../environment-variables-editor/SecretPicker";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -178,6 +188,21 @@ function Setup({
       ? { provider: "openrouter", method: "api_key", mode: "responsible_user" }
       : undefined,
   );
+  // OpenCode ships with an OpenRouter connection by default. The provider
+  // API key mode drops that binding so the agent runs on an OpenCode,
+  // Anthropic, OpenAI, Google, xAI or Groq key stored as an organization
+  // secret, the same path Pi already uses.
+  const [opencodeSignIn, setOpencodeSignIn] = useState<"openrouter" | "api_key">("openrouter");
+  const opencodeApiKeyMode = brandType === "opencode_local" && opencodeSignIn === "api_key";
+  const [openCodePlans, setOpenCodePlans] = useState<OpenCodePlansResult | null>(null);
+  const [openCodePlansError, setOpenCodePlansError] = useState<string | null>(null);
+  const [detectingOpenCodePlans, setDetectingOpenCodePlans] = useState(false);
+  const [showUncoveredOpenCodeModels, setShowUncoveredOpenCodeModels] = useState(false);
+  // Identity: default to CEO only while the company has none, otherwise to a
+  // general member reporting to the CEO. The choice is applied when setup finishes.
+  const [role, setRole] = useState("");
+  const [title, setTitle] = useState("");
+  const [reportsTo, setReportsTo] = useState<string | null | undefined>(undefined);
   const [connection, setConnection] = useState<ProviderConnection | null>(null);
   const aiBinding = runtimeAiBinding ?? connection?.aiConnection;
   const connectionModels = useConnectionModels(companyId, aiBinding, brandType);
@@ -377,6 +402,50 @@ function Setup({
   const usingKimiApi =
     adapterType === "kimi_local" && Boolean(apiKey.trim() || selectedBinding);
   const cloud = Boolean(useCloudInstance());
+  const activeAgents = (agents.data ?? []).filter((agent) => agent.status !== "terminated" && agent.id !== created?.id);
+  const companyCeo = activeAgents.find((agent) => agent.role === "ceo") ?? null;
+  const defaultRole = companyCeo ? "general" : "ceo";
+  const effectiveRole = role || defaultRole;
+  const effectiveReportsTo =
+    effectiveRole === "ceo" ? null : reportsTo === undefined ? (companyCeo?.id ?? null) : reportsTo;
+  const openCodeSecretId =
+    selectedBinding && typeof selectedBinding === "object" && selectedBinding.type === "secret_ref"
+      ? selectedBinding.secretId
+      : undefined;
+  const openCodeSavedPersonalSecret =
+    Boolean(selectedBinding && typeof selectedBinding === "object" && selectedBinding.type === "user_secret_ref") &&
+    !apiKey.trim();
+  const canDetectOpenCodePlans = opencodeApiKeyMode && (Boolean(apiKey.trim()) || Boolean(openCodeSecretId));
+  // A new key or secret invalidates the last probe.
+  useEffect(() => {
+    setOpenCodePlans(null);
+    setOpenCodePlansError(null);
+  }, [apiKey, providerBinding, opencodeSignIn]);
+  async function detectOpenCodePlans() {
+    const key = apiKey.trim();
+    if (!key && !openCodeSecretId) return;
+    setDetectingOpenCodePlans(true);
+    setOpenCodePlansError(null);
+    try {
+      const result = await agentsApi.probeOpenCodePlans(
+        companyId,
+        key ? { apiKey: key } : { secretId: openCodeSecretId },
+      );
+      setOpenCodePlans(result);
+    } catch (cause) {
+      setOpenCodePlans(null);
+      setOpenCodePlansError(cause instanceof Error ? cause.message : "Could not check OpenCode plans.");
+    } finally {
+      setDetectingOpenCodePlans(false);
+    }
+  }
+  const openCodeModelList = useMemo(() => {
+    if (!opencodeApiKeyMode) return null;
+    const merged = mergeOpenCodeModels(models.data ?? [], openCodePlans);
+    return filterOpenCodeModels(merged, openCodePlans, showUncoveredOpenCodeModels);
+  }, [opencodeApiKeyMode, models.data, openCodePlans, showUncoveredOpenCodeModels]);
+  const selectedOpenCodeModelUncovered =
+    opencodeApiKeyMode && Boolean(openCodePlans) && Boolean(model) && openCodeModelCoverage(model, openCodePlans) === "uncovered";
   const available =
     isNewAgentAdapterAllowed(adapterType, {
       cloud,
@@ -732,8 +801,9 @@ function Setup({
         setupAgentId: created.id,
         name: created.name,
         appearance: created.appearance ?? appearanceDraft.appearance,
-        role: created.role,
-        reportsTo: created.reportsTo,
+        role: effectiveRole,
+        ...(title.trim() ? { title: title.trim() } : {}),
+        reportsTo: effectiveReportsTo,
         adapterType: requestAdapterType,
         ...(["codex_local", "claude_local", "opencode_local", "pi_local"].includes(adapterType) && runner !== "auto" ? { runner } : {}),
         adapterConfig: config,
@@ -1020,6 +1090,8 @@ function Setup({
                           : isDot ? "Your Dot agent has been created" : "Your agent is ready"}
                       </h2>
                       <dl className="grid grid-cols-2 gap-4 text-sm">
+                        <dt className="text-muted-foreground">Role</dt>
+                        <dd>{roleLabels[created.role] ?? created.role}</dd>
                         <dt className="text-muted-foreground">Adapter</dt>
                         <dd>{getAdapterDisplay(isDot ? "openai_dot" : adapterType).label}</dd>
                         {showModel && (
@@ -1071,14 +1143,92 @@ function Setup({
                       Configure your agent
                     </h2>
                     <fieldset disabled={busy} className="space-y-8">
+                      {!isDot && <section className="space-y-5">
+                        <h3 className="text-sm font-semibold">Identity</h3>
+                        <div className="grid items-start gap-5 sm:grid-cols-2">
+                          <Field
+                            label="Role"
+                            hint="Roles drive default permissions and the org chart. A company needs one CEO to approve join requests and act as the root manager."
+                          >
+                            <select
+                              aria-label="Role"
+                              className={controlClass}
+                              value={effectiveRole}
+                              onChange={(event) => {
+                                setRole(event.target.value);
+                                if (event.target.value === "ceo") setReportsTo(null);
+                              }}
+                            >
+                              {AGENT_ROLES.map((option) => (
+                                <option key={option} value={option}>
+                                  {roleLabels[option] ?? option}
+                                </option>
+                              ))}
+                            </select>
+                          </Field>
+                          <Field label="Title">
+                            <Input
+                              aria-label="Title"
+                              value={title}
+                              onChange={(event) => setTitle(event.target.value)}
+                              placeholder="e.g. Head of Content"
+                            />
+                          </Field>
+                          <div className="sm:col-span-2">
+                            <Field label="Reports to">
+                              <ReportsToPicker
+                                agents={activeAgents}
+                                value={effectiveReportsTo}
+                                onChange={(id) => setReportsTo(id)}
+                                disabled={effectiveRole === "ceo"}
+                                chooseLabel="Choose manager…"
+                              />
+                            </Field>
+                          </div>
+                        </div>
+                        {!companyCeo && (
+                          <p className="text-xs text-muted-foreground">
+                            This company has no CEO yet, so this agent defaults to CEO. Pick another role only if a CEO already exists.
+                          </p>
+                        )}
+                      </section>}
                       <section className="space-y-5">
+                        {brandType === "opencode_local" && (
+                          <Field
+                            label="Sign-in method"
+                            hint="OpenRouter connection uses the account picker below. Provider API key runs this agent on an OpenCode, Anthropic, OpenAI, Google, xAI or Groq key stored as an organization secret."
+                          >
+                            <select
+                              aria-label="Sign-in method"
+                              className={controlClass}
+                              value={opencodeSignIn}
+                              onChange={(event) => {
+                                const next = event.target.value === "api_key" ? "api_key" : "openrouter";
+                                setOpencodeSignIn(next);
+                                setRuntimeAiBinding(
+                                  next === "api_key"
+                                    ? undefined
+                                    : { provider: "openrouter", method: "api_key", mode: "responsible_user" },
+                                );
+                                setProvider(next === "api_key" ? "opencode" : "openrouter");
+                                setModel("");
+                                setApiKey("");
+                                setProviderBinding(null);
+                                resetTest();
+                              }}
+                            >
+                              <option value="openrouter">OpenRouter connection</option>
+                              <option value="api_key">Provider API key</option>
+                            </select>
+                          </Field>
+                        )}
                         {isDot && <>
                           <p className="text-sm text-muted-foreground">Create this agent, then copy its pairing prompt to your Dot.</p>
                           {experimental.data?.enablePublicMcp !== true && <p className="text-sm text-muted-foreground">Enable Assistant connections (MCP) in Experimental settings before pairing.</p>}
                           <ToggleField label="Allow externally billed provider" hint="Dot does not report token usage or cost. Paperclip cannot enforce a provider spend ceiling; known company and agent budget limits still apply."
                             checked={allowUnmeteredProvider} onChange={value => { setAllowUnmeteredProvider(value); resetTest(); }} />
                         </>}
-                        {!connectionAdapter && aiProviderForAdapter(brandType) && (
+                        {!connectionAdapter && aiProviderForAdapter(brandType) && !opencodeApiKeyMode && (
                           <AiConnectionField companyId={companyId} agentName={name} adapterType={brandType} model={model} environmentId={environmentId ?? undefined} value={aiBinding}
                             onChange={binding => { binding.mode !== "router" && setRuntimeAiBinding(binding); resetTest();
                               if (brandType === "copilot_runtime" && hashKey([aiBinding ?? null]) === hashKey([binding ?? null])) void refreshCopilotModels();
@@ -1090,8 +1240,30 @@ function Setup({
                           <div className="grid items-start gap-5 sm:grid-cols-2">
                             {showModel && !usingKimiApi && (
                               <ModelDropdown
-                                presentation={brandType === "codex_local" ? "searchable" : "native"}
-                                models={connectionModels?.models ?? models.data ?? []}
+                                presentation={brandType === "codex_local" || opencodeApiKeyMode ? "searchable" : "native"}
+                                models={openCodeModelList ? openCodeModelList.visible : (connectionModels?.models ?? models.data ?? [])}
+                                groupLabel={
+                                  opencodeApiKeyMode
+                                    ? (groupProvider) =>
+                                        groupProvider === "opencode-go" ? (
+                                          <>OpenCode Go · subscription</>
+                                        ) : groupProvider === "opencode" ? (
+                                          <>OpenCode Zen · pay-as-you-go</>
+                                        ) : (
+                                          groupProvider
+                                        )
+                                    : undefined
+                                }
+                                entryBadge={
+                                  opencodeApiKeyMode
+                                    ? (modelId) =>
+                                        openCodePlanForModel(modelId) && isOpenCodeFreeModel(modelId) ? (
+                                          <span className="ml-2 shrink-0 rounded border border-border px-1.5 text-(length:--text-nano) text-muted-foreground">
+                                            Free
+                                          </span>
+                                        ) : null
+                                    : undefined
+                                }
                                 loadingModels={connectionModels?.isLoading ?? models.isLoading}
                                 onRefreshModels={connectionModels?.refreshModels ?? (brandType === "copilot_runtime" ? async () => { await models.refetch(); } : undefined)}
                                 refreshingModels={connectionModels?.refreshing ?? (brandType === "copilot_runtime" ? models.isFetching : undefined)}
@@ -1112,8 +1284,12 @@ function Setup({
                                     nextProvider !== provider
                                   ) {
                                     setProvider(nextProvider);
-                                    setApiKey("");
-                                    setProviderBinding(null);
+                                    // OpenCode Zen and Go share one key: keep it
+                                    // when only the billing plan changes.
+                                    if (PROVIDER_ENV_KEYS[nextProvider] !== PROVIDER_ENV_KEYS[provider]) {
+                                      setApiKey("");
+                                      setProviderBinding(null);
+                                    }
                                   }
                                   resetTest();
                                 }}
@@ -1149,6 +1325,11 @@ function Setup({
                             )}
                           </div>
                         )}
+                        {selectedOpenCodeModelUncovered && (
+                          <p role="alert" className="text-sm text-destructive">
+                            This key cannot use the selected model on its current OpenCode plans. Pick a covered model, add credits, or subscribe.
+                          </p>
+                        )}
                         {!aiBinding && SETUP_LOGIN_HINTS[adapterType] && (
                           <p className="text-sm text-muted-foreground">
                             {SETUP_LOGIN_HINTS[adapterType]}
@@ -1182,7 +1363,8 @@ function Setup({
                                                 google: "Google",
                                                 xai: "xAI",
                                                 groq: "Groq",
-                                                opencode: "OpenCode",
+                                                opencode: "OpenCode Zen",
+                                                "opencode-go": "OpenCode Go",
                                               }[key] ?? key)}
                                     </option>
                                   ))}
@@ -1267,6 +1449,25 @@ function Setup({
                               you finish setup.
                               {multiProvider && ` Use a ${provider}/model ID.`}
                             </p>
+                            {opencodeApiKeyMode && (
+                              <div className="sm:col-span-2">
+                                <OpenCodePlansPanel
+                                  result={openCodePlans}
+                                  error={openCodePlansError}
+                                  detecting={detectingOpenCodePlans}
+                                  canDetect={canDetectOpenCodePlans}
+                                  onDetect={() => void detectOpenCodePlans()}
+                                  hiddenCount={openCodeModelList?.hiddenCount ?? 0}
+                                  showUncovered={showUncoveredOpenCodeModels}
+                                  onToggleUncovered={setShowUncoveredOpenCodeModels}
+                                  detectHint={
+                                    openCodeSavedPersonalSecret ? (
+                                      <>Paste the key to check plans. A saved personal secret cannot be read back here.</>
+                                    ) : undefined
+                                  }
+                                />
+                              </div>
+                            )}
                           </div>
                         )}
                         {adapterType === "hermes_gateway" && (
