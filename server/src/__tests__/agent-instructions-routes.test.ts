@@ -117,6 +117,11 @@ function boardActor() {
   };
 }
 
+// A harness switch first checks for active runs; these tests have none.
+function noActiveRunsDb() {
+  return { select: () => ({ from: () => ({ where: async () => [] }) }) };
+}
+
 async function createApp(actor: Record<string, unknown> = boardActor(), db: Record<string, unknown> = {}) {
   const [{ agentRoutes }, { errorHandler }] = await Promise.all([
     vi.importActual<typeof import("../routes/agents.js")>("../routes/agents.js"),
@@ -631,7 +636,7 @@ describe("agent instructions bundle routes", () => {
       },
     });
 
-    const res = await requestApp(await createApp(), (baseUrl) => request(baseUrl)
+    const res = await requestApp(await createApp(boardActor(), noActiveRunsDb()), (baseUrl) => request(baseUrl)
       .patch("/api/agents/11111111-1111-4111-8111-111111111111?companyId=company-1")
       .send({
         adapterType: "claude_local",
@@ -672,7 +677,7 @@ describe("agent instructions bundle routes", () => {
       },
     });
 
-    const res = await requestApp(await createApp(), (baseUrl) => request(baseUrl)
+    const res = await requestApp(await createApp(boardActor(), noActiveRunsDb()), (baseUrl) => request(baseUrl)
       .patch("/api/agents/11111111-1111-4111-8111-111111111111?companyId=company-1")
       .send({
         adapterType: "codex_local",

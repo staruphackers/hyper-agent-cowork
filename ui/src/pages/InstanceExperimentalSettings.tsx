@@ -459,6 +459,19 @@ export function InstanceExperimentalSettings() {
         />
 
         <ExperimentalToggleCard
+          title="Runtime Profiles"
+          description="Let one agent keep several execution setups (harness, model, AI connection, environment) and switch between them from its settings page. Each profile keeps its own task sessions, so switching back resumes earlier conversations."
+          checked={enableRuntimeProfiles}
+          onCheckedChange={(checked) =>
+            toggleMutation.mutate({ enableRuntimeProfiles: checked })
+          }
+          disabled={toggleMutation.isPending}
+          settingKey="enableRuntimeProfiles"
+          managed={managedKeys.enableRuntimeProfiles}
+          ariaLabel="Toggle runtime profiles experimental setting"
+        />
+
+        <ExperimentalToggleCard
           title="Simplified English Interactions"
           description="Instruct agents to write user interactions (plan confirmations, questions, suggested tasks, checkbox prompts) in ASD-STE100 Simplified Technical English, with brief context on what information the decision needs and what happens for each choice."
           checked={enableSimplifiedEnglishInteractions}
@@ -533,19 +546,6 @@ export function InstanceExperimentalSettings() {
             ariaLabel="Toggle isolated workspaces by default experimental setting"
           />
         )}
-
-        <ExperimentalToggleCard
-          title="Runtime Profiles"
-          description="Let one agent keep several execution setups (harness, model, AI connection, environment) and switch between them from its settings page. Each profile keeps its own task sessions, so switching back resumes earlier conversations."
-          checked={enableRuntimeProfiles}
-          onCheckedChange={(checked) =>
-            toggleMutation.mutate({ enableRuntimeProfiles: checked })
-          }
-          disabled={toggleMutation.isPending}
-          settingKey="enableRuntimeProfiles"
-          managed={managedKeys.enableRuntimeProfiles}
-          ariaLabel="Toggle runtime profiles experimental setting"
-        />
       </section>
 
       {showDeveloperSection ? (
