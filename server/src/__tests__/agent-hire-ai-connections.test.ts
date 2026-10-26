@@ -232,6 +232,8 @@ describe("agent-created hires use managed AI connections", () => {
     const p = await poolFixture(f, extra);
     await db.insert(principalPermissionGrants).values({ companyId: f.companyId, principalType: "user", principalId: f.userId, permissionKey: "agents:configure" });
     await db.update(agents).set({ runtimeConfig: { aiConnection: p.binding } }).where(eq(agents.id, f.agentId));
+    // Fork: switching the harness is refused while the agent has an active run, so finish the fixture run first.
+    await db.update(heartbeatRuns).set({ status: "succeeded", finishedAt: new Date() }).where(eq(heartbeatRuns.id, f.runId));
     const response = await request(f.app).patch(`/api/agents/${f.agentId}`).send({ adapterType: "claude_local", adapterConfig: { model: "claude-sonnet-5" } });
     expect(response.status, JSON.stringify(response.body)).toBe(compatible ? 200 : 422);
     const [saved] = await db.select().from(agents).where(eq(agents.id, f.agentId));
