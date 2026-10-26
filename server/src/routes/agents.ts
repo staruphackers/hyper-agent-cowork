@@ -5730,8 +5730,8 @@ export function agentRoutes(
     }
     const nextAiConfig = (patchData.adapterConfig ?? existing.adapterConfig) as Record<string, unknown>;
     // A managed AI connection is provider-specific. When the agent moves onto a
-    // harness that no AI connection can serve (Pi, Gemini CLI, Kimi Code,
-    // Hermes, …), carrying the old binding over would make every later save
+    // harness that no AI connection can serve (Kimi Code, Hermes, …),
+    // carrying the old binding over would make every later save
     // fail with "Select an AI connection compatible…". Drop it instead and let
     // the new harness authenticate through env keys or its own CLI login.
     let droppedStaleAiBinding = false;

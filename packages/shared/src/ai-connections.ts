@@ -143,8 +143,8 @@ export function isAiConnectionCompatible(
   );
 }
 /** Whether any managed AI connection can serve this harness at all. Harnesses
- * outside every provider's adapter list (Pi, Gemini CLI, Kimi Code, Hermes, …)
- * authenticate through env keys or their own CLI login instead. */
+ * outside every provider's adapter list (Kimi Code, Hermes, …) authenticate
+ * through env keys or their own CLI login instead. */
 export function adapterSupportsAiConnections(
   adapterType: string,
   runnerProvider?: unknown,
