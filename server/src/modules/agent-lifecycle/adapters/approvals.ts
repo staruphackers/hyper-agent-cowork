@@ -3,7 +3,6 @@ import { approvals, type Db } from "@paperclipai/db";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { unprocessable } from "../../../errors.js";
 import { approvalResolutionRecords, resolvableApprovalStatuses } from "../../../lib/approval-records.js";
-import { resolveHireApprovalSnapshot } from "../../../services/hire-approval-snapshot.js";
 import { agentRecords } from "./records.js";
 import { createLifecycleStore } from "./postgres.js";
 import type { LifecycleEffects } from "./effects.js";
@@ -52,8 +51,6 @@ export function hireApprovalService(db: Db, effects: LifecycleEffects) {
           const activated = await records.activatePendingApproval(agentId, approval ? payload : null, approval ? approval.requestedByUserId : userId);
           if (!approval) applied = activated?.activated ?? false;
         } else {
-          // A payload-only hire has no frozen agent to restore masked values from.
-          resolveHireApprovalSnapshot(payload, {});
           const created = await records.create(companyId, {
             name: String(payload.name ?? "New Agent"),
             appearance: payload.appearance == null ? undefined : agentAppearanceSchema.parse(payload.appearance),

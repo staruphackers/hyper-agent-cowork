@@ -41,3 +41,24 @@ test('fails when a PR inserts a migration before the target branch tip', () => {
   assert.match(result.message, /0229_from_stale_branch\.sql/);
   assert.doesNotMatch(result.message, /- packages\/db\/src\/migrations\/0231_valid_but_after_stale\.sql/);
 });
+
+test('ignores a base migration the PR moved to a later number with identical content', () => {
+  const result = checkMigrationOrder(
+    [migration('0283_shared'), migration('0284_fork_only')],
+    [migration('0284_from_upstream'), migration('0285_from_upstream')],
+    [migration('0284_fork_only')],
+  );
+
+  assert.equal(result.passed, true);
+  assert.match(result.message, /0283_shared\.sql/);
+});
+
+test('still fails when the target branch tip was not moved', () => {
+  const result = checkMigrationOrder(
+    [migration('0283_shared'), migration('0284_fork_only')],
+    [migration('0284_from_upstream')],
+    [],
+  );
+
+  assert.equal(result.passed, false);
+});

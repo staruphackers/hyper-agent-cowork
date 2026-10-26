@@ -7,6 +7,7 @@ import { approvalComments, approvals } from "@paperclipai/db";
 import { unprocessable } from "../errors.js";
 import { redactCurrentUserText } from "../log-redaction.js";
 import { createAgentLifecycle } from "./agent-lifecycle.js";
+import { resolveHireApprovalSnapshot } from "./hire-approval-snapshot.js";
 
 import { instanceSettingsService } from "./instance-settings.js";
 
@@ -185,6 +186,11 @@ export function approvalService(db: Db) {
   async function decide(id: string, status: "approved" | "rejected", userId: string, note?: string | null) {
     const approval = await getExistingApproval(id);
     if (approval.type === "hire_agent") {
+      // A payload-only hire has no frozen agent to restore masked values from:
+      // refuse it before anything is marked approved.
+      if (status === "approved" && typeof approval.payload.agentId !== "string") {
+        resolveHireApprovalSnapshot(approval.payload, {});
+      }
       const result = await decideHire({ approvalId: id }, status, userId, note);
       return { approval: result!.approval!, applied: result!.applied };
     }
