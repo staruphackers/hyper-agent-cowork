@@ -28,10 +28,12 @@ function runShard(args) {
 
 function readTrustedPrWorkflow() {
   const caller = readFileSync(prCallerWorkflow, "utf8");
+  // Fork: pr.yml runs this repository's own pr-trusted.yml (upstream calls
+  // paperclipai/paperclip@master, which checks files the fork has not synced).
   assert.match(
     caller,
-    /^\s+uses: paperclipai\/paperclip\/\.github\/workflows\/pr-trusted\.yml@master\s*$/m,
-    "pr.yml must call the trusted workflow from CODEOWNERS-protected master",
+    /^\s+uses: (?:paperclipai\/paperclip\/\.github\/workflows\/pr-trusted\.yml@master|\.\/\.github\/workflows\/pr-trusted\.yml)\s*$/m,
+    "pr.yml must call the trusted PR workflow",
   );
   // Validate proposed workflow changes locally; CI executes the merged master version.
   return readFileSync(trustedPrWorkflow, "utf8");
