@@ -10,6 +10,8 @@
 //   - translated / untranslated / dictionary-only ("stale") counts
 //   - simplified-Chinese character leakage in the zh-TW values
 //   - {{placeholder}} consistency between key and value
+//   - terms that glossary.zh-TW.json marks as forbidden (Mainland or
+//     machine-translation wording; see GLOSSARY.zh-TW.md)
 
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -35,6 +37,10 @@ function findSimplifiedChars(text) {
     if (SIMPLIFIED_ONLY_CHARS.includes(ch)) found.add(ch);
   }
   return [...found];
+}
+
+function readGlossary() {
+  return JSON.parse(readFileSync(path.join(__dirname, "glossary.zh-TW.json"), "utf8"));
 }
 
 function interpolationTokens(text) {
@@ -88,6 +94,16 @@ function main() {
     }
   }
 
+  const glossary = readGlossary();
+  const forbidden = glossary.forbidden ?? {};
+  const allowedCompounds = glossary.allowedCompounds ?? [];
+  const forbiddenHits = [];
+  for (const [key, value] of Object.entries(zhTW)) {
+    const checked = allowedCompounds.reduce((text, word) => text.split(word).join(" "), value);
+    const terms = Object.keys(forbidden).filter((term) => checked.includes(term));
+    if (terms.length > 0) forbiddenHits.push({ key, value, terms });
+  }
+
   console.log(`Source strings: ${sourceKeys.size}`);
   console.log(`zh-TW dictionary entries: ${zhKeys.size}`);
   console.log(`Translated (present in both): ${translated.length}`);
@@ -111,7 +127,13 @@ function main() {
     console.log(`  ${JSON.stringify(m.key)}: expected ${JSON.stringify(m.expected)}, got ${JSON.stringify(m.received)}`);
   }
 
-  if (simplifiedHits.length > 0 || placeholderMismatches.length > 0) {
+  console.log(`\nForbidden glossary terms: ${forbiddenHits.length} entries`);
+  for (const hit of forbiddenHits.slice(0, 20)) {
+    const fixes = hit.terms.map((term) => `${term} → ${forbidden[term]}`).join(", ");
+    console.log(`  ${JSON.stringify(hit.key)} -> ${JSON.stringify(hit.value)} (${fixes})`);
+  }
+
+  if (simplifiedHits.length > 0 || placeholderMismatches.length > 0 || forbiddenHits.length > 0) {
     process.exitCode = 1;
   }
 }
