@@ -3,6 +3,7 @@ import { connectionIntentService } from "../services/connection-intents.js";
 import { connectionIntentDeliveryService } from "../services/connection-intent-delivery.js";
 import { issueRecoveryActionService } from "../services/issue-recovery-actions.js";
 import { localAiLoginService } from "../services/local-ai-login.js";
+import { stopAllDeviceLogins } from "../services/local-ai-device-login.js";
 // Background plan observations have their own provider-fixture coverage. Runtime
 // auth tests must not send the selected fixture credentials to a real provider.
 vi.mock("../services/subscription-refresh.js", () => ({ refreshSubscriptionConnection: vi.fn().mockResolvedValue(undefined) }));
@@ -2064,12 +2065,16 @@ console.log(JSON.stringify({ type: "result", subtype: "success", result: "hello"
     await db.insert(adapterAuthSessions).values({ id, publicSessionId: id, companyId, environmentId: environment.id, startedByUserId: owner, adapterType: provider === "anthropic" ? "claude_local" : "codex_local", aiConnection: { ...intent, agentIds: [] }, connectionMethod: "local_subscription", status: "waiting_for_user", expiresAt: new Date(Date.now() + 60_000) });
     const reader = vi.spyOn(localCredentials, "readVerifiedLocalAiCredential").mockRejectedValue(new Error("No credential yet"));
     try {
-      const login = localAiLoginService(db);
-      await expect(login.check(companyId, owner, { ...intent, agentIds: [] }, id)).resolves.toEqual({ status: "sign_in_required", error: "The server restarted during sign-in. Start sign-in again." });
+      // Fork: OpenAI signs in with the server-run device code and relaunches the CLI once after a
+      // restart; a CLI that exits without a code reports the device-login failure instead.
+      const login = localAiLoginService(db, { resolveCommand: () => ({ command: process.execPath, args: ["-e", "process.exit(1)"] }) });
+      await expect(login.check(companyId, owner, { ...intent, agentIds: [] }, id)).resolves.toEqual({ status: "sign_in_required", error: provider === "anthropic"
+        ? "The server restarted during sign-in. Start sign-in again."
+        : "The sign-in did not finish. The code may have expired or the request was declined. Start sign-in again to get a new code." });
       await expect(login.check(companyId, "bob", { ...intent, agentIds: [] }, id)).rejects.toThrow("not found");
       reader.mockResolvedValue("completed-before-restart");
       await expect(login.check(companyId, owner, { ...intent, agentIds: [] }, id)).resolves.toEqual({ status: "ready" });
-    } finally { reader.mockRestore(); await db.delete(adapterAuthSessions).where(eq(adapterAuthSessions.id, id)); }
+    } finally { reader.mockRestore(); stopAllDeviceLogins(); await db.delete(adapterAuthSessions).where(eq(adapterAuthSessions.id, id)); }
   });
   it("requires an owned browser sign-in attempt for local subscriptions", async () => {
     const reader = vi.spyOn(localCredentials, "readVerifiedLocalAiCredential").mockResolvedValue("fixture-local-token");
