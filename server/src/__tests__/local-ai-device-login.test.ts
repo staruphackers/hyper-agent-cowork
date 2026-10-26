@@ -70,7 +70,6 @@ it("runs grok sign-in on the server and returns the authorization link and code"
   vi.stubEnv("OPENAI_API_KEY", "operator-key-must-not-leak");
   const login = service("auto");
   const attempt = await login.start(companyId, owner, intent("xai"));
-  expect(attempt.deviceLogin).toEqual({ url: `https://accounts.x.ai/oauth2/device?user_code=${GROK_CODE}`, code: GROK_CODE });
   expect(attempt.command).toContain("grok login --device-auth");
   const state = deviceLoginState(attempt.sessionId)!;
   expect(state.running).toBe(true);
@@ -78,7 +77,7 @@ it("runs grok sign-in on the server and returns the authorization link and code"
   expect(await service("auto").start(companyId, owner, intent("xai"))).toEqual(attempt);
   expect(deviceLoginState(attempt.sessionId)!.pid).toBe(state.pid);
   expect(await login.check(companyId, owner, intent("xai"), attempt.sessionId)).toEqual({
-    status: "sign_in_required", deviceLogin: attempt.deviceLogin,
+    status: "sign_in_required", authorizationUrl: `https://accounts.x.ai/oauth2/device?user_code=${GROK_CODE}`, code: GROK_CODE,
   });
   const directory = path.join(resolvePaperclipInstanceRoot(), "ai-local-logins", attempt.sessionId);
   const { readFile } = await import("node:fs/promises");
@@ -96,7 +95,9 @@ it("runs grok sign-in on the server and returns the authorization link and code"
 
 it("runs codex sign-in with file credential storage and parses its colored prompt", async () => {
   const attempt = await service("auto").start(companyId, owner, intent("openai"));
-  expect(attempt.deviceLogin).toEqual({ url: "https://auth.openai.com/codex/device", code: CODEX_CODE });
+  expect(await service("auto").check(companyId, owner, intent("openai"), attempt.sessionId)).toEqual({
+    status: "sign_in_required", authorizationUrl: "https://auth.openai.com/codex/device", code: CODEX_CODE,
+  });
   const pid = deviceLoginState(attempt.sessionId)!.pid;
   await service("auto").cancel(companyId, owner, attempt.sessionId);
   await expectExited(pid);
@@ -109,11 +110,11 @@ async function readFileText(file: string) { const { readFile } = await import("n
 it("reports a failed CLI run after one automatic retry so the UI can offer a fresh sign-in", async () => {
   const login = service("fail");
   const attempt = await login.start(companyId, owner, intent("xai"));
-  expect(attempt.deviceLogin).toBeNull();
-  expect(await login.check(companyId, owner, intent("xai"), attempt.sessionId)).toEqual({ status: "sign_in_required", loginFailed: true });
+  const failed = { status: "sign_in_required", error: expect.stringContaining("did not finish") };
+  expect(await login.check(companyId, owner, intent("xai"), attempt.sessionId)).toEqual(failed);
   expect(await runsOf(attempt.sessionId)).toBe(2);
   // No endless relaunching: later checks report the failure without running the CLI again.
-  expect(await login.check(companyId, owner, intent("xai"), attempt.sessionId)).toEqual({ status: "sign_in_required", loginFailed: true });
+  expect(await login.check(companyId, owner, intent("xai"), attempt.sessionId)).toEqual(failed);
   expect(await runsOf(attempt.sessionId)).toBe(2);
   await login.cancel(companyId, owner, attempt.sessionId);
 });
@@ -126,7 +127,7 @@ it("B1: relaunches the sign-in when the server lost its process, instead of show
   stopAllDeviceLogins();
   await expectExited(firstPid);
   const status = await login.check(companyId, owner, intent("xai"), attempt.sessionId);
-  expect(status).toEqual({ status: "sign_in_required", deviceLogin: attempt.deviceLogin });
+  expect(status).toEqual({ status: "sign_in_required", authorizationUrl: `https://accounts.x.ai/oauth2/device?user_code=${GROK_CODE}`, code: GROK_CODE });
   const relaunched = deviceLoginState(attempt.sessionId)!;
   expect(relaunched.running).toBe(true);
   expect(relaunched.pid).not.toBe(firstPid);
@@ -141,7 +142,6 @@ it("does not start another sign-in for an attempt that is already signed in", as
   stopAllDeviceLogins();
   const resumed = await login.start(companyId, owner, intent("xai"));
   expect(resumed.sessionId).toBe(attempt.sessionId);
-  expect(resumed.deviceLogin).toBeNull();
   expect(deviceLoginState(attempt.sessionId)).toBeNull();
   await login.cancel(companyId, owner, attempt.sessionId);
 });
@@ -162,14 +162,13 @@ it("B2: caps simultaneous sign-in processes across the server", async () => {
   await expect(login.start(companyId, "device-owner-2", intent("xai"))).rejects.toThrow("Too many sign-ins");
   await login.cancel(companyId, owner, first.sessionId);
   const second = await login.start(companyId, "device-owner-2", intent("xai"));
-  expect(second.deviceLogin?.code).toBe(GROK_CODE);
+  expect((await login.check(companyId, "device-owner-2", intent("xai"), second.sessionId)).code).toBe(GROK_CODE);
   await login.cancel(companyId, "device-owner-2", second.sessionId);
 });
 
 it("falls back to the terminal command when no prompt appears in time", async () => {
   const login = service("silent", 200);
   const attempt = await login.start(companyId, owner, intent("xai"));
-  expect(attempt.deviceLogin).toBeNull();
   expect(attempt.command).toContain("grok login --device-auth");
   const pid = deviceLoginState(attempt.sessionId)!.pid;
   await login.cancel(companyId, owner, attempt.sessionId);
@@ -233,7 +232,7 @@ it("passes only an allow-listed environment to the sign-in CLI", async () => {
   };
   const kept = {
     LANG: "zh_TW.UTF-8", LC_ALL: "zh_TW.UTF-8", TZ: "Asia/Taipei", TMPDIR: "/tmp/x",
-    HTTPS_PROXY: "http://proxy:1", https_proxy: "http://proxy:2", NO_PROXY: "localhost", NODE_EXTRA_CA_CERTS: "/ca.pem", SSL_CERT_FILE: "/cert.pem",
+    HTTPS_PROXY: "http://proxy:1", https_proxy: "http://proxy:2", NO_PROXY: "localhost", no_proxy: "localhost", NODE_EXTRA_CA_CERTS: "/ca.pem", SSL_CERT_FILE: "/cert.pem",
   };
   for (const [key, value] of Object.entries({ ...leaked, ...kept })) vi.stubEnv(key, value);
   try {

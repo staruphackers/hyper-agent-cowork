@@ -8,11 +8,14 @@ describe("adapterSupportsAiConnections", () => {
     expect(adapterSupportsAiConnections("opencode_local")).toBe(true);
     expect(adapterSupportsAiConnections("grok_local")).toBe(true);
     expect(adapterSupportsAiConnections("paperclip_runner", "codex")).toBe(true);
+    // Pi and Gemini CLI can run on a managed provider connection (upstream #14970).
+    expect(adapterSupportsAiConnections("pi_local")).toBe(true);
+    expect(adapterSupportsAiConnections("gemini_local")).toBe(true);
     expect(adapterSupportsAiConnections("paperclip_runner", "acpx", "claude")).toBe(true);
   });
 
   it("is false for harnesses that authenticate outside managed connections", () => {
-    for (const type of ["pi_local", "gemini_local", "kimi_local", "hermes_local", "hermes_gateway", "cursor_local", "process", "http"]) {
+    for (const type of ["kimi_local", "hermes_local", "hermes_gateway", "cursor_local", "process", "http"]) {
       expect(adapterSupportsAiConnections(type)).toBe(false);
     }
     expect(adapterSupportsAiConnections("paperclip_runner", "aws_agentcore")).toBe(false);

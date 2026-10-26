@@ -104,8 +104,8 @@ describe("restoreRedactedAgentAdapterConfig", () => {
     expect(displayed.disableDeviceAuth).toBe(true);
     expect(displayed.requireAuth).toBe(false);
     expect(displayed.autoPairOnFirstConnect).toBe(true);
-    // Numbers stay hidden (they can hold a PIN) but are restored on save.
-    expect(displayed.authTimeoutMs).toBe(REDACTED_EVENT_VALUE);
+    // Secret field names match whole keys, so a timeout under an auth prefix stays visible.
+    expect(displayed.authTimeoutMs).toBe(5000);
     const { config, unresolvedPaths } = restoreRedactedAgentAdapterConfig(displayed, stored);
     expect(unresolvedPaths).toEqual([]);
     expect(config).toEqual(stored);

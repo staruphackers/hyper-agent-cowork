@@ -466,117 +466,61 @@ export function ProviderApiKeyCard({
   );
 }
 
-/** Large one-time code with a copy control, for server-run device sign-in. */
-function DeviceLoginCode({ code }: { code: string }) {
-  return (
-    <div className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3">
-      <span data-testid="device-login-code" className="min-w-0 flex-1 select-all font-mono text-2xl font-semibold tracking-widest text-foreground">
-        {code}
-      </span>
-      <LoginCardCopyButton value={code} label="Copy the code" />
-    </div>
-  );
-}
-
-function DeviceLoginStepNumber({ children }: { children: ReactNode }) {
-  return <span aria-hidden className="inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-foreground text-xs font-semibold text-background">{children}</span>;
-}
-
-/**
- * Two numbered steps for a server-run device sign-in: open the provider's
- * authorization page (the code is copied on the way), then enter or confirm the
- * code there. OpenAI asks the user to type the code; x.ai shows it and asks
- * the user to confirm it matches.
- */
-function DeviceLoginSteps({ adapterType, device }: { adapterType: string; device: { url: string; code: string } }) {
-  const [copied, setCopied] = useState<"copied" | "failed" | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(() => () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); }, []);
-  const grok = adapterType === "grok_local";
-  return (
-    <ol className="space-y-4">
-      <li className="space-y-2">
-        <p className="flex items-center gap-2 font-medium text-foreground"><DeviceLoginStepNumber>1</DeviceLoginStepNumber>Open the authorization page</p>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button asChild>
-            <a
-              href={device.url}
-              target="_blank"
-              rel="noreferrer noopener"
-              onClick={() => {
-                // The link always opens; copying is a convenience that may be refused.
-                void copyTextToClipboard(device.code).then(
-                  () => setCopied("copied"),
-                  // A refused copy is reported, never shown as a success.
-                  () => setCopied("failed"),
-                ).finally(() => {
-                  if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                  timeoutRef.current = setTimeout(() => setCopied(null), 4000);
-                });
-              }}
-            >
-              {grok ? <>Go to x.ai to approve</> : <>Go to OpenAI to approve</>}
-            </a>
-          </Button>
-          {copied === "copied" && <span role="status" className="flex items-center gap-1 text-sm text-muted-foreground"><Check className="size-4" aria-hidden />Code copied</span>}
-          {copied === "failed" && <span role="status" className="text-sm text-muted-foreground">Could not copy the code. Copy it from below.</span>}
-        </div>
-      </li>
-      <li className="space-y-2">
-        <p className="flex items-center gap-2 font-medium text-foreground">
-          <DeviceLoginStepNumber>2</DeviceLoginStepNumber>
-          {grok
-            ? <>Check that the authorization page shows the same code as below, then choose Allow</>
-            : <>Enter this code on the authorization page</>}
-        </p>
-        <DeviceLoginCode code={device.code} />
-      </li>
-    </ol>
-  );
-}
-
 /** Shared instructions for local subscription setup in every authentication host. */
 export function LocalProviderLoginInstructions({ adapterType, login }: {
   adapterType: string;
-  login?: {
-    isolated?: boolean; command?: string; preparing: boolean; status?: "ready" | "sign_in_required" | "expired" | null; error: string | null; retry: () => void;
-    deviceLogin?: { url: string; code: string } | null; loginFailed?: boolean;
-  };
+  login?: { isolated?: boolean; command?: string; authorizationUrl?: string | null; code?: string | null; submitCode?: (code: string) => Promise<void>; preparing: boolean; status?: "ready" | "sign_in_required" | "expired" | null; error: string | null; retry: () => void };
 }) {
   const [showCommand, setShowCommand] = useState(false);
+  const [browserCode, setBrowserCode] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const provider = adapterType === "claude_local" ? "Claude Code" : adapterType === "grok_local" ? "Grok CLI" : "Codex CLI";
   const isolated = login?.isolated ?? (adapterType === "codex_local" || adapterType === "grok_local");
-  const command = isolated ? login?.command : "claude auth login";
-  if (login?.preparing) return <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />Checking local {provider} sign-in…</p>;
+  const command = login?.command;
+  const browserLogin = adapterType === "claude_local" || adapterType === "codex_local" || adapterType === "grok_local";
+  async function submitBrowserCode() {
+    if (!browserCode.trim() || !login?.submitCode || submitting) return;
+    setSubmitting(true);
+    try {
+      await login.submitCode(browserCode.trim());
+      setBrowserCode("");
+    } catch {
+      // The login hook presents the request error beside the sign-in card.
+    } finally {
+      setSubmitting(false);
+    }
+  }
+  if (login?.preparing) return <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" />Preparing sign-in…</p>;
   const ready = login?.status === "ready";
-  const commandBlock = command && <div className="flex min-w-0 max-w-full items-start gap-2 rounded-md border bg-muted p-3 text-foreground">
-    <pre className="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-xs"><code>{command}</code></pre>
-    <LoginCardCopyButton value={command} label="Copy sign-in command" />
-  </div>;
-  const device = !ready && !login?.error && !login?.loginFailed ? login?.deviceLogin : null;
-  if (device) return <div className="min-w-0 max-w-full space-y-3 text-sm text-muted-foreground">
-    <DeviceLoginSteps adapterType={adapterType} device={device} />
-    <p role="status" className="flex items-center gap-2"><Loader2 className="size-4 shrink-0 animate-spin" />Waiting for you to choose Allow in your browser… We’ll detect it automatically when you’re done.</p>
-    <details className="min-w-0 max-w-full">
-      <summary className="cursor-pointer underline-offset-4 hover:underline">Advanced: sign in from a terminal instead</summary>
-      <div className="mt-2 space-y-2">
-        <p>Run this in a terminal on the machine running Paperclip, as the same user that runs Paperclip.</p>
-        {commandBlock}
-      </div>
-    </details>
-    <button type="button" className="underline underline-offset-4" onClick={login!.retry}>Start sign-in again</button>
-  </div>;
   return <div className="min-w-0 max-w-full space-y-3 text-sm text-muted-foreground">
     {ready ? <>
       <p role="status" className="flex items-center gap-2 text-foreground"><Check className="size-4 shrink-0 text-(--status-task-icon-done)" />{provider} is signed in. Click Connect to use this account.</p>
-      {!showCommand && <button type="button" className="underline underline-offset-4" onClick={() => setShowCommand(true)}>Use a different account</button>}
-    </> : <p>{isolated ? `Sign in to ${provider} for this connection on the machine running Paperclip. Your existing terminal login stays separate.` : `Connect uses your local ${provider} account on the machine running Paperclip.`}</p>}
-    {login?.loginFailed && !ready && <p role="alert" className="text-foreground">The sign-in did not finish. The code may have expired or the request was declined. Start sign-in again to get a new code.</p>}
-    {(!ready || showCommand) && !login?.error && !login?.loginFailed && <>
+      {!showCommand && <button type="button" className="underline underline-offset-4" onClick={() => browserLogin ? login?.retry() : setShowCommand(true)}>Use a different account</button>}
+    </> : !browserLogin && <p>{isolated ? `Sign in to ${provider} for this connection on the machine running Paperclip. Your existing terminal login stays separate.` : `Connect uses your local ${provider} account on the machine running Paperclip.`}</p>}
+    {browserLogin && !ready && !login?.authorizationUrl && !login?.error && <p role="status">Preparing browser sign-in…</p>}
+    {browserLogin && !ready && !login?.error && login?.authorizationUrl && <ProviderSubscriptionCard
+      providerName={connectSourceName(adapterType)}
+      authorizationUrl={login.authorizationUrl}
+      mode={adapterType === "claude_local" ? "submitted_code" : "displayed_code"}
+    >
+      {adapterType === "claude_local" ? <div className="flex flex-col gap-2">
+        <OnboardingCardField
+          value={browserCode}
+          onChange={setBrowserCode}
+          onSubmit={() => void submitBrowserCode()}
+          disabled={submitting}
+        />
+        <Button type="button" disabled={!browserCode.trim() || submitting} onClick={() => void submitBrowserCode()}>Submit code</Button>
+      </div> : <OnboardingLoginCodeRow code={login.code ?? ""} />}
+    </ProviderSubscriptionCard>}
+    {!browserLogin && (!ready || showCommand) && !login?.error && <>
       <p>Run this in a terminal on that machine and finish signing in in your browser. We’ll check automatically when you return.</p>
-      {commandBlock}
+      {command && <div className="flex min-w-0 max-w-full items-start gap-2 rounded-md border bg-muted p-3 text-foreground">
+        <pre className="min-w-0 flex-1 whitespace-pre-wrap break-all font-mono text-xs"><code>{command}</code></pre>
+        <LoginCardCopyButton value={command} label="Copy sign-in command" />
+      </div>}
     </>}
     {login?.error && <p role="alert">{login.error}</p>}
-    {login && !login.preparing && (isolated || login.error) && <button type="button" className="underline underline-offset-4" onClick={login.retry}>{isolated ? "Start sign-in again" : "Check again"}</button>}
+    {login && !login.preparing && !ready && (isolated || login.error) && <button type="button" className="underline underline-offset-4" onClick={login.retry}>{isolated ? "Start sign-in again" : "Check again"}</button>}
   </div>;
 }

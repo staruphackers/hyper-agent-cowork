@@ -14,7 +14,12 @@ function formatMigrationNumber(number) {
   return String(number).padStart(4, '0');
 }
 
-export function checkMigrationOrder(baseMigrationFiles, prMigrationFiles) {
+// Fork: an upstream sync may move a fork migration to a later number so the
+// upstream migrations can keep theirs. A base migration whose exact content
+// (same git blob) still exists in the PR head under another number is "moved"
+// and does not count as the target branch tip. Applied databases recognise the
+// moved file by its unchanged content hash.
+export function checkMigrationOrder(baseMigrationFiles, prMigrationFiles, movedBaseMigrationFiles = []) {
   const invalidFiles = [...baseMigrationFiles, ...prMigrationFiles]
     .filter((file) => !parseMigration(file));
 
@@ -32,7 +37,8 @@ export function checkMigrationOrder(baseMigrationFiles, prMigrationFiles) {
     return { passed: true, message: 'No new migrations in this PR.' };
   }
 
-  const baseMigrations = baseMigrationFiles.map(parseMigration);
+  const moved = new Set(movedBaseMigrationFiles);
+  const baseMigrations = baseMigrationFiles.filter((file) => !moved.has(file)).map(parseMigration);
   const prMigrations = prMigrationFiles.map(parseMigration);
   const latestBaseMigration = baseMigrations.reduce(
     (latest, migration) => migration.number > latest.number ? migration : latest,
@@ -93,7 +99,18 @@ function main() {
     'diff', '--name-only', '--diff-filter=A', '-z', `${baseSha}...${headSha}`, '--',
     MIGRATIONS_DIRECTORY,
   ]).filter((file) => file.endsWith('.sql'));
-  const result = checkMigrationOrder(baseMigrationFiles, prMigrationFiles);
+  const blobsIn = (sha) => new Map(execFileSync('git', ['ls-tree', '-r', '-z', sha, '--', MIGRATIONS_DIRECTORY], { encoding: 'utf8' })
+    .split('\0').filter(Boolean)
+    .map((line) => { const [meta, file] = line.split('\t'); return [file, meta.split(' ')[2]]; })
+    .filter(([file]) => file.endsWith('.sql')));
+  const baseBlobs = blobsIn(baseSha);
+  const headBlobs = blobsIn(headSha);
+  const headBlobSet = new Set(headBlobs.values());
+  const movedBaseMigrationFiles = [...baseBlobs]
+    .filter(([file, blob]) => !headBlobs.has(file) && headBlobSet.has(blob))
+    .map(([file]) => file);
+  for (const file of movedBaseMigrationFiles) console.log(`Moved with identical content: ${file}`);
+  const result = checkMigrationOrder(baseMigrationFiles, prMigrationFiles, movedBaseMigrationFiles);
 
   if (result.passed) {
     console.log(result.message);
