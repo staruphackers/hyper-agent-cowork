@@ -15,7 +15,8 @@ import {
 } from "@paperclipai/shared";
 import { conflict, notFound, unprocessable } from "../errors.js";
 
-type AgentRow = typeof agents.$inferSelect;
+// The agent read model omits internal lifecycle bookkeeping columns.
+type AgentRow = Omit<typeof agents.$inferSelect, "lifecycleOperation" | "lifecycleRequiredPluginIds">;
 type ProfileRow = typeof agentRuntimeProfiles.$inferSelect;
 
 /** Sessions of an agent without runtime profiles live under the empty key. */

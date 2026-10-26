@@ -43,5 +43,5 @@ it("uses reconnect wording for API keys and hides the button for read-only viewe
 it("shows no warning for a connected account", () => {
   render(account());
   expect(host.querySelector('[role="alert"]')).toBeNull();
-  expect(host.textContent).toContain("Your default");
+  expect(host.textContent).toContain("Personal default");
 });
