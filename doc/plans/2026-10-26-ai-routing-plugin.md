@@ -48,7 +48,7 @@
 
 ## 4. 外掛設計（第一階段）
 
-套件：`packages/plugins/plugin-hac-router`（以 `examples/plugin-hello-world-example` 為骨架）。
+位置：**私有 repo**（例如 `staruphackers/hac-private-plugins`），不放在公開發行版（2026-10-26 拍板，見 `doc/zh-TW/REPO-BOUNDARY.md`）。以公開 repo 的 `packages/plugins/examples/plugin-hello-world-example` 為骨架，透過 git submodule 使用固定版本的 SDK；部署時把建置結果複製進資料 volume，再用絕對路徑安裝。
 
 Manifest：
 
@@ -84,7 +84,7 @@ Manifest：
 |---|---|---|
 | P2-0 | S3 staging 確認 Paperclip Runner 能跑，並在 staging 用 API 打開 `enableAiConnectionRouters` | Kimi 0.5 天 |
 | P2-1 | 外掛骨架、manifest、設定驗證、輪替與規則選擇；單元測試（規則比對、門檻跳過、exhausted） | 2 天 |
-| P2-2 | 整合測試：沿用 `server/src/__tests__/ai-connection-router.test.ts` 的測試資料，裝外掛跑真正的分配與釘選；測試「執行設定檔＋池」同時開 | 1.5 天 |
+| P2-2 | 整合測試：外掛的選擇邏輯在私有 repo 用 SDK testing 測；「執行設定檔＋池」同時開的 core 行為放在公開 repo，沿用 `server/src/__tests__/ai-connection-router.test.ts` 的測試資料 | 1.5 天 |
 | P2-3 | zh-TW 指南與外掛設定頁說明；版本說明 | 0.5 天 |
 | P2-4 | staging 實測：兩個你自己的帳號，各跑 3 個任務，確認分配、釘選、額度用完的等待行為 | Kimi 0.5 天 |
 | P2-S（與 P2-1 並行） | 安全的連線池與環境變數管理（第 11 節） | 2 天＋Kimi 0.5 天 |
@@ -115,6 +115,7 @@ Manifest：
 1. **第一階段不做任務中途換帳號**：同意。長期要做，但做法是「代班」：原本的代理人保有完整工作記憶與執行框架，額度用完時才由別的成員暫時接手，接手前後都有交接紀錄（第 10 節，P2-5）。
 2. **帳號類型**：個人訂閱與 API key 都要支援。Kimi 的用法是每家廠商一個個人訂閱帳號（例如 Codex、Grok），綁一個固定的職務代理人；用 API key 的才建立多個代理人（例如 OpenCode Go、Claude Code）。同時要建立更安全的連線池與環境變數管理（第 11 節，P2-S）。
 3. **規則**：第一階段只做優先順序、標籤、預算使用率三種；之後依實際數據逐步優化（第 12 節）。
+4. **repo 分工**：公開發行版＋私有外掛 repo。路由外掛與含帳號用法、商業判斷的後續計畫放私有 repo；通用的 core 修正和文件留在公開 repo（`doc/zh-TW/REPO-BOUNDARY.md`）。
 
 ## 9. 成本
 
